@@ -1,0 +1,16 @@
+model:
+  model_path: "./outputs/math-lora-merged"
+  quantization: "int4"
+  dtype: "float16"
+  max_model_len: 4096
+  gpu_memory_utilization: 0.9
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  max_concurrent_requests: 32
+
+generation:
+  temperature: 0.7
+  top_p: 0.9
+  max_tokens: 2048
