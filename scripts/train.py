@@ -201,7 +201,6 @@ def _training_arguments(training: dict[str, Any], output_dir: Path, use_bf16: bo
         "per_device_eval_batch_size": int(training.get("per_device_eval_batch_size", 1)),
         "gradient_accumulation_steps": int(training.get("gradient_accumulation_steps", 8)),
         "learning_rate": float(training.get("learning_rate", 2e-4)),
-        "warmup_ratio": float(training.get("warmup_ratio", 0.03)),
         "logging_steps": int(training.get("logging_steps", 5)),
         "save_steps": int(training.get("save_steps", 100)),
         "eval_steps": int(training.get("eval_steps", training.get("save_steps", 100))),
@@ -217,6 +216,18 @@ def _training_arguments(training: dict[str, Any], output_dir: Path, use_bf16: bo
         "bf16": bool(use_bf16 and cuda_available),
         "fp16": bool(cuda_available and not use_bf16),
     }
+    warmup_ratio = float(training.get("warmup_ratio", 0.03))
+    if _supports_argument(TrainingArguments, "warmup_ratio"):
+        kwargs["warmup_ratio"] = warmup_ratio
+    elif _supports_argument(TrainingArguments, "warmup_steps"):
+        # Transformers 5.x removed ``warmup_ratio`` from TrainingArguments.
+        # Keep the run compatible; callers may provide an explicit step count
+        # when using that API variant.
+        kwargs["warmup_steps"] = int(training.get("warmup_steps", 0))
+        print(
+            "Warning: this Transformers version does not support warmup_ratio; "
+            f"using warmup_steps={kwargs['warmup_steps']}."
+        )
     strategy_name = (
         "eval_strategy"
         if _supports_argument(TrainingArguments, "eval_strategy")
