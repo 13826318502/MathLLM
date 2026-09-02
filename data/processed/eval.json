@@ -1,0 +1,162 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "Find the area in square feet of a square with a perimeter of 32ft."
+      },
+      {
+        "role": "assistant",
+        "content": "If the perimeter of the square is $32$ feet, then the length of each side is $\\frac{32}{4}=8$ feet. That makes the area of the square $8^2=\\boxed{64}$ square feet.\n\n**最终答案**\n\n$64$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "Square ABCD has its center at $(8,-8)$ and has an area of 4 square units. The top side of the square is horizontal. The square is then dilated with the dilation center at (0,0) and a scale factor of 2. What are the coordinates of the vertex of the image of square ABCD that is farthest from the origin? Give your answer as an ordered pair."
+      },
+      {
+        "role": "assistant",
+        "content": "With the center of dilation at the origin and a scale factor of 2, all the coordinates of square $ABCD$ are twice the coordinates of its preimage. The preimage has an area of 4 square units, so its side length is 2 units. Since the center of the preimage is at $(8, -8)$, the four vertices of the preimage are at $(7, -9), (7, -7), (9, -7)$ and $(9, -9)$. The point $(9, -9)$ is the farthest from the origin on the preimage, so the point farthest from the origin on the image of square $ABCD$ is $\\boxed{(18, -18)}.$\n\n**最终答案**\n\n$(18, -18)$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "In a truck, there are 26 pink hard hats, 15 green hard hats, and 24 yellow hard hats. If Carl takes away 4 pink hard hats, and John takes away 6 pink hard hats and twice as many green hard hats as the number of pink hard hats that he removed, then calculate the total number of hard hats that remained in the truck."
+      },
+      {
+        "role": "assistant",
+        "content": "If there were 26 pink hard hats and Carl took away 4 pink hard hats, the number of pink hard hats that remained is $26-4=22$\nJohn also took away 6 pink hard hats, leaving $22-6=16$ pink hard hats in the truck.\nIf John also took twice as many green hard hats as pink hard hats, he took $6\\times 2=12$ green hard hats.\nThe total number of green hard hats that remained in the truck is $15-12=3$\nIn the truck, after some are taken, there were 3 green hard hats + 16 pink hard hats = $3+16=19$ hard hats in the truck.\nAltogether, 19 green and pink hard hats + 24 yellow hards hats = $19+24=43$ hard hats remained in the truck\n\n**最终答案**\n\n$43$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "求曲线 $y=x^2$ 在点 $(1,1)$ 处的切线方程"
+      },
+      {
+        "role": "assistant",
+        "content": "曲线的导数为 $y'=2x$,所以在 $x=1$ 处的切线斜率为 $2$。使用点斜式 $y-1=2(x-1)$,化简得到 $y=2x-1$。\n\n**最终答案**\n\n切线方程为 $y=2x-1$。"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "Betty is saving money for a new wallet which costs $100. Betty has only half of the money she needs. Her parents decided to give her $15 for that purpose, and her grandparents twice as much as her parents. How much more money does Betty need to buy the wallet?"
+      },
+      {
+        "role": "assistant",
+        "content": "In the beginning, Betty has only $\\frac{100}{2}=50$.\nBetty's grandparents gave her $15\\times 2=30$.\nThis means, Betty needs $100-50-30-15=5$ more.\n\n**最终答案**\n\n$5$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "计算组合数 $\\binom52$"
+      },
+      {
+        "role": "assistant",
+        "content": "根据组合数公式,$\\binom52=\\frac{5!}{2!3!}=\\frac{5\\times4}{2\\times1}=10$。\n\n**最终答案**\n\n$\\binom52=10$。"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "求级数 $\\sum_{n=1}^{\\infty}\\frac{1}{2^n}$ 的和"
+      },
+      {
+        "role": "assistant",
+        "content": "这是首项为 $\\frac12$、公比为 $\\frac12$ 的无穷等比级数。由于公比的绝对值小于 $1$,级数收敛,和为 $S=\\frac{a_1}{1-q}=\\frac{1/2}{1-1/2}=1$。\n\n**最终答案**\n\n级数的和为 $1$。"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "If $AAA_4$ can be expressed as $33_b$, where $A$ is a digit in base 4 and $b$ is a base greater than 5, what is the smallest possible sum $A+b$?"
+      },
+      {
+        "role": "assistant",
+        "content": "We can rewrite $AAA_4$ and $33_b$ to get \\begin{align*}\n16A+4A+A&=3b+3\\quad\\Rightarrow\\\\\n21A&=3b+3.\n\\end{align*}The smallest possible value for $A$ is 1, which gives us $21=3b+3$ and $b=6$. So the smallest sum $A+b=\\boxed{7}$. While there are other values for $A$ and $b$ that work, increasing $A$ will increase $b$, resulting in a larger sum.\n\n**最终答案**\n\n$7$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "求矩阵 $A=\\begin{pmatrix}1&2\\\\2&4\\end{pmatrix}$ 的秩"
+      },
+      {
+        "role": "assistant",
+        "content": "第二行是第一行的 $2$ 倍,因此矩阵的两行线性相关。第一行不为零,所以矩阵至少有一个非零行,故其秩为 $1$。\n\n**最终答案**\n\n矩阵的秩为 $1$。"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案"
+      },
+      {
+        "role": "user",
+        "content": "What is the base-ten number represented by the base-eight number 31?"
+      },
+      {
+        "role": "assistant",
+        "content": "$31_8=3\\cdot8^1+1\\cdot8^0=\\boxed{25}$.\n\n**最终答案**\n\n$25$"
+      }
+    ]
+  }
+]

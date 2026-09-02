@@ -1,0 +1,48 @@
+# Controlled, one-variable-at-a-time ablation plan.
+# The runner uses the same train/eval files and seed for every experiment.
+
+base_config: configs/train_config.yaml
+seed: 42
+output_dir: eval/results/ablation
+
+data:
+  train_file: data/processed/train.json
+  eval_file: data/processed/eval.json
+
+runner:
+  command: llamafactory-cli
+  timeout_seconds: null
+  # Optional. Leave null until eval/evaluate.py exposes a working evaluator.
+  # The command may use {model_dir}, {eval_file}, {output_dir}, {experiment_id}.
+  evaluation_command: null
+
+baseline:
+  lora_r: 16
+  learning_rate: 0.0002
+  num_train_epochs: 3
+  data_size: full
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  logging_steps: 5
+  save_steps: 5
+  save_total_limit: 3
+  per_device_eval_batch_size: 1
+  eval_steps: 5
+  gradient_checkpointing: true
+
+experiments:
+  - name: rank
+    parameter: lora_r
+    values: [4, 8, 16, 32]
+
+  - name: learning_rate
+    parameter: learning_rate
+    values: [0.0001, 0.0002, 0.0005]
+
+  - name: data_size
+    parameter: data_size
+    values: [100, 200, 500, 1000, 2000]
+
+  - name: epochs
+    parameter: num_train_epochs
+    values: [1, 2, 3, 5]
