@@ -161,10 +161,16 @@ max_seq_length: 2048
 
 ### 启动方式
 
-项目文档推荐使用 LLaMA-Factory：
+项目现在提供两种训练入口。自定义训练脚本已经实现，基线训练优先使用：
 
 ```bash
-llamafactory-cli train configs/train_config.yaml
+python scripts/train.py --config configs/train_config.yaml
+```
+
+消融脚本会根据 `configs/ablation.yaml` 自动生成 LLaMA-Factory 配置，因此消融实验仍使用 LLaMA-Factory：
+
+```bash
+python eval/ablation.py --config configs/ablation.yaml --groups rank
 ```
 
 需要检查：
@@ -176,7 +182,7 @@ llamafactory-cli train configs/train_config.yaml
 - 是否生成 checkpoint；
 - train loss 是否有正常数值并开始下降。
 
-当前 `scripts/train.py` 仍包含多个 `TODO`，不能假设直接运行该脚本就能完成训练。优先使用 LLaMA-Factory，除非你已经补全并测试了自定义脚本。
+自定义训练脚本会读取嵌套项目配置、应用 Qwen chat template、挂载 LoRA，并把 adapter 保存到 `training.output_dir`。正式训练前仍需在云 GPU 上完成小规模试跑，确认当前 Transformers/TRL/PEFT 版本兼容。
 
 ## 6. 第三天：完整 LoRA 基线训练
 
@@ -382,7 +388,7 @@ vLLM 是否启动成功：
 - 不要在量化模型未经测试时宣称精度没有下降；
 - 不要把 QLoRA 的 NF4 checkpoint 当成 AWQ 模型部署；
 - 不要同时做 rank、学习率、数据量等多项消融，消融安排在第四周；
-- 不要在当前未实现的 TODO 脚本上直接假设流程已经可用。
+- 不要在没有完成云 GPU 小规模试跑前直接假设完整训练流程已经可用。
 
 ## 12. 第二周验收标准
 
@@ -409,4 +415,3 @@ vLLM 是否启动成功：
 - [LoRA 合并脚本](../../scripts/merge_lora.py)
 - [量化脚本](../../scripts/quantize.py)
 - [vLLM 启动脚本](../../deploy/server.py)
-

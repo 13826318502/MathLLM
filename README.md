@@ -13,7 +13,7 @@ MathLLM 是一个面向大学数学解题场景的端到端大模型项目，计
 | 训练数据 | 已生成 | 当前 `train.json` 89 条，`eval.json` 10 条 |
 | 基座模型 | 已下载 | Qwen2.5-7B-Instruct，4 个 Safetensors 权重分片，约 14.19 GiB |
 | 训练配置 | 已配置 | 使用本地模型目录和 LoRA 参数 |
-| LoRA 训练 | 待实现 | `scripts/train.py` 中模型加载和训练流程仍有 TODO |
+| LoRA 训练 | 已实现，待云 GPU 验证 | `scripts/train.py` 已实现模型加载、ChatML 处理、LoRA 挂载和 SFT 训练 |
 | LoRA 合并 | 待实现 | `scripts/merge_lora.py` 中的合并逻辑仍有 TODO |
 | INT4 量化 | 待实现 | `scripts/quantize.py` 中的量化逻辑仍有 TODO |
 | vLLM 部署 | 待验证 | `deploy/server.py` 已提供启动器，但需要先得到可用模型 |
@@ -154,13 +154,15 @@ lora_alpha: 32
 lora_dropout: 0.05
 ```
 
-注意：当前 `scripts/train.py` 仍未完成模型加载、LoRA 配置和 Trainer 创建，因此暂时不能把下面的命令视为已验证的完整训练流程：
+当前 `scripts/train.py` 已实现基于 Transformers + PEFT + TRL 的 LoRA SFT 训练流程。训练需要在有 CUDA GPU 的云服务器上运行：
 
 ```bash
 python scripts/train.py
 ```
 
-下一步需要先补全训练代码，或把配置转换为当前版本 LLaMA-Factory 要求的格式后再进行小规模试跑。
+脚本会读取 `messages` 数据并应用 Qwen chat template，默认使用标准 LoRA（基座模型以 BF16/FP16 加载并冻结），训练完成后把 adapter 保存到 `outputs/math-lora/`。如果显存不足，可在 `configs/train_config.yaml` 的 `training` 下设置 `use_4bit: true`，切换为 QLoRA。
+
+建议先用 1 个 epoch、batch size 1 做小规模试跑；确认 Loss、checkpoint 和 adapter 文件正常后，再恢复正式配置。
 
 ### 5. 模型合并、量化和部署
 
