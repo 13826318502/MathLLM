@@ -9,6 +9,7 @@ build/
 *.bin
 *.safetensors
 *.gguf
+models/
 checkpoints/
 outputs/
 lora_weights/

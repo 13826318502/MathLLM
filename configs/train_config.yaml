@@ -1,4 +1,4 @@
-model_name_or_path: "Qwen/Qwen2.5-7B-Instruct"
+model_name_or_path: "./models/Qwen2.5-7B-Instruct-modelscope"
 
 lora:
   r: 16
