@@ -82,3 +82,43 @@ python eval/evaluate.py \
   --eval_data data/eval/regression/regression.json \
   --output eval/results/regression
 ```
+
+## 使用独立大模型进行语义评测
+
+`evaluate.py` 不删除也不替换。它继续负责调用被测模型、记录答案、请求错误和延迟，并提供确定性基础判定。`llm_judge.py` 是第二阶段评测器，使用另一个 OpenAI 兼容接口判断数学语义，并输出 `correct`、`incorrect` 或 `uncertain`。
+
+先准备环境变量（也可以直接使用命令行参数）：
+
+```bash
+export JUDGE_BASE_URL="https://api.example.com/v1"
+export JUDGE_MODEL="your-judge-model-name"
+export JUDGE_API_KEY="your-api-key"
+```
+
+然后使用同一轮 `evaluate.py` 产生的结果：
+
+```bash
+python eval/llm_judge.py \
+  --details eval/results/smoke-merged-final/details.json \
+  --eval-data data/processed/eval.json \
+  --output eval/results/smoke-merged-final/llm-judge
+```
+
+也可以显式指定接口和模型：
+
+```bash
+python eval/llm_judge.py \
+  --details eval/results/smoke-merged-final/details.json \
+  --eval-data data/processed/eval.json \
+  --output eval/results/smoke-merged-final/llm-judge \
+  --judge-endpoint "https://api.example.com/v1" \
+  --judge-model "your-judge-model-name"
+```
+
+输出文件：
+
+- `llm_judged_details.json`：每道题的评测标签、置信度、错误类型和简短理由；
+- `llm_judged_report.json`：汇总准确率和 `uncertain` 比例；
+- `llm_judged_bad_cases.json`：所有错误和不确定样本，供人工复核。
+
+评测模型不能使用被测模型自身，推荐使用独立且能力更强的模型，并将温度固定为 0。当前 10 条冒烟数据应全部人工核查；正式数据可全量复核 `incorrect`/`uncertain`，再分层抽查一部分 `correct`。
