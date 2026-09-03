@@ -50,6 +50,37 @@ vLLM OpenAI 兼容接口
 | vLLM 部署 | 已实现启动器 | `deploy/server.py` 可启动 OpenAI 兼容服务 |
 | Web 应用 | 开发中 | FastAPI/Gradio 仍需联调 |
 
+## 最近一次完整训练与评测记录（2026-09-03）
+
+本次使用云端 RTX 4090D 进行了从训练到测试的完整链路验证：
+
+| 项目 | 结果 |
+|---|---:|
+| 训练样本 | 944 |
+| 验证样本 | 105 |
+| 训练配置 | 3 epochs、QLoRA 4-bit、batch size 1、gradient accumulation 8 |
+| 优化步数 | 354 |
+| 最优 checkpoint | `outputs/math-lora/checkpoint-115` |
+| 最优验证损失 | `0.2261200845` |
+| 最终训练损失 | `0.2225737757` |
+| 最终验证损失 | `0.2527795136` |
+| 独立测试样本 | 116 |
+| 测试正确数 | 65 |
+| 测试错误数 | 51 |
+| 数学准确率 | `56.03%` |
+| 平均总延迟 | `3338.56 ms` |
+| 平均首 token 延迟 | `62.32 ms` |
+
+本次已将 `checkpoint-115` 与基座模型合并，合并模型位于云端
+`outputs/math-lora-merged/`，并通过 vLLM 成功启动服务。独立测试结果位于云端
+`eval/results/final-test/`，结果压缩包为 `outputs/final-test-results-20260903.zip`，
+已下载到本地保存。
+
+本次链路结论：模型加载、QLoRA 训练、checkpoint 保存、LoRA 合并、vLLM 服务和
+116 条测试请求均正常完成，接口失败数为 0。准确率仍只有 `56.03%`，说明当前
+模型效果不足以作为正式版本；下一步应人工复核 `bad_cases.json`，区分真实数学
+错误、答案抽取失败和格式误判，再扩大或优化训练数据后重新比较。
+
 ## 环境安装
 
 本地 CPU 环境可以完成数据处理和代码检查。训练、LoRA 合并、量化和 vLLM
@@ -498,3 +529,5 @@ git pull origin main
 - [INT4 量化原理](docs/learning/int4-quantization.md)
 - [vLLM PagedAttention](docs/learning/vllm-pagedattention.md)
 - [消融实验方法](docs/learning/ablation-study.md)
+- [LoRA/QLoRA Checkpoint 文件说明](docs/learning/checkpoint-anatomy.md)
+- [大模型知识文档](docs/learning/llm-knowledge-guide.md)
