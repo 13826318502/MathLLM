@@ -33,7 +33,9 @@ DEFAULT_SYSTEM_PROMPT = (
     "1. 先分析题目要求\n"
     "2. 给出详细的解题步骤\n"
     "3. 用 LaTeX 格式书写数学公式\n"
-    "4. 最后给出明确的答案"
+    "4. 最后给出明确的答案\n"
+    "5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n"
+    "6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
 )
 FINAL_MARKERS = (
     "**最终答案**", "最终答案：", "最终答案:", "Final Answer:",
@@ -45,6 +47,10 @@ NUMBER_PATTERN = re.compile(
 LATEX_FRACTION_PATTERN = re.compile(
     r"\\frac\s*\{\s*([^{}]+?)\s*\}\s*\{\s*([^{}]+?)\s*\}"
 )
+LATEX_BINOM_BRACED_PATTERN = re.compile(
+    r"\\binom\s*\{\s*([^{}]+?)\s*\}\s*\{\s*([^{}]+?)\s*\}"
+)
+LATEX_BINOM_COMPACT_PATTERN = re.compile(r"\\binom\s*([0-9])\s*([0-9])")
 WHITESPACE_PATTERN = re.compile(r"\s+")
 
 
@@ -152,11 +158,19 @@ def _messages_for_item(item: dict[str, Any]) -> tuple[str, list[dict[str, str]],
         raise ValueError("评测样本缺少 user 题目")
     if not assistants or not assistants[-1].get("content"):
         raise ValueError("评测样本缺少 assistant 标准答案")
-    prompt_messages = [
-        {"role": str(message["role"]), "content": str(message["content"])}
-        for message in messages
-        if message.get("role") in {"system", "user"}
-    ]
+    prompt_messages: list[dict[str, str]] = []
+    has_system_prompt = False
+    for message in messages:
+        role = message.get("role")
+        if role == "system":
+            # Keep evaluation runs reproducible even when eval.json was
+            # generated with an older system prompt.
+            prompt_messages.append({"role": "system", "content": DEFAULT_SYSTEM_PROMPT})
+            has_system_prompt = True
+        elif role == "user":
+            prompt_messages.append({"role": "user", "content": str(message["content"])})
+    if not has_system_prompt:
+        prompt_messages.insert(0, {"role": "system", "content": DEFAULT_SYSTEM_PROMPT})
     return str(user["content"]), prompt_messages, str(assistants[-1]["content"])
 
 
@@ -226,7 +240,18 @@ def call_model(
 
 
 def _clean_answer(text: str) -> str:
-    value = str(text or "").replace("\\boxed", "")
+    value = str(text or "")
+    # Canonicalize common equivalent LaTeX forms before exact/numeric matching.
+    # For example, \binom52 and \binom{5}{2} both become C(5,2).
+    value = LATEX_BINOM_BRACED_PATTERN.sub(
+        lambda match: f"C({match.group(1)},{match.group(2)})", value
+    )
+    value = LATEX_BINOM_COMPACT_PATTERN.sub(
+        lambda match: f"C({match.group(1)},{match.group(2)})", value
+    )
+    value = re.sub(r"\\boxed\s*\{([^{}]*)\}", r"\1", value)
+    value = value.replace("\\left", "").replace("\\right", "")
+    value = value.replace("\\,", "").replace("\\!", "")
     value = value.replace("（", "(").replace("）", ")").replace("，", ",").replace("：", ":")
     value = WHITESPACE_PATTERN.sub("", value)
     return value.strip("$`。.!！;,；:")
