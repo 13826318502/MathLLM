@@ -31,6 +31,11 @@ from transformers import (
 )
 from trl import SFTConfig, SFTTrainer
 
+try:
+    from loss_curve import export_loss_history
+except ModuleNotFoundError:  # supports ``import scripts.train`` from project root
+    from scripts.loss_curve import export_loss_history
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -361,7 +366,17 @@ def train(config_path: str = "configs/train_config.yaml") -> Path:
     trainer.save_model(str(output_dir))
     tokenizer.save_pretrained(str(output_dir))
     trainer.save_state()
-    _save_json(output_dir / "train_results.json", train_result.metrics)
+    loss_summary = export_loss_history(
+        output_dir / "trainer_state.json",
+        output_dir,
+        train_metrics=train_result.metrics,
+    )
+    train_metrics = dict(train_result.metrics)
+    if loss_summary.get("eval_loss") is not None:
+        train_metrics["eval_loss"] = loss_summary["eval_loss"]
+    if loss_summary.get("best_eval_loss") is not None:
+        train_metrics["best_eval_loss"] = loss_summary["best_eval_loss"]
+    _save_json(output_dir / "train_results.json", train_metrics)
     _save_json(
         output_dir / "run_config.json",
         {
