@@ -2,7 +2,7 @@
 
 MathLLM 是一个面向大学数学解题场景的端到端大模型项目，计划基于 **Qwen2.5-7B-Instruct**，通过 LoRA 进行数学领域适配，并完成数据准备、训练、模型合并、量化、部署、应用和评测。
 
-当前项目已完成数据处理管道和基座模型准备，正在进入 LoRA 训练阶段。训练、模型合并、量化、推理服务和评测代码仍需要继续实现和验证。
+当前项目已完成数据处理管道、基座模型准备和 LoRA 训练试跑。下一阶段是扩大数据集、完成正式训练，并继续实现模型合并、量化、部署、应用和评测。
 
 ## 当前进展
 
@@ -13,12 +13,27 @@ MathLLM 是一个面向大学数学解题场景的端到端大模型项目，计
 | 训练数据 | 已生成 | 当前 `train.json` 89 条，`eval.json` 10 条 |
 | 基座模型 | 已下载 | Qwen2.5-7B-Instruct，4 个 Safetensors 权重分片，约 14.19 GiB |
 | 训练配置 | 已配置 | 使用本地模型目录和 LoRA 参数 |
-| LoRA 训练 | 已实现，待云 GPU 验证 | `scripts/train.py` 已实现模型加载、ChatML 处理、LoRA 挂载和 SFT 训练 |
+| LoRA 训练 | 已实现并完成云 GPU 试跑 | `scripts/train.py` 已实现模型加载、ChatML 处理、LoRA/QLoRA 挂载和 SFT 训练 |
 | LoRA 合并 | 待实现 | `scripts/merge_lora.py` 中的合并逻辑仍有 TODO |
 | INT4 量化 | 待实现 | `scripts/quantize.py` 中的量化逻辑仍有 TODO |
 | vLLM 部署 | 待验证 | `deploy/server.py` 已提供启动器，但需要先得到可用模型 |
 | Web 应用 | 待实现 | FastAPI 和 Gradio 接口中仍有 TODO |
-| 自动评测 | 待实现 | 评测和消融实验脚本仍是框架代码 |
+| 自动评测 | 部分完成 | `eval/ablation.py` 已支持实验配置和训练结果记录，数学准确率评测仍待补全 |
+
+## 云端 89 条数据试跑记录
+
+2026-09-03 已在 AutoDL 的 RTX 4090 D（24GB）上完成一次端到端试跑：
+
+- 训练数据：89 条；验证数据：10 条
+- 训练方式：QLoRA 4-bit
+- LoRA：`r=16`、`lora_alpha=32`、`lora_dropout=0.05`
+- 训练参数：`batch_size=1`、`gradient_accumulation_steps=8`、`epochs=1`、`learning_rate=2e-4`、最大长度 2048
+- 训练耗时：约 41.8 秒
+- 最终 train loss：约 `0.8176`
+- 已生成 checkpoint：`checkpoint-5`、`checkpoint-10`、`checkpoint-12`
+- 云端输出目录：`/root/autodl-tmp/MathLLM/outputs/smoke-89`
+
+这次试跑确认了模型加载、Tokenizer、ChatML、训练、验证和 checkpoint 保存流程均可运行。Loss 只能说明训练流程和优化过程正常，不能替代数学准确率评测。
 
 ## 模型信息
 
@@ -43,7 +58,7 @@ D:\MathLLM\models\Qwen2.5-7B-Instruct-modelscope
 |------|------|------|
 | 基座模型 | Qwen2.5-7B-Instruct | 通用指令模型 |
 | 精调方法 | LoRA / PEFT | 数学领域适配 |
-| 训练组件 | Transformers、TRL、LLaMA-Factory | 模型训练 |
+| 训练组件 | Transformers、TRL（LLaMA-Factory 可选） | 模型训练 |
 | 量化组件 | AWQ / bitsandbytes | INT4/INT8 压缩 |
 | 推理服务 | vLLM | 高性能模型推理 |
 | 后端 | FastAPI、SSE | API 服务和流式输出 |
@@ -154,13 +169,13 @@ lora_alpha: 32
 lora_dropout: 0.05
 ```
 
-当前 `scripts/train.py` 已实现基于 Transformers + PEFT + TRL 的 LoRA SFT 训练流程。训练需要在有 CUDA GPU 的云服务器上运行：
+当前 `scripts/train.py` 已实现基于 Transformers + PEFT + TRL 的 LoRA/QLoRA SFT 训练流程。训练需要在有 CUDA GPU 的云服务器上运行：
 
 ```bash
 python scripts/train.py
 ```
 
-脚本会读取 `messages` 数据并应用 Qwen chat template，默认使用标准 LoRA（基座模型以 BF16/FP16 加载并冻结），训练完成后把 adapter 保存到 `outputs/math-lora/`。如果显存不足，可在 `configs/train_config.yaml` 的 `training` 下设置 `use_4bit: true`，切换为 QLoRA。
+脚本会读取 `messages` 数据并应用 Qwen chat template。默认配置使用标准 LoRA；在 24GB 显存上建议将 `training.use_4bit` 设置为 `true`，切换为 QLoRA。训练完成后会保存 LoRA adapter、Tokenizer、训练状态和结果文件。
 
 建议先用 1 个 epoch、batch size 1 做小规模试跑；确认 Loss、checkpoint 和 adapter 文件正常后，再恢复正式配置。
 
@@ -238,7 +253,7 @@ MathLLM/
 │   └── Qwen2.5-7B-Instruct-modelscope/ # Qwen 基座模型
 ├── scripts/                          # 数据和模型处理脚本
 │   ├── prepare_data.py               # 数据加载、清洗、转换、划分
-│   ├── train.py                      # LoRA 训练骨架
+│   ├── train.py                      # LoRA/QLoRA 训练程序
 │   ├── merge_lora.py                 # LoRA 合并骨架
 │   └── quantize.py                   # INT4/INT8 量化骨架
 ├── .gitignore                        # 忽略模型、数据和训练输出
@@ -263,8 +278,8 @@ MathLLM/
 - [x] 生成训练集和验证集
 - [x] 下载并验证 Qwen2.5-7B-Instruct 基座模型
 - [x] 配置本地模型路径和 LoRA 超参数
-- [ ] 补全 LoRA 训练脚本并完成小规模试跑
-- [ ] 观察 Train Loss 和 Eval Loss
+- [x] 完成 LoRA 训练脚本并完成小规模试跑
+- [x] 观察 Train Loss 和 Eval Loss
 - [ ] 实现 LoRA 权重合并
 - [ ] 完成 INT4 量化
 - [ ] 启动并验证 vLLM 推理服务

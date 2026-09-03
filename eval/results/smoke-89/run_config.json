@@ -1,0 +1,10 @@
+{
+  "config_path": "/root/autodl-tmp/MathLLM/configs/train_smoke.yaml",
+  "model_name_or_path": "./models/Qwen2.5-7B-Instruct-modelscope",
+  "train_examples": 89,
+  "eval_examples": 10,
+  "seed": 42,
+  "use_4bit": true,
+  "use_bf16": true,
+  "max_seq_length": 2048
+}
