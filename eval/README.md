@@ -69,3 +69,16 @@ python scripts/loss_curve.py \
 - 发现错误时，优先查看 `details.json`，区分最终答案错误、步骤缺失、过程与答案矛盾、LaTeX 格式错误和服务错误。
 
 比较基座模型、LoRA 模型、合并模型或 INT4 模型时，必须使用同一份 `eval.json`、相同的 system prompt、`temperature`、`max_tokens` 和评测程序，并把每个模型输出到不同目录。
+
+## 错误回归集
+
+发现模型的真实数学错误后，不要直接把原错误题加入训练集。将同类但条件不同的纠错样本放入 `data/raw/corrections/`，将原错误题和新的同类验证题保存在 `data/eval/regression/regression.json`。`prepare_data.py` 会递归读取 `data/raw/`，但不会读取 `data/eval/`，因此回归集不会泄漏到训练集。
+
+训练完成后可单独运行：
+
+```bash
+python eval/evaluate.py \
+  --model_endpoint http://localhost:8000/v1 \
+  --eval_data data/eval/regression/regression.json \
+  --output eval/results/regression
+```

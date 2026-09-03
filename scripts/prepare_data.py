@@ -21,6 +21,7 @@ from typing import Any
 
 
 RAW_DIR = Path("./data/raw")
+REGRESSION_DIR = Path("./data/eval/regression")
 OUTPUT_DIR = Path("./data/processed")
 SYSTEM_PROMPT = """你是一个专业的数学解题助手。请按照以下要求回答数学问题：
 1. 先分析题目要求
@@ -166,6 +167,39 @@ def _read_raw_file(path: Path) -> list[dict[str, Any]]:
         return [dict(row) for row in csv.DictReader(handle)]
 
 
+def _load_regression_questions(regression_dir: Path | None) -> set[str]:
+    """Load canonical question texts that must never enter train/eval splits."""
+    if regression_dir is None or not regression_dir.exists():
+        return set()
+
+    questions: set[str] = set()
+    for path in sorted(regression_dir.rglob("*"), key=lambda item: str(item).lower()):
+        if not path.is_file() or path.suffix.lower() not in SUPPORTED_SUFFIXES:
+            continue
+        try:
+            records = _read_raw_file(path)
+        except (OSError, UnicodeError, json.JSONDecodeError, csv.Error) as exc:
+            LOGGER.warning("Skipping unreadable regression file %s: %s", path, exc)
+            continue
+        for record in records:
+            messages = record.get("messages")
+            question = ""
+            if isinstance(messages, list):
+                question = next(
+                    (
+                        _as_text(message.get("content"))
+                        for message in messages
+                        if isinstance(message, dict) and message.get("role") == "user"
+                    ),
+                    "",
+                )
+            else:
+                question = _as_text(record.get("question") or record.get("problem"))
+            if question:
+                questions.add(_canonicalize_question(question))
+    return questions
+
+
 def _source_from_filename(path: Path) -> str:
     name = path.stem.lower()
     if "gsm8k" in name or name.startswith("gsm"):
@@ -284,14 +318,24 @@ def _normalize_item(item: dict[str, Any], path: Path) -> dict[str, str] | None:
     }
 
 
-def load_raw_data(raw_dir: Path = RAW_DIR) -> list[dict[str, str]]:
+def load_raw_data(
+    raw_dir: Path = RAW_DIR, regression_dir: Path | None = REGRESSION_DIR
+) -> list[dict[str, str]]:
     """Read JSON, JSONL and CSV files and normalize source-specific schemas."""
     if not raw_dir.exists():
         LOGGER.warning("Raw data directory does not exist: %s", raw_dir)
         return []
 
+    regression_questions = _load_regression_questions(regression_dir)
+    if regression_questions:
+        LOGGER.info("Protecting %s regression questions from data splits", len(regression_questions))
+
     normalized: list[dict[str, str]] = []
-    for path in sorted(raw_dir.iterdir(), key=lambda item: item.name.lower()):
+    # Scan nested folders as well.  This lets us keep small, reviewed
+    # correction sets under data/raw/corrections/ without changing the main
+    # training command.  Evaluation/regression data lives under data/eval/
+    # and is therefore never discovered here.
+    for path in sorted(raw_dir.rglob("*"), key=lambda item: str(item).lower()):
         if not path.is_file() or path.suffix.lower() not in SUPPORTED_SUFFIXES:
             continue
         try:
@@ -302,6 +346,10 @@ def load_raw_data(raw_dir: Path = RAW_DIR) -> list[dict[str, str]]:
 
         before = len(normalized)
         for record in records:
+            candidate_question = _as_text(record.get("question") or record.get("problem"))
+            if candidate_question and _canonicalize_question(candidate_question) in regression_questions:
+                LOGGER.info("Skipping regression question from raw data: %s", path.name)
+                continue
             converted = _normalize_item(record, path)
             if converted is not None:
                 normalized.append(converted)
@@ -416,7 +464,7 @@ def validate_data(
 def split_dataset(
     data: list[dict[str, Any]], eval_ratio: float = 0.1, seed: int = 42
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    """Split deterministically, stratifying by source when metadata is available."""
+    """Split deterministically while keeping correction samples train-only."""
     if not 0 < eval_ratio < 1:
         raise ValueError("eval_ratio must be between 0 and 1")
 
@@ -424,11 +472,30 @@ def split_dataset(
         return list(data), []
 
     rng = random.Random(seed)
+    train_only: list[dict[str, Any]] = []
+    splittable: list[dict[str, Any]] = []
+    for item in data:
+        source = item.get("_metadata", {}).get("source", "unknown")
+        if str(source).startswith("correction-"):
+            train_only.append(item)
+        else:
+            splittable.append(item)
+
+    if not splittable:
+        rng.shuffle(train_only)
+        return train_only, []
+
     eval_count = max(1, round(len(data) * eval_ratio))
-    eval_count = min(eval_count, len(data) - 1)
+    # Keep at least one ordinary sample in train when possible.  Correction
+    # samples are already reserved for train and are not counted as eval.
+    eval_count = min(eval_count, max(0, len(splittable) - 1))
+    if eval_count == 0:
+        rng.shuffle(train_only)
+        rng.shuffle(splittable)
+        return train_only + splittable, []
 
     groups: dict[str, list[dict[str, Any]]] = {}
-    for item in data:
+    for item in splittable:
         source = item.get("_metadata", {}).get("source", "unknown")
         groups.setdefault(source, []).append(item)
 
@@ -448,7 +515,7 @@ def split_dataset(
     rng.shuffle(remaining)
     eval_data.extend(remaining[: eval_count - len(eval_data)])
     selected_ids = {id(item) for item in eval_data}
-    train_data = [item for item in data if id(item) not in selected_ids]
+    train_data = train_only + [item for item in splittable if id(item) not in selected_ids]
     rng.shuffle(train_data)
     rng.shuffle(eval_data)
     return train_data, eval_data
@@ -482,6 +549,10 @@ def _print_split_stats(name: str, data: list[dict[str, Any]]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Prepare MathLLM training data")
     parser.add_argument("--raw-dir", type=Path, default=RAW_DIR)
+    parser.add_argument(
+        "--regression-dir", type=Path, default=REGRESSION_DIR,
+        help="Regression questions to exclude from train/eval splits",
+    )
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
     parser.add_argument("--eval-ratio", type=float, default=0.1)
     parser.add_argument("--seed", type=int, default=42)
@@ -490,7 +561,7 @@ def main() -> None:
     args = parser.parse_args()
 
     print("Loading raw data...")
-    raw_data = load_raw_data(args.raw_dir)
+    raw_data = load_raw_data(args.raw_dir, regression_dir=args.regression_dir)
     print(f"Loaded {len(raw_data)} normalized examples")
 
     print("Formatting examples...")

@@ -18,6 +18,8 @@ data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
+!data/raw/corrections/
+!data/raw/corrections/**
 
 .env
 *.log
