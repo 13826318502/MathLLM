@@ -230,6 +230,12 @@ def main() -> None:
             print(f"Judging {index}/{len(details)}...")
             record = dict(detail)
             try:
+                detail_question = str(detail.get("question", "")).strip()
+                reference_question = reference["question"].strip()
+                if detail_question and detail_question != reference_question:
+                    raise ValueError(
+                        f"第 {index} 条题目与 eval_data 不一致；请使用同一轮 evaluate.py 生成的 details.json 和 eval.json"
+                    )
                 result = judge_one(
                     client,
                     endpoint,

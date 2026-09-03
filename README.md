@@ -1,103 +1,50 @@
-# MathLLM - 数学解题大模型
+# MathLLM：数学解题大模型
 
-MathLLM 是一个面向大学数学解题场景的端到端大模型项目，计划基于 **Qwen2.5-7B-Instruct**，通过 LoRA 进行数学领域适配，并完成数据准备、训练、模型合并、量化、部署、应用和评测。
-
-当前项目已完成数据处理管道、基座模型准备和 LoRA 训练试跑。下一阶段是扩大数据集、完成正式训练，并继续实现模型合并、量化、部署、应用和评测。
+MathLLM 是一个面向大学数学解题场景的端到端项目。项目以 **Qwen2.5-7B-Instruct** 为基座模型，使用 LoRA/QLoRA 进行领域精调，目标是完成数据准备、训练、权重合并、量化、vLLM 部署、Web 应用和可复现评测。
 
 ## 当前进展
 
-| 模块 | 当前状态 | 说明 |
-|------|----------|------|
-| 原始数据 | 已准备 | 数据位于本地 `data/raw/`，原始数据文件不提交到 Git |
-| 数据预处理 | 已完成 | `scripts/prepare_data.py` 已实现加载、清洗、去重、格式转换和划分 |
-| 训练数据 | 已生成 | 当前 `train.json` 89 条，`eval.json` 10 条 |
-| 基座模型 | 已下载 | Qwen2.5-7B-Instruct，4 个 Safetensors 权重分片，约 14.19 GiB |
-| 训练配置 | 已配置 | 使用本地模型目录和 LoRA 参数 |
-| LoRA 训练 | 已实现并完成云 GPU 试跑 | `scripts/train.py` 已实现模型加载、ChatML 处理、LoRA/QLoRA 挂载和 SFT 训练 |
-| LoRA 合并 | 待实现 | `scripts/merge_lora.py` 中的合并逻辑仍有 TODO |
-| INT4 量化 | 待实现 | `scripts/quantize.py` 中的量化逻辑仍有 TODO |
-| vLLM 部署 | 待验证 | `deploy/server.py` 已提供启动器，但需要先得到可用模型 |
-| Web 应用 | 待实现 | FastAPI 和 Gradio 接口中仍有 TODO |
-| 自动评测 | 部分完成 | `eval/ablation.py` 已支持实验配置和训练结果记录，数学准确率评测仍待补全 |
+| 模块 | 状态 | 当前情况 |
+|---|---|---|
+| 数据下载与整理 | 已完成第一版 | GSM8K 500 条、Hendrycks MATH 500 条、中文 CMID 250 条，加上已有数据共 1360 条原始记录 |
+| 数据预处理 | 已完成 | 支持 JSON/JSONL/CSV，完成字段统一、ChatML 转换、长度检查、去重和 90/10 划分 |
+| 正式数据集 | 已生成 | 清洗后 1259 条：训练集 1133 条，评估集 126 条 |
+| 基座模型 | 已准备 | 本地目录为 `models/Qwen2.5-7B-Instruct-modelscope/`，模型文件不提交 Git |
+| LoRA/QLoRA 训练 | 已实现 | `scripts/train.py` 使用 Transformers + PEFT + TRL，已完成云端小规模试跑 |
+| LoRA 合并 | 已实现 | `scripts/merge_lora.py` 可将 adapter 合并为独立模型 |
+| INT4/AWQ 量化 | 待实现 | `scripts/quantize.py` 目前仍是接口骨架 |
+| vLLM 服务 | 启动器已实现 | `deploy/server.py` 可启动 OpenAI 兼容服务，但正式量化模型尚未验证 |
+| 自动评测 | 基础功能已实现 | `eval/evaluate.py` 支持答案、过程分、错误和延迟记录；`eval/llm_judge.py` 支持独立模型语义评测 |
+| 消融实验 | 框架已实现 | `eval/ablation.py` 支持按配置运行，自动数学评测仍需配置具体命令 |
+| FastAPI/Gradio 应用 | 待完成 | 当前为接口和界面骨架，仍有 TODO |
 
-## 云端 89 条数据试跑记录
-
-2026-09-03 已在 AutoDL 的 RTX 4090 D（24GB）上完成一次端到端试跑：
-
-- 训练数据：89 条；验证数据：10 条
-- 训练方式：QLoRA 4-bit
-- LoRA：`r=16`、`lora_alpha=32`、`lora_dropout=0.05`
-- 训练参数：`batch_size=1`、`gradient_accumulation_steps=8`、`epochs=1`、`learning_rate=2e-4`、最大长度 2048
-- 训练耗时：约 41.8 秒
-- 最终 train loss：约 `0.8176`
-- 已生成 checkpoint：`checkpoint-5`、`checkpoint-10`、`checkpoint-12`
-- 云端输出目录：`/root/autodl-tmp/MathLLM/outputs/smoke-89`
-
-这次试跑确认了模型加载、Tokenizer、ChatML、训练、验证和 checkpoint 保存流程均可运行。Loss 只能说明训练流程和优化过程正常，不能替代数学准确率评测。
-
-## 模型信息
-
-- 基座模型：`Qwen/Qwen2.5-7B-Instruct`
-- 模型架构：`Qwen2ForCausalLM`
-- Tokenizer：`Qwen2Tokenizer`
-- 微调方法：LoRA（PEFT）
-- 训练最大长度：2048 tokens
-- 计划部署方式：LoRA 合并后进行 INT4 量化，再使用 vLLM 部署
-
-已下载的模型位于本地：
+## 项目流程
 
 ```text
-D:\MathLLM\models\Qwen2.5-7B-Instruct-modelscope
+公开数学数据 + 人工纠错数据
+          ↓
+scripts/download_formal_data.py
+          ↓
+scripts/prepare_data.py
+          ↓
+ChatML train.json / eval.json
+          ↓
+LoRA/QLoRA SFT
+          ↓
+scripts/merge_lora.py
+          ↓
+FP16/BF16 独立模型
+          ↓
+AWQ/INT4 量化（待实现）
+          ↓
+vLLM OpenAI-compatible API
+          ↓
+FastAPI + Gradio 应用
 ```
 
-模型权重较大，已通过 `.gitignore` 排除，不会提交到 GitHub。其他环境需要从 [ModelScope Qwen2.5-7B-Instruct](https://www.modelscope.cn/models/Qwen/Qwen2.5-7B-Instruct) 单独下载模型。
+## 环境安装
 
-## 技术栈
-
-| 层级 | 技术 | 用途 |
-|------|------|------|
-| 基座模型 | Qwen2.5-7B-Instruct | 通用指令模型 |
-| 精调方法 | LoRA / PEFT | 数学领域适配 |
-| 训练组件 | Transformers、TRL（LLaMA-Factory 可选） | 模型训练 |
-| 量化组件 | AWQ / bitsandbytes | INT4/INT8 压缩 |
-| 推理服务 | vLLM | 高性能模型推理 |
-| 后端 | FastAPI、SSE | API 服务和流式输出 |
-| 前端 | Gradio | 数学解题交互界面 |
-| 数据处理 | Python、JSONL、ChatML | 数据清洗和格式转换 |
-| 评测 | Python、matplotlib | 准确率、延迟和对比实验 |
-
-## 目标架构
-
-```text
-用户
-  ↓
-Gradio 前端
-  ↓ HTTP / SSE
-FastAPI 后端
-  ↓ OpenAI 兼容 API
-vLLM 推理服务
-  ↓
-Qwen2.5-7B 数学领域适配模型
-```
-
-目标训练流程：
-
-```text
-原始数据
-  → 数据清洗与 ChatML 格式转换
-  → LoRA 精调
-  → 合并 LoRA 权重
-  → INT4 量化
-  → vLLM 部署
-  → FastAPI + Gradio 应用
-  → 自动评测与消融实验
-```
-
-## 快速开始
-
-### 1. 安装依赖
-
-建议使用 Python 3.10 或更高版本：
+建议在云端 CUDA GPU 服务器上训练、合并和部署；本地无 NVIDIA GPU 时只适合进行数据处理、代码检查或 CPU 推理。
 
 ```bash
 conda create -n mathllm python=3.10
@@ -105,18 +52,46 @@ conda activate mathllm
 pip install -r requirements.txt
 ```
 
-如果使用 LLaMA-Factory，需要额外安装：
+训练至少需要 PyTorch、Transformers、PEFT、TRL、Datasets 和 Accelerate。vLLM、bitsandbytes 和 AWQ 相关依赖应根据云服务器 CUDA、驱动和 vLLM 版本单独确认。
+
+## 数据准备
+
+### 下载正式数据
+
+下载脚本只负责获取可复现的源数据子集，原始文件保存在 `data/raw/`：
 
 ```bash
-pip install llamafactory
+python scripts/download_formal_data.py
 ```
 
-### 2. 准备数据
+当前使用的数据来源：
 
-将原始 JSON、JSONL 或 CSV 数据放入 `data/raw/`，运行：
+- [GSM8K](https://huggingface.co/datasets/openai/gsm8k)：英文小学数学应用题；
+- [Hendrycks MATH](https://huggingface.co/datasets/EleutherAI/hendrycks_math)：代数、几何、数论、概率等竞赛数学题；
+- [CMID Chinese Math Instruct](https://huggingface.co/datasets/Mxode/CMID-Chinese_Math_Instruct_Dataset)：中文数学指令数据。
+
+数据来源、抽样数量和许可证记录在 `data/raw/SOURCES.md`。原始数据体积和许可证可能随上游数据集变化，正式训练前应保留下载日期和版本信息。
+
+### 统一格式、清洗和划分
+
+所有原始数据都必须经过 [scripts/prepare_data.py](scripts/prepare_data.py)。它会：
+
+1. 读取 `data/raw/` 下的 JSON、JSONL 和 CSV；
+2. 兼容 GSM8K、MATH、CMID 和项目自定义字段；
+3. 统一为 `question`、`solution`、`answer` 等内部字段；
+4. 转换为 Qwen ChatML 风格的 `messages`；
+5. 检查角色顺序、空内容、过短回答、非法图形标记和 2048 token 长度；
+6. 删除完全重复、模板重复和高相似题目；
+7. 按固定随机种子划分训练集和评估集。
+
+运行命令：
 
 ```bash
-python scripts/prepare_data.py
+python scripts/prepare_data.py \
+  --tokenizer ./models/Qwen2.5-7B-Instruct-modelscope \
+  --max-tokens 2048 \
+  --eval-ratio 0.1 \
+  --seed 42
 ```
 
 输出文件：
@@ -126,179 +101,223 @@ data/processed/train.json
 data/processed/eval.json
 ```
 
-如果需要按照 Qwen tokenizer 检查 token 长度，可以运行：
-
-```bash
-python scripts/prepare_data.py \
-  --tokenizer ./models/Qwen2.5-7B-Instruct-modelscope \
-  --max-tokens 2048
-```
-
-### 3. 验证数据
-
-```bash
-python -c "import json; x=json.load(open('data/processed/train.json',encoding='utf-8')); print('train:',len(x)); print(x[0])"
-python -c "import json; x=json.load(open('data/processed/eval.json',encoding='utf-8')); print('eval:',len(x)); print(x[0])"
-```
-
-每条记录应具有如下结构：
+最终每条记录的基本结构如下，训练时不要手动添加 `<|im_start|>` 或 `<|im_end|>`：
 
 ```json
 {
   "messages": [
-    {"role": "system", "content": "你是一个专业的数学解题助手。"},
+    {"role": "system", "content": "数学解题系统提示词"},
     {"role": "user", "content": "求解 x^2 - 5x + 6 = 0。"},
-    {"role": "assistant", "content": "令...因此 x=2 或 x=3。"}
+    {"role": "assistant", "content": "先分析题目并给出步骤。\\n\\n**最终答案**\\n\\nx=2 或 x=3"}
   ]
 }
 ```
 
-### 4. 训练模型
+本次正式数据准备结果：原始记录 1360 条，规范化 1264 条，去除重复或近似重复 5 条，最终保留 1259 条；其中 96 条因 `[asy]...[/asy]` 图形标记或无法可靠提取最终答案而被过滤。程序检查不等于数学证明，正式训练前仍应人工抽查至少 10%。
 
-训练配置位于 [`configs/train_config.yaml`](configs/train_config.yaml)，当前使用本地基座模型：
+## LoRA/QLoRA 训练
 
-```yaml
-model_name_or_path: "./models/Qwen2.5-7B-Instruct-modelscope"
-```
-
-LoRA 当前配置为：
+训练配置位于 [configs/train_config.yaml](configs/train_config.yaml)：
 
 ```yaml
-r: 16
-lora_alpha: 32
-lora_dropout: 0.05
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+
+training:
+  num_train_epochs: 3
+  learning_rate: 2.0e-4
+  max_seq_length: 2048
 ```
 
-当前 `scripts/train.py` 已实现基于 Transformers + PEFT + TRL 的 LoRA/QLoRA SFT 训练流程。训练需要在有 CUDA GPU 的云服务器上运行：
+启动训练：
 
 ```bash
-python scripts/train.py
+python scripts/train.py --config configs/train_config.yaml
 ```
 
-脚本会读取 `messages` 数据并应用 Qwen chat template。默认配置使用标准 LoRA；在 24GB 显存上建议将 `training.use_4bit` 设置为 `true`，切换为 QLoRA。训练完成后会保存 LoRA adapter、Tokenizer、训练状态和结果文件。
+默认使用标准 LoRA。24GB 显存不足时，可以将 `training.use_4bit` 改为 `true` 使用 QLoRA。训练输出默认写入 `outputs/math-lora/`，其中包括 adapter、Tokenizer、checkpoint、训练状态和 loss 记录。
 
-建议先用 1 个 epoch、batch size 1 做小规模试跑；确认 Loss、checkpoint 和 adapter 文件正常后，再恢复正式配置。
+LoRA 训练不会改变基座模型权重，训练输出主要是 adapter 权重和配置文件。部署前需要将 adapter 合并到基座模型，或让推理框架同时加载基座模型和 adapter。
 
-### 5. 模型合并、量化和部署
+## 模型合并
 
-以下目录和脚本是计划中的后续产物，目前尚未生成或尚未完整实现：
-
-```text
-outputs/math-lora/
-outputs/math-lora-merged/
-outputs/math-lora-quantized/
-```
-
-计划流程：
+[scripts/merge_lora.py](scripts/merge_lora.py) 已实现基座模型与 LoRA adapter 的合并：
 
 ```bash
 python scripts/merge_lora.py \
   --base_model ./models/Qwen2.5-7B-Instruct-modelscope \
   --lora_path ./outputs/math-lora \
-  --output_path ./outputs/math-lora-merged
+  --output_path ./outputs/math-lora-merged \
+  --dtype float16
+```
 
-python scripts/quantize.py \
-  --model_path ./outputs/math-lora-merged \
-  --output_path ./outputs/math-lora-quantized \
-  --bits 4
+合并阶段必须加载完整精度的基座模型。输出是一个可以直接被 Transformers 或 vLLM 加载的独立模型，不等于量化模型，体积通常接近原始 FP16 模型。
 
+## 量化与 vLLM 部署
+
+当前 [scripts/quantize.py](scripts/quantize.py) 还没有完成实际量化逻辑，因此暂时不要把 `int4` 当作已经生成的模型格式。推荐的后续顺序是：
+
+```text
+LoRA adapter
+  → FP16/BF16 合并模型
+  → AWQ 或 GPTQ 校准量化
+  → 用相同 eval.json 对比量化前后准确率和延迟
+  → vLLM 部署
+```
+
+部署配置位于 [configs/deploy_config.yaml](configs/deploy_config.yaml)。量化完成后，需要把 `model.model_path` 改为实际量化模型目录；如果输出格式是 AWQ，应使用 vLLM 支持的 `awq` 量化参数，而不是笼统的 `int4`。
+
+启动器：
+
+```bash
 python deploy/server.py
 ```
 
-这些命令需要等对应脚本实现完成后再执行。
+也可以直接使用 vLLM 的 OpenAI 兼容服务命令：
 
-## 数据格式
-
-原始数据位于 `data/raw/`，典型格式为：
-
-```json
-{
-  "question": "求函数 f(x)=x^3-3x+1 的极值点",
-  "solution": "对 f(x) 求导，得到 f'(x)=3x^2-3...",
-  "answer": "x=1 为极小值点，x=-1 为极大值点"
-}
+```bash
+python -m vllm.entrypoints.openai.api_server \
+  --model ./outputs/math-lora-merged \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --max-model-len 4096
 ```
 
-预处理后统一转换为 ChatML 风格的 `messages` 数据，供 Qwen 的 chat template 使用。
+服务启动后检查：
+
+```bash
+curl http://localhost:8000/v1/models
+```
+
+## 评测
+
+### 基础评测
+
+[eval/evaluate.py](eval/evaluate.py) 调用 OpenAI 兼容接口，记录最终答案、过程分、错误、首 token 延迟和总延迟：
+
+```bash
+python eval/evaluate.py \
+  --model_endpoint http://localhost:8000/v1 \
+  --eval_data data/processed/eval.json \
+  --output eval/results/finetuned-model \
+  --temperature 0 \
+  --max_tokens 512
+```
+
+错误样本和详细结果会保存在输出目录的 `bad_cases.json`、`details.json` 和 `report.json` 中。基础评测是确定性启发式评测，不能完全证明数学推理正确性。
+
+### 独立模型语义评测
+
+[eval/llm_judge.py](eval/llm_judge.py) 使用另一个 OpenAI 兼容模型判断 `correct`、`incorrect` 或 `uncertain`：
+
+```bash
+python eval/llm_judge.py \
+  --details eval/results/finetuned-model/details.json \
+  --eval-data data/processed/eval.json \
+  --output eval/results/finetuned-model/llm-judge \
+  --judge-endpoint https://api.example.com/v1 \
+  --judge-model your-judge-model
+```
+
+`details.json` 和 `eval.json` 必须来自同一轮评测、使用同一版本的数据。当前脚本会校验题目是否一致，避免数据集重新生成后按序号错配。`uncertain` 和 `incorrect` 样本必须人工复核。
+
+### 回归评测和消融
+
+真实错误题不要直接加入训练集。纠错样本放入 `data/raw/corrections/`，原错误题和同类验证题放入 `data/eval/regression/`，然后单独评测：
+
+```bash
+python eval/evaluate.py \
+  --model_endpoint http://localhost:8000/v1 \
+  --eval_data data/eval/regression/regression.json \
+  --output eval/results/regression
+```
+
+消融实验配置位于 [configs/ablation.yaml](configs/ablation.yaml)，运行器位于 [eval/ablation.py](eval/ablation.py)。所有实验应固定数据集、随机种子和评测参数。
 
 ## 项目结构
 
 ```text
 MathLLM/
-├── app/                              # 应用层
+├── app/
 │   ├── api/
-│   │   └── main.py                   # FastAPI 接口骨架
+│   │   └── main.py                 # FastAPI 接口骨架
 │   └── frontend/
-│       └── gradio_app.py             # Gradio 前端骨架
-├── configs/                          # 配置文件
-│   ├── train_config.yaml             # 基座模型和 LoRA/训练参数
-│   └── deploy_config.yaml             # vLLM 部署参数
-├── data/                             # 数据目录（数据文件本地使用）
-│   ├── raw/                          # 原始数学数据
-│   └── processed/                    # train.json 和 eval.json
-├── deploy/                           # 部署相关代码
-│   ├── server.py                     # vLLM 服务启动器
-│   └── Dockerfile                    # Docker 配置
-├── docs/                             # 项目文档
-│   ├── development-guide.md          # 开发总指南
-│   ├── design.md                     # 架构和方案设计
-│   ├── development-plan/
-│   │   ├── week1-data-preparation.md # 第一周：数据准备
-│   │   └── week2-training-and-deployment.md # 第二周：训练和部署计划
-│   └── learning/                     # LoRA、QLoRA、量化、vLLM 等学习笔记
-├── eval/                             # 评测和消融实验骨架
-│   ├── evaluate.py                   # 多维度评测
-│   └── ablation.py                   # 超参数消融实验
-├── models/                           # 本地模型目录，不提交 Git
-│   └── Qwen2.5-7B-Instruct-modelscope/ # Qwen 基座模型
-├── scripts/                          # 数据和模型处理脚本
-│   ├── prepare_data.py               # 数据加载、清洗、转换、划分
-│   ├── train.py                      # LoRA/QLoRA 训练程序
-│   ├── merge_lora.py                 # LoRA 合并骨架
-│   └── quantize.py                   # INT4/INT8 量化骨架
-├── .gitignore                        # 忽略模型、数据和训练输出
-├── requirements.txt                  # Python 依赖
-└── README.md                         # 项目说明
+│       └── gradio_app.py           # Gradio 界面骨架
+├── configs/
+│   ├── train_config.yaml           # LoRA/QLoRA 训练配置
+│   ├── deploy_config.yaml          # vLLM 部署配置
+│   ├── ablation.yaml               # 消融实验配置
+│   └── judge.env.example            # LLM judge 环境变量示例
+├── data/
+│   ├── raw/                        # 原始数据，本地保存，不提交 Git
+│   ├── processed/                  # train.json 和 eval.json
+│   └── eval/regression/            # 回归题和回归说明
+├── deploy/
+│   ├── server.py                   # vLLM 启动器
+│   └── Dockerfile                  # 部署镜像骨架
+├── docs/
+│   ├── development-plan/           # 四周开发计划
+│   ├── experiments/                # 已完成实验日志
+│   └── learning/                   # LoRA、QLoRA、量化、vLLM 等学习笔记
+├── eval/
+│   ├── evaluate.py                 # 接口、准确率和延迟评测
+│   ├── llm_judge.py                # 独立大模型语义评测
+│   ├── ablation.py                 # 消融实验运行器
+│   └── results/                    # 实验输出和评测报告
+├── scripts/
+│   ├── download_formal_data.py     # 下载和抽样正式数据
+│   ├── prepare_data.py             # 清洗、格式化、去重、划分
+│   ├── train.py                    # LoRA/QLoRA SFT 训练
+│   ├── merge_lora.py               # 合并 LoRA adapter
+│   ├── quantize.py                 # 量化接口骨架
+│   └── loss_curve.py               # 导出训练 loss 曲线
+├── .gitignore
+├── requirements.txt
+└── README.md
 ```
 
 ## Git 与模型文件
 
-模型权重不放入 Git 仓库，原因是：
+以下内容不应提交到 GitHub：
 
-- Qwen2.5-7B 权重约 14GB，远超普通 GitHub 文件限制；
-- Git 仓库应主要保存代码、配置和文档；
-- 模型应通过 ModelScope、Hugging Face 或对象存储单独分发；
-- 项目通过 `configs/train_config.yaml` 指定本地模型路径。
+- `models/`：Qwen2.5-7B 基座模型，体积约十几 GB；
+- `outputs/`、`checkpoints/`、`lora_weights/`：训练和模型产物；
+- `data/raw/`：原始数据集文件；
+- 临时上传压缩包和本地评测重跑目录。
 
-因此，提交代码时不要使用会把模型目录加入暂存区的方式。当前 `.gitignore` 已忽略 `models/`、`*.safetensors`、`outputs/` 和训练数据文件。
+仓库主要保存代码、配置、文档、回归样例以及可控体积的处理后数据。其他机器上应先下载基座模型，再运行数据准备和训练流程。
 
 ## 后续计划
 
-- [x] 完成原始数据读取、清洗、去重和 ChatML 格式转换
-- [x] 生成训练集和验证集
-- [x] 下载并验证 Qwen2.5-7B-Instruct 基座模型
-- [x] 配置本地模型路径和 LoRA 超参数
-- [x] 完成 LoRA 训练脚本并完成小规模试跑
-- [x] 观察 Train Loss 和 Eval Loss
-- [ ] 实现 LoRA 权重合并
-- [ ] 完成 INT4 量化
-- [ ] 启动并验证 vLLM 推理服务
+- [x] 完成正式数据下载、清洗、去重和 ChatML 转换
+- [x] 生成当前版本训练集和评估集
+- [x] 完成 LoRA/QLoRA 训练程序
+- [x] 完成 LoRA 合并程序
+- [x] 完成基础接口评测和独立模型评测框架
+- [ ] 完成人工 10% 数据抽检和数学答案复核
+- [ ] 实现 AWQ/GPTQ 量化并记录校准配置
+- [ ] 对比合并模型与量化模型的准确率、显存和延迟
+- [ ] 完成 vLLM 正式部署验证
 - [ ] 完成 FastAPI 和 Gradio 联调
-- [ ] 实现自动评测和消融实验
-- [ ] 完善 Docker 部署和项目文档
+- [ ] 完善消融实验的自动评测命令
+- [ ] 完成 Docker 部署和最终发布文档
 
 ## 文档索引
 
 - [开发总指南](docs/development-guide.md)
-- [详细设计文档](docs/design.md)
+- [项目设计](docs/design.md)
 - [第一周：数据准备](docs/development-plan/week1-data-preparation.md)
-- [第二周：训练与部署计划](docs/development-plan/week2-training-and-deployment.md)
+- [第二周：训练与部署](docs/development-plan/week2-training-and-deployment.md)
+- [第三周：应用开发](docs/development-plan/week3-application-development.md)
+- [第四周：评测与发布](docs/development-plan/week4-evaluation-and-release.md)
+- [评测说明](eval/README.md)
 - [训练配置](configs/train_config.yaml)
 - [部署配置](configs/deploy_config.yaml)
 - [LoRA 原理](docs/learning/lora-principle.md)
 - [QLoRA 与 LoRA 对比](docs/learning/qlora-vs-lora.md)
 - [INT4 量化原理](docs/learning/int4-quantization.md)
-- [ChatML 数据格式](docs/learning/chatml-format.md)
+- [ChatML 格式](docs/learning/chatml-format.md)
 - [vLLM PagedAttention](docs/learning/vllm-pagedattention.md)
-- [Loss 曲线解读](docs/learning/loss-curve.md)
 - [消融实验方法](docs/learning/ablation-study.md)

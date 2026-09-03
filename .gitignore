@@ -21,6 +21,14 @@ data/processed/*
 !data/raw/corrections/
 !data/raw/corrections/**
 
+# Local upload archives and temporary inspection copies
+MathLLM-cloud-upload-v2.zip
+_downloaded/
+_inspect/
+_check_processed_*/
+eval/results/qlora-rerun-eval-llm-judge/
+eval/results/qlora-rerun-regression-llm-judge/
+
 .env
 *.log
 
