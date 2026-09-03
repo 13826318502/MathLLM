@@ -1,0 +1,50 @@
+[
+  {
+    "question": "Square ABCD has its center at $(8,-8)$ and has an area of 4 square units. The top side of the square is horizontal. The square is then dilated with the dilation center at (0,0) and a scale factor of 2. What are the coordinates of the vertex of the image of square ABCD that is farthest from the origin? Give your answer as an ordered pair.",
+    "expected_answer": "$(18, -18)$",
+    "model_answer": "The center of the original square is at $(8,-8)$, so each side of the square is $\\sqrt{4}=2$ units long. Since the top side of the square is horizontal, the vertices of the square are $(7,-8)$, $(9,-8)$, $(7,-9)$, and $(9,-9)$.\nThe dilation centered at $(0,0)$ with a scale factor of $2$ takes the point $(x,y)$ to the point $(2x,2y)$. Therefore, the vertices of the image of the square are $(14,-16)$, $(18,-16)$, $(14,-18)$, and $(18,-18)$. The vertex farthest from the origin is $(18,-16)$.\n\n**最终答案**\n\n$(18,-16)$",
+    "is_correct": false,
+    "process_score": 1.0,
+    "latency_ms": 2848.4322987496853,
+    "first_token_ms": 57.96307325363159,
+    "model_final_answer": "$(18,-16)$",
+    "judge_reason": "normalized text and numeric comparison did not match",
+    "error": ""
+  },
+  {
+    "question": "In a truck, there are 26 pink hard hats, 15 green hard hats, and 24 yellow hard hats. If Carl takes away 4 pink hard hats, and John takes away 6 pink hard hats and twice as many green hard hats as the number of pink hard hats that he removed, then calculate the total number of hard hats that remained in the truck.",
+    "expected_answer": "$43$",
+    "model_answer": "The total number of pink hard hats that were taken away is $4+6=10$.\nJohn took away $2\\times6=12$ green hard hats.\nThe total number of hard hats that were taken away is $10+12=22$.\n\n**最终答案**\n\nThe total number of hard hats that remained is $26+15+24-22=\\boxed{53}$.",
+    "is_correct": false,
+    "process_score": 0.75,
+    "latency_ms": 1488.8483695685863,
+    "first_token_ms": 64.09083679318428,
+    "model_final_answer": "The total number of hard hats that remained is $26+15+24-22=\\boxed{53}$.",
+    "judge_reason": "normalized text and numeric comparison did not match",
+    "error": ""
+  },
+  {
+    "question": "计算组合数 $\\binom52$",
+    "expected_answer": "$\\binom52=10$。",
+    "model_answer": "组合数 $\\binom52$ 表示从 $5$ 个不同元素中取出 $2$ 个元素的组合数。\n\n**详细步骤**\n\n组合数的定义为：$\\binom{n}{k} = \\frac{n!}{k!(n-k)!}$\n\n代入 $n=5$ 和 $k=2$，得到：\n\n$$\\binom{5}{2} = \\frac{5!}{2!(5-2)!} = \\frac{5\\times4\\times3!}{2\\times1\\times3!} = \\frac{5\\times4}{2\\times1} = 10$$\n\n**最终答案**\n\n$$\\binom{5}{2} = 10$$",
+    "is_correct": false,
+    "process_score": 1.0,
+    "latency_ms": 2572.542805224657,
+    "first_token_ms": 66.38673320412636,
+    "model_final_answer": "$$\\binom{5}{2} = 10$$",
+    "judge_reason": "normalized text and numeric comparison did not match",
+    "error": ""
+  },
+  {
+    "question": "If $AAA_4$ can be expressed as $33_b$, where $A$ is a digit in base 4 and $b$ is a base greater than 5, what is the smallest possible sum $A+b$?",
+    "expected_answer": "$7$",
+    "model_answer": "$AAA_4$ can be expressed as $33_b$ if and only if $4^2A+4A+A=b^2+3b$. This simplifies to $(4^2+4+1)A=(b^2+3b)$, or $21A=b(b+3)$.\nSince $A$ is a digit in base 4, $A\\leq3$. The factors of $21$ are $1,3,7,$ and $21$. Since $b$ is a base greater than $5$, $b>5$. Therefore, $b=7$ and $A=3$. The smallest possible sum $A+b$ is $3+7=\\boxed{10}$.\n\n**最终答案**\n\n$10$",
+    "is_correct": false,
+    "process_score": 1.0,
+    "latency_ms": 2645.114451646805,
+    "first_token_ms": 60.758620500564575,
+    "model_final_answer": "$10$",
+    "judge_reason": "normalized text and numeric comparison did not match",
+    "error": ""
+  }
+]

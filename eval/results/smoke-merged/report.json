@@ -1,0 +1,12 @@
+{
+  "total": 10,
+  "successful": 10,
+  "failed": 0,
+  "correct": 6,
+  "incorrect": 4,
+  "bad_cases": 4,
+  "accuracy": 0.6,
+  "avg_process_score": 0.9,
+  "avg_latency_ms": 2045.75,
+  "avg_first_token_ms": 119.53
+}

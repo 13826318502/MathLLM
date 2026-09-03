@@ -1,0 +1,9 @@
+{
+  "model_endpoint": "http://127.0.0.1:8000/v1",
+  "model_name": "/root/autodl-tmp/MathLLM/outputs/smoke-89-merged",
+  "eval_data": "data/processed/eval.json",
+  "temperature": 0.0,
+  "max_tokens": 512,
+  "timeout": 120.0,
+  "limit": 10
+}
