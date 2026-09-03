@@ -3,6 +3,8 @@
 The script keeps source files under data/raw unchanged. It reads each source,
 normalizes it to question/solution/answer metadata, converts it to messages,
 validates and de-duplicates the examples, and writes train/eval JSON files.
+An independently prepared data/eval/test.json can be protected from future
+train/eval regeneration with --test-file.
 """
 
 from __future__ import annotations
@@ -23,6 +25,7 @@ from typing import Any
 RAW_DIR = Path("./data/raw")
 REGRESSION_DIR = Path("./data/eval/regression")
 OUTPUT_DIR = Path("./data/processed")
+TEST_FILE = Path("./data/eval/test.json")
 SYSTEM_PROMPT = """你是一个专业的数学解题助手。请按照以下要求回答数学问题：
 1. 先分析题目要求
 2. 给出详细的解题步骤
@@ -197,6 +200,36 @@ def _load_regression_questions(regression_dir: Path | None) -> set[str]:
                 question = _as_text(record.get("question") or record.get("problem"))
             if question:
                 questions.add(_canonicalize_question(question))
+    return questions
+
+
+def _load_test_questions(test_file: Path | None) -> set[str]:
+    """Load canonical questions from the protected independent test set."""
+    if test_file is None or not test_file.exists():
+        return set()
+    try:
+        records = _read_raw_file(test_file)
+    except (OSError, UnicodeError, json.JSONDecodeError, csv.Error) as exc:
+        LOGGER.warning("Skipping unreadable test file %s: %s", test_file, exc)
+        return set()
+
+    questions: set[str] = set()
+    for record in records:
+        messages = record.get("messages")
+        question = ""
+        if isinstance(messages, list):
+            question = next(
+                (
+                    _as_text(message.get("content"))
+                    for message in messages
+                    if isinstance(message, dict) and message.get("role") == "user"
+                ),
+                "",
+            )
+        else:
+            question = _as_text(record.get("question") or record.get("problem"))
+        if question:
+            questions.add(_canonicalize_question(question))
     return questions
 
 
@@ -406,6 +439,7 @@ def validate_data(
     seen_questions: set[str] = set()
     seen_signatures: set[str] = set()
     accepted_questions: list[str] = []
+    accepted_by_length: dict[int, list[str]] = {}
 
     for index, item in enumerate(data, 1):
         messages = item.get("messages") if isinstance(item, dict) else None
@@ -441,9 +475,20 @@ def validate_data(
         if seen_signatures.intersection(signatures):
             LOGGER.warning("Dropping item %s: template/number/variable near-duplicate question", index)
             continue
+        question_length = len(canonical_question)
+        # A SequenceMatcher ratio of 0.95 is impossible for strings whose
+        # lengths differ substantially. Avoid comparing every new question
+        # with every accepted question; the length pre-filter preserves the
+        # decision rule while keeping large dataset preparation practical.
+        similar_length_candidates = (
+            existing
+            for existing_length, values in accepted_by_length.items()
+            if min(question_length, existing_length) >= 0.8 * max(question_length, existing_length)
+            for existing in values
+        )
         if any(
             SequenceMatcher(None, canonical_question, existing).ratio() >= SIMILARITY_THRESHOLD
-            for existing in accepted_questions
+            for existing in similar_length_candidates
         ):
             LOGGER.warning("Dropping item %s: near-duplicate question", index)
             continue
@@ -456,6 +501,7 @@ def validate_data(
         seen_questions.add(canonical_question)
         seen_signatures.update(signatures)
         accepted_questions.append(canonical_question)
+        accepted_by_length.setdefault(question_length, []).append(canonical_question)
         cleaned.append(item)
 
     return cleaned
@@ -554,6 +600,10 @@ def main() -> None:
         help="Regression questions to exclude from train/eval splits",
     )
     parser.add_argument("--output-dir", type=Path, default=OUTPUT_DIR)
+    parser.add_argument(
+        "--test-file", type=Path, default=TEST_FILE,
+        help="Protected independent test set; its questions are excluded from train/eval",
+    )
     parser.add_argument("--eval-ratio", type=float, default=0.1)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--tokenizer", type=str, default=None, help="Optional tokenizer for exact token length checks")
@@ -582,6 +632,22 @@ def main() -> None:
     print("Validating data...")
     cleaned = validate_data(formatted, tokenizer=tokenizer, max_tokens=args.max_tokens)
     print(f"After cleaning: {len(cleaned)} examples")
+
+    protected_test_questions = _load_test_questions(args.test_file)
+    if protected_test_questions:
+        before_test_exclusion = len(cleaned)
+        cleaned = [
+            item
+            for item in cleaned
+            if _canonicalize_question(item["messages"][1]["content"])
+            not in protected_test_questions
+        ]
+        print(
+            f"Protected test questions: {len(protected_test_questions)}; "
+            f"excluded from train/eval: {before_test_exclusion - len(cleaned)}"
+        )
+    else:
+        print("Protected test questions: 0 (test file not found or empty)")
 
     print("Splitting dataset...")
     train_data, eval_data = split_dataset(cleaned, eval_ratio=args.eval_ratio, seed=args.seed)
