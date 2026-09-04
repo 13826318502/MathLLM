@@ -1,184 +1,396 @@
-# MathLLM 数据分类与错误回归集说明
+# MathLLM 数据分类、训练与评测全流程
 
 ## 1. 文档目的
 
-本文说明 MathLLM 当前数据目录中各类数据的职责、生命周期和使用边界，特别是
-模型发现真实数学错误后，如何分别构造纠错训练样本和错误回归样本。
+本文规定 MathLLM 从数据收集到训练、模型合并、推理、评测和错误回归的完整流程，
+并说明每个阶段使用什么数据、生成什么文件，以及这些文件能否进入下一阶段。
 
-核心原则是：
-
-```text
-训练集负责学习
-验证集负责选择 checkpoint 和调参
-独立测试集负责最终比较
-回归集负责检查已经发现的错误是否再次出现
-```
-
-不同用途的数据不能因为题型相似就混放，否则会导致训练数据泄漏，或者无法判断
-模型是真正学会了方法，还是只记住了原题答案。
-
-## 2. 数据类别总表
-
-| 数据类别 | 目录/文件 | 主要用途 | 是否参与训练 | 是否用于选择 checkpoint |
-|---|---|---|---:|---:|
-| 原始数据 | `data/raw/` | 保存下载、收集和人工编写的原始样本 | 经过预处理后参与 | 否 |
-| 纠错训练样本 | `data/raw/corrections/` | 学习已经发现的错误模式 | 是 | 间接通过 `eval.json` |
-| 处理后训练集 | `data/processed/train.json` | 供 LoRA/QLoRA 学习 | 是 | 否 |
-| 处理后验证集 | `data/processed/eval.json` | 监控泛化、选择最佳 checkpoint | 否 | 是 |
-| 独立测试集 | `data/eval/test.json` | 对确定的模型做最终统一比较 | 否 | 否 |
-| 错误回归集 | `data/eval/regression/regression.json` | 检查已知错误是否复发 | 否 | 否 |
-| 评测输出 | `eval/results/` | 保存答案、指标、错题和评测报告 | 否 | 否 |
-
-## 3. 各类数据的具体用途
-
-### 3.1 `data/raw/`：原始数据
-
-这里保存尚未统一格式的 JSON、JSONL、CSV 等来源数据，以及人工编写的数学样本。
-原始字段可以是 `question`、`solution`、`answer`、`source`、`subject` 等，
-不要求一开始就是 ChatML `messages` 格式。
-
-统一处理由 `scripts/prepare_data.py` 完成，程序负责清洗、格式转换、去重、排除
-测试集和回归集，并生成 `data/processed/train.json` 与
-`data/processed/eval.json`。
-
-### 3.2 `data/raw/corrections/`：纠错训练样本
-
-这里放与已知错误同类型、但数字、变量、条件或题目表述不同的样本。每条样本都必须：
-
-- 有完整、正确、人工验算过的解题过程；
-- 有明确的最终答案；
-- 使用原始独立字段格式，不直接手写 `messages`；
-- 不直接复制原来的错误题；
-- 最好使用 SymPy、手算或其他独立方法交叉验证。
-
-这类样本的目的不是让模型背诵某一道题，而是让模型学习可迁移的方法，例如：
+项目必须始终区分以下四种用途：
 
 ```text
-已知错误：三根的平均值与乘积关系中漏掉 1/3
-纠错训练样本：使用另一组三次方程系数，正确处理韦达定理和平均值
+原始数据：保存数据来源和人工编写样本
+训练数据：让模型学习
+验证数据：选择 checkpoint 和调参
+测试/回归数据：检查模型效果，不参与训练
 ```
 
-运行 `prepare_data.py` 时，`data/raw/` 会被递归扫描，因此 corrections 中的样本会
-进入训练/验证集划分。加入前必须确认它们没有与 `test.json` 或回归集中的题目高度重复。
+最重要的边界是：`data/eval/` 中的数据不会被训练数据准备程序扫描，不能复制到
+`data/raw/` 中参加训练。
 
-### 3.3 `data/processed/train.json`：处理后训练集
+## 2. 全流程图
 
-这是供训练框架读取的 ChatML 数据，通常包含：
+下图展示从数据进入项目到错误回归的完整闭环。箭头旁标出了每一步使用的数据和
+生成的结果。
 
-```json
-{
-  "messages": [
-    {"role": "system", "content": "..."},
-    {"role": "user", "content": "..."},
-    {"role": "assistant", "content": "..."}
-  ]
-}
+```mermaid
+flowchart TD
+    A[收集原始数据<br/>GSM8K / MATH / 中文数学 / 人工样本] --> B[data/raw/<br/>原始 JSON JSONL CSV]
+    C[创建并固定独立测试集<br/>scripts/create_test_set.py] --> D[data/eval/test.json<br/>独立测试集]
+
+    E[发现真实数学错误<br/>LLM Judge + 人工复核] --> F[data/eval/regression/regression.json<br/>原错题 + 同类新题]
+    E --> G[data/raw/corrections/<br/>同类不同条件的正确纠错样本]
+
+    B --> H[scripts/prepare_data.py<br/>读取、标准化、清洗、去重]
+    G --> H
+    F -.保护并排除.-> H
+    D -.保护并排除.-> H
+
+    H --> I[data/processed/train.json<br/>ChatML 训练集]
+    H --> J[data/processed/eval.json<br/>ChatML 验证集]
+
+    I --> K[scripts/train.py<br/>LoRA / QLoRA 训练]
+    J --> K
+    K --> L[outputs/math-lora/<br/>checkpoints + loss 日志]
+    L --> M[选择最佳 checkpoint<br/>依据 eval_loss 和验证表现]
+    M --> N[scripts/merge_lora.py<br/>基座模型 + LoRA adapter]
+    N --> O[outputs/math-lora-merged/<br/>独立合并模型]
+
+    O --> P[vLLM<br/>/v1/models + /v1/chat/completions]
+    P --> Q[eval/evaluate.py<br/>批量推理]
+    D --> Q
+    Q --> R[eval/results/final-test/<br/>report details bad_cases]
+    R --> S[基础匹配评测<br/>准确率 / 延迟 / 错题]
+    R --> T[eval/llm_judge.py<br/>独立大模型语义评测]
+    T --> U[LLM Judge 报告<br/>correct / incorrect / uncertain]
+    U --> V[人工抽查<br/>确认真实数学错误]
+    S --> V
+    V --> E
+
+    F --> W[回归评测<br/>eval/evaluate.py]
+    O --> W
+    W --> X[eval/results/regression/<br/>旧错误是否复发]
+    X --> V
+
+    I --> Y[scripts/quantize.py<br/>可选 AWQ / INT4]
+    O --> Y
+    Y --> Z[量化模型<br/>量化模型单独评测]
+    Z --> Q
 ```
 
-该文件由程序生成，不建议手工修改。纠错训练样本经过清洗后会和其他训练样本一起
-进入这里。
+图中有两个不同方向的“错误处理”分支：
 
-### 3.4 `data/processed/eval.json`：处理后验证集
+- `data/raw/corrections/` 中的样本用于下一轮训练；
+- `data/eval/regression/regression.json` 中的样本只用于检查错误是否复发。
 
-验证集不用于梯度更新，而是用于观察 `eval_loss`、选择最佳 checkpoint 和比较训练
-参数。它可以参与训练过程中的定期评估，但不能作为最终测试成绩。
+## 3. 数据目录和文件总表
 
-### 3.5 `data/eval/test.json`：独立测试集
+| 数据/文件 | 数据格式 | 作用 | 参与训练 | 参与验证 | 参与最终测试 |
+|---|---|---|---:|---:|---:|
+| `data/raw/` | JSON / JSONL / CSV | 原始数据来源和人工样本 | 经过处理后是 | 经过处理后是 | 否 |
+| `data/raw/corrections/` | 推荐 JSONL 独立字段 | 同类型纠错训练样本 | 是 | 否 | 否 |
+| `data/processed/train.json` | ChatML `messages` | 模型梯度训练 | 是 | 否 | 否 |
+| `data/processed/eval.json` | ChatML `messages` | 训练过程中计算 `eval_loss` | 否 | 是 | 否 |
+| `data/eval/test.json` | ChatML `messages` | 固定独立测试集 | 否 | 否 | 是 |
+| `data/eval/regression/regression.json` | ChatML `messages` | 已知错误回归测试 | 否 | 否 | 专项回归 |
+| `eval/results/` | JSON / PNG / CSV | 推理和评测输出 | 否 | 否 | 结果保存 |
 
-这是固定的独立测试集，原则上不参与训练、checkpoint 选择和反复调参。确定模型后，
-使用同一份测试集、相同的生成参数和相同的评测程序比较基座模型、LoRA 合并模型和
-量化模型。
+## 4. 每个阶段的输入、输出和用途
 
-如果已经查看了测试集的错题，并根据这些错题设计了训练样本，那么这份测试集已经
-参与了开发迭代，不应再被称为完全盲测。此时应继续保留它作为开发回归依据，并另外
-冻结一份新的、未查看的测试集用于最终论文或正式报告。
+### 阶段一：收集和保存原始数据
 
-### 3.6 `data/eval/regression/regression.json`：错误回归集
+输入来源包括 GSM8K、MATH/Hendrycks MATH、中文高等数学/线性代数/概率论题目、
+基础代数和应用题，以及人工编写或人工验算的样本。
 
-回归集只用于训练后的专项检查，不参与 `prepare_data.py` 的训练/验证划分，也不用于
-选择最佳 checkpoint。
-
-回归集建议包含两类样本：
-
-1. 原来答错的原题：确认模型是否还会犯同一个错误；
-2. 同类型但条件不同的新题：确认模型学会的是方法，而不是记住原题答案。
-
-因此，用户发现模型在独立测试集中的真实错误后，推荐按以下方式分流：
-
-| 样本 | 去向 | 原因 |
-|---|---|---|
-| 原来的错误题 | `data/eval/regression/regression.json` | 只用于复发检查，避免原题进入训练 |
-| 同类型、不同条件且答案正确的训练样本 | `data/raw/corrections/` | 让模型学习可迁移的方法 |
-| 同类型、不同条件的新验证题 | `data/eval/regression/regression.json` | 验证是否真正泛化 |
-
-不要把原来的错误题复制到 `data/raw/corrections/`，也不要把整个回归目录复制到
-`data/raw/`。当前仓库已经通过目录分离实现这一边界：`prepare_data.py` 扫描
-`data/raw/`，不会读取 `data/eval/`。
-
-## 4. 推荐的纠错迭代流程
+保存位置：
 
 ```text
-固定 test.json
-      ↓
-训练模型并评测
-      ↓
-LLM Judge + 人工复核，确认真实数学错误
-      ↓
-原错误题 ─────────────→ regression.json
-同类不同条件的正确题 ─→ raw/corrections/
-      ↓
-prepare_data.py 重新清洗、去重、划分
-      ↓
-重新训练并选择 checkpoint
-      ↓
-先跑 regression.json，确认旧错误是否消失
-      ↓
-再用固定 test.json 或新的盲测集做统一比较
+data/raw/
 ```
 
-每次迭代建议单独保存结果目录，例如：
+推荐每条样本最终能够提供：
 
 ```text
-eval/results/
-├── baseline/
-├── correction-round-1/
-└── regression-round-1/
+question、solution、answer、source、subject、difficulty
 ```
 
-不要覆盖旧报告，否则无法比较改进前后的准确率、错误类型和延迟。
+原始数据不直接作为最终训练文件使用，统一转换由
+`scripts/prepare_data.py` 完成。
 
-## 5. 推荐的文件内容
+### 阶段二：创建独立测试集
 
-训练纠错样本可以使用 JSONL 独立字段，例如：
+使用 `scripts/create_test_set.py` 生成：
+
+```text
+data/eval/test.json
+```
+
+该文件必须在正式训练前固定。它的题目不能进入训练集或验证集，也不能用于选择
+checkpoint。同一份 `test.json` 可以公平比较原始基座模型、LoRA 合并模型、纠错模型
+和量化模型。
+
+如果已经查看测试集错误并据此设计训练样本，那么它已经参与开发迭代；此后它适合作为
+开发回归依据，正式报告最好另外准备一份从未查看过的新盲测集。
+
+### 阶段三：准备纠错训练样本
+
+当评测确认模型存在真实数学错误时，构造同类型但不同条件的样本，保存到：
+
+```text
+data/raw/corrections/
+```
+
+纠错训练样本应满足：
+
+- 题目与原错误题不是简单复制；
+- 可以改变数字、变量、条件或题目表述；
+- 解题过程完整且人工验算正确；
+- `answer` 是明确的最终答案；
+- 使用原始独立字段，不直接手写 ChatML；
+- `source` 使用 `correction-round-1`、`correction-round-2` 等值。
+
+推荐格式：
 
 ```json
 {"question":"新的同类型题目","solution":"完整且验算过的解题过程","answer":"明确最终答案","source":"correction-round-1","subject":"线性代数","difficulty":"中等"}
 ```
 
-回归集使用评测程序能够读取的 JSON 数组，并至少保留 `messages`、标准答案和来源
-信息。推荐在不影响评测读取的前提下增加元数据，例如 `regression_id`、
-`origin_eval_index`、`error_type` 和 `target_skill`，方便追踪错误来源。
+当前版本的 `prepare_data.py` 会递归扫描 `data/raw/`，因此 corrections 文件会被发现。
+并且，只有 `_metadata.source` 以 `correction-` 开头的样本会被强制保留在训练集，不会
+随机进入验证集。因此必须正确填写 `source`，不能写成普通的 `manual` 或 `generic`。
 
-## 6. 当前仓库快照
+### 阶段四：清洗、转换和划分数据
 
-截至本说明编写时：
+运行：
 
-- `data/eval/test.json`：116 条独立测试题；
-- `data/eval/regression/regression.json`：4 条回归样本；
-- `data/raw/corrections/`：当前未发现 JSON/JSONL 纠错样本文件，仅有目录说明；
-- `data/processed/`：处理后数据属于运行产物，通常不提交到 GitHub；
-- `eval/results/`：保存模型推理和测评输出，不属于训练数据目录。
+```powershell
+python scripts/prepare_data.py `
+  --raw-dir data/raw `
+  --regression-dir data/eval/regression `
+  --test-file data/eval/test.json `
+  --output-dir data/processed `
+  --eval-ratio 0.1 `
+  --seed 42
+```
 
-在下一轮纠错训练前，应先人工验算新增 corrections 样本，再执行数据预处理并检查
-训练集、验证集和回归集之间没有重复或高相似题目。
+程序会读取 `data/raw/` 下的 JSON、JSONL 和 CSV，统一字段，清洗空内容和异常标记，
+规范化 LaTeX，删除重复/近似重复题目，排除测试集和回归集，固定保留 `correction-*`
+样本在训练集，并将其他样本按固定随机种子约 90%/10% 划分。
 
-## 7. 检查清单
+输出：
 
-- [ ] 原错误题没有复制到 `data/raw/corrections/`；
+```text
+data/processed/train.json
+data/processed/eval.json
+```
+
+重新加入 corrections 后，必须重新运行本阶段，否则旧的 `train.json` 不会自动变化。
+
+### 阶段五：训练 LoRA/QLoRA
+
+训练程序为 `scripts/train.py`，输入是原始 Qwen 基座模型、
+`data/processed/train.json`、`data/processed/eval.json` 和
+`configs/train_config.yaml`。输出通常为：
+
+```text
+outputs/math-lora/
+```
+
+其中包含 checkpoint、训练状态、训练参数和 loss 记录。正式对比实验时，每个实验必须
+使用独立输出目录，例如 `outputs/baseline/`、`outputs/ablation-lr-1e-4/` 和
+`outputs/correction-round-1/`。
+
+原始的 `math-lora-merged` 是第一轮已经微调过的模型，不是新的原始基座。消融实验应
+从同一个原始 Qwen 基座开始；纠错训练可以继续加载旧 adapter，但为了实验公平，更
+推荐使用“原始训练集 + corrections”从原始基座重新训练。
+
+### 阶段六：选择最佳 checkpoint
+
+选择依据包括 `eval_loss`、验证集表现、训练稳定性、输出是否截断/重复，以及回归集
+是否仍然出现已知错误。不要仅根据最后一个 checkpoint 选择模型。
+
+### 阶段七：合并 LoRA 和基座模型
+
+程序为 `scripts/merge_lora.py`。输入是原始 Qwen 基座模型和最佳 LoRA checkpoint，
+输出通常为：
+
+```text
+outputs/math-lora-merged/
+```
+
+合并会生成新的完整模型目录，不会修改原始基座模型，也不会删除 LoRA adapter。后续
+可用合并模型进行 Transformers 推理或 vLLM 部署。
+
+### 阶段八：vLLM 推理服务
+
+服务读取 `outputs/math-lora-merged/`，提供：
+
+```text
+GET  http://127.0.0.1:8000/v1/models
+POST http://127.0.0.1:8000/v1/chat/completions
+```
+
+这一步只负责加载模型和生成答案，不负责判断答案是否正确。
+
+### 阶段九：基础推理和自动评测
+
+程序为 `eval/evaluate.py`，输入是 vLLM 接口和 `data/eval/test.json`，输出示例：
+
+```text
+eval/results/final-test/
+├── report.json
+├── details.json
+├── bad_cases.json
+├── run_config.json
+├── accuracy_comparison.png
+└── latency_comparison.png
+```
+
+`report.json` 保存准确率、成功/失败数、平均延迟和首 token 延迟；`details.json` 保存
+每道题的标准答案、模型原始答案和判定信息；`bad_cases.json` 保存错误或失败样本。
+基础评测适合做可重复的工程比较，但格式不同不一定代表数学错误，边界案例应继续
+进行 LLM Judge 或人工复核。
+
+### 阶段十：独立大模型语义评测
+
+程序为 `eval/llm_judge.py`，输入是：
+
+```text
+eval/results/final-test/details.json
+data/eval/test.json
+独立评测模型 API
+```
+
+输出：
+
+```text
+eval/results/final-test/llm-judge/
+├── llm_judged_report.json
+├── llm_judged_details.json
+└── llm_judged_bad_cases.json
+```
+
+LLM Judge 判断数学语义，不要求答案文字、LaTeX 或 Markdown 写法完全一致，通常输出
+`correct`、`incorrect` 或 `uncertain`。LLM Judge 也可能判断错误，因此不确定和低
+置信度样本仍需要人工抽查。API key 只应通过环境变量或安全配置提供，不要提交到 GitHub。
+
+### 阶段十一：错误确认和数据分流
+
+经过基础评测、LLM Judge 和人工抽查后，只有确认属于真实数学错误的样本才进入分流：
+
+```text
+原错误题
+└── data/eval/regression/regression.json
+    只用于检查同一个错误是否复发
+
+同类型、不同条件的正确样本
+└── data/raw/corrections/
+    用于下一轮训练，让模型学习方法而不是背答案
+
+同类型、不同条件的新验证题
+└── data/eval/regression/regression.json
+    用于检查是否真正泛化
+```
+
+不要把原错误题直接加入 `data/raw/corrections/`，也不要把整个 regression 目录复制到
+`data/raw/`，否则回归题会进入训练，评测结果会发生数据泄漏。
+
+### 阶段十二：回归测试
+
+输入是新训练并合并后的模型和 `data/eval/regression/regression.json`，运行：
+
+```powershell
+python eval/evaluate.py `
+  --model_endpoint http://127.0.0.1:8000/v1 `
+  --eval_data data/eval/regression/regression.json `
+  --output eval/results/regression-round-1 `
+  --temperature 0 `
+  --max_tokens 2048
+```
+
+输出目录为：
+
+```text
+eval/results/regression-round-1/
+```
+
+回归测试要回答：原来答错的题是否不再犯同一个错误，以及同类型但条件不同的新题
+是否也能正确解决。只有两者都改善，才说明纠错训练可能学到了方法；只答对原题不能
+证明模型具备泛化能力。
+
+### 阶段十三：量化和量化后评测
+
+量化程序为 `scripts/quantize.py`，输入通常为合并后的模型
+`outputs/math-lora-merged/`。校准数据只能来自训练数据，不能使用
+`data/processed/eval.json` 或 `data/eval/test.json`。量化生成独立输出目录后，必须
+重新启动 vLLM，并使用同一份测试集、相同的生成参数和相同的评测程序，与未量化模型
+进行对比。
+
+## 5. 文件与数据泄漏规则
+
+### 允许的方向
+
+```text
+data/raw/ → prepare_data.py → data/processed/train.json
+data/raw/ → prepare_data.py → data/processed/eval.json
+data/processed/train.json + eval.json → train.py
+最佳 checkpoint + 原始基座 → merge_lora.py
+合并模型 → vLLM → evaluate.py
+test.json → evaluate.py / llm_judge.py
+regression.json → 回归评测
+```
+
+### 禁止的方向
+
+```text
+test.json → data/raw/                 禁止
+regression.json → data/raw/           禁止
+原错误题 → data/raw/corrections/      禁止
+eval.json → 量化校准数据              禁止
+test.json → checkpoint 选择            禁止
+LLM Judge API key → GitHub             禁止
+模型权重和大体积输出 → GitHub          默认禁止
+```
+
+## 6. 当前仓库数据状态
+
+截至本说明更新时，仓库中可见的数据文件为：
+
+```text
+data/eval/test.json
+└── 116 条独立测试题
+
+data/eval/regression/regression.json
+└── 4 条回归样本
+
+data/raw/corrections/
+└── 当前未发现实际 JSON/JSONL 纠错样本，仅有 README.md
+
+data/processed/
+└── 运行生成目录，通常不提交到 GitHub
+
+eval/results/
+└── 评测输出目录，不属于训练数据目录
+```
+
+因此，下一轮纠错训练前还需要将人工验算后的同类型样本放入
+`data/raw/corrections/`，并确保每条样本的 `source` 以 `correction-` 开头。
+
+## 7. 每轮实验检查清单
+
+### 数据检查
+
+- [ ] `data/eval/test.json` 已固定且没有进入训练集；
+- [ ] regression 原题和新题没有复制到 `data/raw/`；
+- [ ] corrections 样本使用 `source: correction-round-N`；
 - [ ] corrections 样本与原错误题条件不同；
-- [ ] corrections 的解题过程和答案已人工验算；
-- [ ] regression 同时包含原错误题和同类新题；
-- [ ] `data/eval/test.json` 未被训练或调参修改；
-- [ ] 训练、验证、测试和回归结果使用不同输出目录；
-- [ ] 重新训练后先运行回归评测，再进行统一测试集比较；
-- [ ] 正式报告区分基础匹配、LLM Judge 和人工抽检结果。
+- [ ] 所有解题过程和答案已经人工验算；
+- [ ] 重新运行 `prepare_data.py` 后检查训练/验证数量和学科分布；
+- [ ] 检查训练集、验证集、测试集和回归集没有重复或高相似题目。
+
+### 训练和模型检查
+
+- [ ] 每个实验使用独立的 `output_dir`；
+- [ ] 消融实验从同一个原始基座模型开始；
+- [ ] 记录 `train_loss`、`eval_loss` 和最佳 checkpoint；
+- [ ] LoRA 合并输出到独立模型目录；
+- [ ] vLLM 的 `/v1/models` 和 `/v1/chat/completions` 均正常；
+- [ ] 没有 CUDA OOM、请求失败或答案截断异常。
+
+### 评测检查
+
+- [ ] 基础评测使用固定 `temperature` 和 `max_tokens`；
+- [ ] LLM Judge 使用独立评测模型；
+- [ ] 保存逐题模型答案和原始 API 响应；
+- [ ] `incorrect` 和 `uncertain` 样本完成人工抽查；
+- [ ] 先完成 regression 回归测试，再报告改进后的盲测结果；
+- [ ] 量化前后使用同一份测试集和同一套评测参数。
