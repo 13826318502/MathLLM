@@ -238,7 +238,13 @@ def _write_dataset_bundle(
 
 def _base_training_config(config: dict[str, Any]) -> dict[str, Any]:
     project_root = Path.cwd()
-    base_path = _resolve_path(config.get("base_config", "configs/train_config.yaml"), project_root)
+    base_path = _resolve_path(
+        config.get(
+            "base_config",
+            "configs/training/correction-round-2-20260904/train_config.yaml",
+        ),
+        project_root,
+    )
     with base_path.open("r", encoding="utf-8") as handle:
         base = yaml.safe_load(handle) or {}
     if not isinstance(base, dict):

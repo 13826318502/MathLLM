@@ -54,12 +54,33 @@ LATEX_BINOM_COMPACT_PATTERN = re.compile(r"\\binom\s*([0-9])\s*([0-9])")
 WHITESPACE_PATTERN = re.compile(r"\s+")
 
 
+def _parse_indices(value: str, size: int) -> list[int]:
+    """Parse comma-separated 1-based item numbers for targeted evaluation."""
+    indices: list[int] = []
+    for token in str(value or "").split(","):
+        token = token.strip()
+        if not token:
+            continue
+        try:
+            index = int(token)
+        except ValueError as exc:
+            raise ValueError(f"--indices 包含无效题号: {token!r}") from exc
+        if not 1 <= index <= size:
+            raise ValueError(f"--indices 题号超出范围: {index}，有效范围为 1-{size}")
+        if index not in indices:
+            indices.append(index)
+    if not indices:
+        raise ValueError("--indices 至少要包含一个有效题号")
+    return indices
+
+
 @dataclass
 class EvalResult:
     question: str
     expected_answer: str
     model_answer: str
     is_correct: bool
+    eval_index: int = 0
     process_score: float = 0.0
     latency_ms: float = 0.0
     first_token_ms: float = 0.0
@@ -362,6 +383,7 @@ def run_evaluation(
     max_tokens: int = 512,
     timeout: float = 120.0,
     limit: int | None = None,
+    indices: list[int] | None = None,
 ) -> EvalReport:
     """Run evaluation and retain a result for every input sample."""
     with open(eval_data_path, "r", encoding="utf-8") as handle:
@@ -371,9 +393,14 @@ def run_evaluation(
     if limit is not None:
         eval_data = eval_data[:limit]
     resolved_model = model_name or discover_model_name(endpoint, timeout=min(timeout, 20.0))
+    if indices:
+        selected_indices = _parse_indices(",".join(map(str, indices)), len(eval_data))
+        eval_items = [(index, eval_data[index - 1]) for index in selected_indices]
+    else:
+        eval_items = list(enumerate(eval_data, 1))
     report = EvalReport()
-    for index, item in enumerate(eval_data, 1):
-        print(f"Evaluating {index}/{len(eval_data)}...")
+    for position, (index, item) in enumerate(eval_items, 1):
+        print(f"Evaluating item {index} ({position}/{len(eval_items)})...")
         try:
             question, prompt_messages, expected = _messages_for_item(item)
             model_answer, latency_ms, first_token_ms = call_model(
@@ -387,6 +414,7 @@ def run_evaluation(
                 model_answer=model_answer,
                 model_final_answer=extract_final_answer(model_answer),
                 is_correct=is_correct,
+                eval_index=index,
                 judge_reason=reason,
                 process_score=judge_process(question, model_answer),
                 latency_ms=latency_ms,
@@ -402,7 +430,8 @@ def run_evaluation(
                     pass
             report.results.append(EvalResult(
                 question=question, expected_answer=expected_answer, model_answer="",
-                is_correct=False, judge_reason="request or sample parsing failed",
+                is_correct=False, eval_index=index,
+                judge_reason="request or sample parsing failed",
                 error=f"{type(error).__name__}: {error}",
             ))
             print(f"  failed: {type(error).__name__}: {error}")
@@ -449,13 +478,24 @@ def main() -> None:
     parser.add_argument("--max_tokens", type=int, default=512)
     parser.add_argument("--timeout", type=float, default=120.0)
     parser.add_argument("--limit", type=int, default=None, help="只评测前 N 条，用于接口冒烟测试")
+    parser.add_argument(
+        "--indices",
+        default=None,
+        help="只评测指定的 1-based 题号，例如 46,47,51,54,91,92",
+    )
     args = parser.parse_args()
+    selected_indices = None
+    if args.indices:
+        try:
+            selected_indices = [int(token.strip()) for token in args.indices.split(",") if token.strip()]
+        except ValueError as exc:
+            parser.error(f"--indices 必须是逗号分隔的整数: {args.indices!r}")
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
     report = run_evaluation(
         args.model_endpoint, args.eval_data, model_name=args.model_name,
         temperature=args.temperature, max_tokens=args.max_tokens,
-        timeout=args.timeout, limit=args.limit,
+        timeout=args.timeout, limit=args.limit, indices=selected_indices,
     )
     summary = report.summary()
     print("\nEvaluation Summary:")
@@ -481,6 +521,7 @@ def main() -> None:
                 "max_tokens": args.max_tokens,
                 "timeout": args.timeout,
                 "limit": args.limit,
+                "indices": selected_indices,
             },
             handle,
             ensure_ascii=False,

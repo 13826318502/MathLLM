@@ -1,0 +1,12 @@
+{
+  "total": 116,
+  "correct": 74,
+  "incorrect": 34,
+  "uncertain": 8,
+  "judge_errors": 2,
+  "accuracy_excluding_uncertain": 0.6852,
+  "uncertain_rate": 0.069,
+  "human_review_required": 42,
+  "judge_endpoint": "https://api.deepseek.com/v1",
+  "judge_model": "deepseek-v4-flash"
+}

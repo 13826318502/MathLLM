@@ -53,43 +53,28 @@ vLLM OpenAI 兼容接口
 | vLLM 部署 | 已实现启动器 | `deploy/server.py` 可启动 OpenAI 兼容服务 |
 | Web 应用 | 开发中 | FastAPI/Gradio 仍需联调 |
 
-## 最近一次完整训练与评测记录（2026-09-03）
+## 最近一次完整训练与评测记录（2026-09-04）
 
-本次使用云端 RTX 4090D 进行了从训练到测试的完整链路验证：
+Correction Round 2 在云端 RTX 4090D 上完成了训练、LoRA 合并、vLLM 推理和两组
+评测：
 
 | 项目 | 结果 |
 |---|---:|
-| 训练样本 | 944 |
-| 验证样本 | 105 |
-| 训练配置 | 3 epochs、QLoRA 4-bit、batch size 1、gradient accumulation 8 |
-| 优化步数 | 354 |
-| 最优 checkpoint | `outputs/math-lora/checkpoint-115` |
-| 最优验证损失 | `0.2261200845` |
-| 最终训练损失 | `0.2225737757` |
-| 最终验证损失 | `0.2527795136` |
-| 独立测试样本 | 116 |
-| 测试正确数 | 65 |
-| 测试错误数 | 51 |
-| 数学准确率 | `56.03%` |
-| 平均总延迟 | `3338.56 ms` |
-| 平均首 token 延迟 | `62.32 ms` |
+| 训练配置 | 3 epochs、BF16、batch size 2、gradient accumulation 8 |
+| 最优 checkpoint | `outputs/correction-round-2/checkpoint-130` |
+| 最优验证 loss | `0.2099656165` |
+| 最终训练 loss | `0.2501130170` |
+| 最终验证 loss | `0.2207271457` |
+| 合并模型 | `outputs/correction-round-2-merged/` |
+| 原始测试集 | 116 条，基础准确率 `59.48%`，LLM Judge `64.04%` |
+| 错误回归集 | 42 条，基础准确率 `28.57%`，LLM Judge `25.64%` |
 
-本次已将 `checkpoint-115` 与基座模型合并，合并模型位于云端
-`outputs/math-lora-merged/`，并通过 vLLM 成功启动服务。独立测试结果位于云端
-`eval/results/final-test/`，结果压缩包为 `outputs/final-test-results-20260903.zip`，
-已下载到本地保存。
+两组推理请求均全部成功，没有 HTTP 失败或 CUDA OOM。LLM Judge 的少量 JSON 解析
+失败样本不代表被测模型答错，应重试或人工复核。回归集准确率较低，说明当前纠错
+训练尚未充分解决原有错误，暂不应直接量化或作为最终发布版本。
 
-本次链路结论：模型加载、QLoRA 训练、checkpoint 保存、LoRA 合并、vLLM 服务和
-116 条测试请求均正常完成，接口失败数为 0。准确率仍只有 `56.03%`，说明当前
-模型效果不足以作为正式版本；下一步应人工复核 `bad_cases.json`，区分真实数学
-错误、答案抽取失败和格式误判，再扩大或优化训练数据后重新比较。
-
-首次全量评测随后使用独立 LLM Judge 进行语义复核，并对输出可能被截断的题目
-提高 `max_tokens` 后重新生成。修正第 1 条参考答案、重测第 66/101 条和另外 6
-条不确定样本后，逻辑合并结果为：正确 78 条、错误 38 条、未解决不确定 0 条，
-综合语义准确率约 `67.24%`。这不是对模型重新训练后的提升，而是对同一轮实验
-结果的评测方法修正和补充复核。完整过程见
-[首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)。
+本轮完整报告见
+[Correction Round 2 训练与评测报告](docs/experiments/correction-round-2-evaluation-20260904.md)。
 
 ## 环境安装
 
@@ -229,10 +214,11 @@ python scripts/prepare_data.py \
 主训练程序是 `scripts/train.py`，不是 LLaMA-Factory：
 
 ```bash
-python scripts/train.py --config configs/train_config.yaml
+python scripts/train.py --config configs/training/correction-round-2-20260904/train_config.yaml
 ```
 
-主要配置位于 `configs/train_config.yaml`：
+本轮主要配置位于
+`configs/training/correction-round-2-20260904/train_config.yaml`：
 
 ```yaml
 lora:
@@ -475,8 +461,9 @@ python scripts/quantize.py \
 MathLLM/
 ├── app/                         # FastAPI 和 Gradio 应用
 ├── configs/
-│   ├── train_config.yaml        # LoRA/QLoRA 训练配置
-│   ├── deploy_config.yaml       # vLLM 部署配置
+│   ├── training/                # 按实验轮次保存训练配置
+│   ├── deployment/              # 按模型状态保存部署配置
+│   ├── archive/                 # 历史训练/冒烟/部署配置
 │   └── ablation.yaml             # 消融实验配置
 ├── data/
 │   ├── raw/                     # 原始数据和纠错训练样本
@@ -544,5 +531,6 @@ git pull origin main
 - [vLLM PagedAttention](docs/learning/vllm-pagedattention.md)
 - [消融实验方法](docs/learning/ablation-study.md)
 - [首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)
+- [Correction Round 2 训练与评测报告](docs/experiments/correction-round-2-evaluation-20260904.md)
 - [LoRA/QLoRA Checkpoint 文件说明](docs/learning/checkpoint-anatomy.md)
 - [大模型知识文档](docs/learning/llm-knowledge-guide.md)

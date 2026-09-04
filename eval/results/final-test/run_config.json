@@ -1,0 +1,9 @@
+{
+  "model_endpoint": "http://127.0.0.1:8000/v1",
+  "model_name": "./outputs/math-lora-merged",
+  "eval_data": "data/eval/test.json",
+  "temperature": 0.0,
+  "max_tokens": 512,
+  "timeout": 120.0,
+  "limit": null
+}

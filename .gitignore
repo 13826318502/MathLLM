@@ -23,11 +23,14 @@ data/processed/*
 
 # Local upload archives and temporary inspection copies
 MathLLM-cloud-upload-v2.zip
+uploads/
 _downloaded/
 _inspect/
 _check_processed_*/
 eval/results/qlora-rerun-eval-llm-judge/
 eval/results/qlora-rerun-regression-llm-judge/
+eval/results/**/.ipynb_checkpoints/
+eval/results/**/*.zip
 
 .env
 *.log

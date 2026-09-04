@@ -3,7 +3,7 @@
 用法::
 
     python scripts/train.py
-    python scripts/train.py --config configs/train_config.yaml
+    python scripts/train.py --config configs/training/correction-round-2-20260904/train_config.yaml
 
 训练前确保基座模型和 ``data/processed/train.json``、``eval.json`` 已准备好。
 默认使用标准 LoRA；显存不足时可以在训练配置中设置 ``use_4bit: true``，
@@ -40,7 +40,10 @@ except ModuleNotFoundError:  # supports ``import scripts.train`` from project ro
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-def load_config(config_path: str = "configs/train_config.yaml") -> dict[str, Any]:
+ACTIVE_TRAIN_CONFIG = "configs/training/correction-round-2-20260904/train_config.yaml"
+
+
+def load_config(config_path: str = ACTIVE_TRAIN_CONFIG) -> dict[str, Any]:
     """加载 YAML 配置，并检查顶层结构。"""
     path = Path(config_path).expanduser()
     if not path.is_absolute():
@@ -304,7 +307,7 @@ def _save_json(path: Path, value: Any) -> None:
         handle.write("\n")
 
 
-def train(config_path: str = "configs/train_config.yaml") -> Path:
+def train(config_path: str = ACTIVE_TRAIN_CONFIG) -> Path:
     config = load_config(config_path)
     data_config = config.get("data", {})
     training = config.get("training", {})
@@ -398,7 +401,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Train a Qwen LoRA adapter")
     parser.add_argument(
         "--config",
-        default="configs/train_config.yaml",
+        default=ACTIVE_TRAIN_CONFIG,
         help="Path to the nested MathLLM training YAML config",
     )
     args = parser.parse_args()

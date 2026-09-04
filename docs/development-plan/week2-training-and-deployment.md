@@ -285,7 +285,7 @@ outputs/math-lora-merged/
 
 ### 重要注意事项
 
-当前 `scripts/quantize.py` 仍是 `TODO`，`requirements.txt` 也没有明确配置 AWQ 工具。执行量化前要确认实际使用的量化库、版本和输出格式。
+当前 `scripts/quantize.py` 已使用 `llmcompressor` 实现 AWQ W4A16 量化，`requirements.txt` 已加入 `llmcompressor`。执行量化前仍要确认云服务器上的 CUDA、Transformers、llmcompressor 和 vLLM 版本兼容。
 
 不要把 bitsandbytes 的 QLoRA 4bit 加载结果直接当成 AWQ 模型。QLoRA 的 NF4 训练加载和 AWQ 的部署 checkpoint 不是同一种格式。
 
@@ -307,6 +307,20 @@ INT4 回答
 
 先启动已经确认格式正确的模型，再切换量化模型。
 
+量化命令：
+
+```bash
+python scripts/quantize.py \\
+  --model_path ./outputs/math-lora-merged \\
+  --output_path ./outputs/math-lora-quantized \\
+  --calibration_data ./data/processed/train.json \\
+  --num_calibration_samples 256 \\
+  --max_seq_length 2048 \\
+  --dtype float16
+```
+
+脚本使用 AWQ 激活感知缩放和 W4A16 权重量化，并保存 `quantization_manifest.json`。量化必须在 CUDA GPU 上完成；QLoRA 的 NF4 加载结果不能直接当作 AWQ 部署模型。
+
 典型 AWQ 启动命令：
 
 ```bash
@@ -317,13 +331,13 @@ python -m vllm.entrypoints.openai.api_server \
   --max-model-len 4096 \
   --gpu-memory-utilization 0.9 \
   --dtype float16 \
-  --quantization awq
+  --quantization compressed-tensors
 ```
 
 当前项目配置需要特别核对：
 
-1. `model_path` 当前指向 `math-lora-merged`，量化后应指向量化模型目录；
-2. `quantization` 当前写成 `int4`，AWQ 模型通常应使用 `awq`；
+1. `model_path` 应指向 `math-lora-quantized`；
+2. 当前脚本使用 llmcompressor 保存 compressed-tensors 格式，`quantization` 应写成 `compressed-tensors`；AWQ 是其中使用的量化算法；
 3. `max_concurrent_requests` 当前没有在 `server.py` 中真正传给 vLLM；
 4. 8GB 显存只适合低并发、较短上下文的测试，不要一开始设置高并发。
 
@@ -400,7 +414,7 @@ vLLM 是否启动成功：
 - [ ] 能解释 train loss 和 eval loss 的变化；
 - [ ] LoRA 权重成功合并为独立模型；
 - [ ] 合并模型可以加载并回答问题；
-- [ ] AWQ/INT4 量化成功，或记录阻塞原因；
+- [ ] AWQ/INT4 量化在云 GPU 上成功，并完成输出加载验证；
 - [ ] FP16/INT4 至少完成 10 道题对比；
 - [ ] vLLM 服务能够启动；
 - [ ] `/v1/models` 和聊天接口测试成功；

@@ -104,6 +104,34 @@ python eval/llm_judge.py \
   --output eval/results/smoke-merged-final/llm-judge
 ```
 
+评测时以 `--eval-data` 中当前的参考答案为准。如果 `details.json` 在参考答案修正前生成，
+程序会提示并自动忽略其中过期的 `expected_answer`，避免旧标注污染评测。
+
+程序默认使用 `response_format=json_object` 请求结构化输出；如果接口不支持该
+参数，会自动回退到普通请求。每道题默认最多重试 2 次，输出上限为 512 tokens。
+程序会处理常见的 `content`、`reasoning_content`、`text` 和 `output_text` 响应字段；
+重试时会追加只输出完整 JSON 的提示。
+如果只有少数题目评测失败，可以使用 `--indices` 按原始 1-based 题号定向重试，避免重复调用整批 API：
+
+```bash
+python eval/llm_judge.py \
+  --details eval/results/final-test/details.json \
+  --eval-data data/eval/test.json \
+  --output eval/results/final-test/llm-judge-retry \
+  --indices 66,101 \
+  --max-output-tokens 4096 \
+  --retries 3
+```
+如果评测接口既不支持 JSON 模式，也不接受该字段，可以显式关闭：
+
+```bash
+python eval/llm_judge.py \
+  --details eval/results/final-test/details.json \
+  --eval-data data/eval/test.json \
+  --output eval/results/final-test/llm-judge \
+  --no-json-mode
+```
+
 也可以显式指定接口和模型：
 
 ```bash
@@ -118,6 +146,8 @@ python eval/llm_judge.py \
 输出文件：
 
 - `llm_judged_details.json`：每道题的评测标签、置信度、错误类型和简短理由；
+- `llm_judged_details.json` 还会保存 `llm_raw_response`、`llm_raw_api_response`、
+  `llm_response_field` 和 `llm_attempts`，便于定位评测模型没有返回合法 JSON 的问题；
 - `llm_judged_report.json`：汇总准确率和 `uncertain` 比例；
 - `llm_judged_bad_cases.json`：所有错误和不确定样本，供人工复核。
 

@@ -5,11 +5,11 @@
 启动方式:
     python deploy/server.py
 
-    # 或直接使用 vLLM CLI:
+    # 或直接使用 vLLM CLI（本轮模型合并完成后）:
     python -m vllm.entrypoints.openai.api_server \
-        --model ./outputs/math-lora-merged \
+        --model ./outputs/correction-round-2-merged \
         --host 0.0.0.0 --port 8000 \
-        --quantization awq
+        --max-model-len 2048 --dtype float16
 
 API 用法（与 OpenAI API 兼容）:
     curl http://localhost:8000/v1/chat/completions \
@@ -26,7 +26,10 @@ import subprocess
 from pathlib import Path
 
 
-def load_deploy_config(config_path: str = "configs/deploy_config.yaml") -> dict:
+ACTIVE_DEPLOY_CONFIG = "configs/deployment/correction-round-2-20260904-merged.yaml"
+
+
+def load_deploy_config(config_path: str = ACTIVE_DEPLOY_CONFIG) -> dict:
     with open(config_path, "r") as f:
         return yaml.safe_load(f)
 

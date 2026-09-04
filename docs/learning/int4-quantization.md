@@ -301,5 +301,6 @@ AWQ 在数学任务上比 GPTQ 平均高 **1-3 个百分点**。
 
 - [AWQ 原始论文](https://arxiv.org/abs/2306.00978) - AWQ: Activation-aware Weight Quantization for LLM Compression and Acceleration
 - [GPTQ 原始论文](https://arxiv.org/abs/2210.17323) - GPTQ: Accurate Post-Training Quantization for Generative Pre-trained Transformers
+- [LLM Compressor](https://github.com/vllm-project/llm-compressor) - 本项目实际使用的 vLLM 生态量化工具，生成 compressed-tensors 格式
 - [AutoAWQ 库](https://github.com/casper-hansen/AutoAWQ) - AWQ 量化的实现
 - [AutoGPTQ 库](https://github.com/AutoGPTQ/AutoGPTQ) - GPTQ 量化的实现

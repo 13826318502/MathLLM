@@ -246,6 +246,13 @@ def _source_from_filename(path: Path) -> str:
 
 def _infer_source(item: dict[str, Any], path: Path) -> str:
     declared = _as_text(item.get("source")).lower()
+    # Correction files are already converted to the independent
+    # question/solution/answer schema.  Do not route them through a source
+    # parser merely because their provenance name contains ``gsm8k`` or
+    # ``math``; those parsers expect the original dataset markers (``####``
+    # or ``\\boxed{}``).
+    if declared.startswith("correction-"):
+        return "generic"
     if "gsm8k" in declared or declared == "gsm":
         return "gsm8k"
     if declared in {"math", "math_dataset", "hendrycks_math", "competition_math"}:

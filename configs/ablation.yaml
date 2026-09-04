@@ -1,7 +1,7 @@
 # Controlled, one-variable-at-a-time ablation plan.
 # The runner uses the same train/eval files and seed for every experiment.
 
-base_config: configs/train_config.yaml
+base_config: configs/training/correction-round-2-20260904/train_config.yaml
 seed: 42
 output_dir: eval/results/ablation
 
