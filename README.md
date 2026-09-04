@@ -81,6 +81,13 @@ vLLM OpenAI 兼容接口
 模型效果不足以作为正式版本；下一步应人工复核 `bad_cases.json`，区分真实数学
 错误、答案抽取失败和格式误判，再扩大或优化训练数据后重新比较。
 
+首次全量评测随后使用独立 LLM Judge 进行语义复核，并对输出可能被截断的题目
+提高 `max_tokens` 后重新生成。修正第 1 条参考答案、重测第 66/101 条和另外 6
+条不确定样本后，逻辑合并结果为：正确 78 条、错误 38 条、未解决不确定 0 条，
+综合语义准确率约 `67.24%`。这不是对模型重新训练后的提升，而是对同一轮实验
+结果的评测方法修正和补充复核。完整过程见
+[首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)。
+
 ## 环境安装
 
 本地 CPU 环境可以完成数据处理和代码检查。训练、LoRA 合并、量化和 vLLM
@@ -529,5 +536,6 @@ git pull origin main
 - [INT4 量化原理](docs/learning/int4-quantization.md)
 - [vLLM PagedAttention](docs/learning/vllm-pagedattention.md)
 - [消融实验方法](docs/learning/ablation-study.md)
+- [首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)
 - [LoRA/QLoRA Checkpoint 文件说明](docs/learning/checkpoint-anatomy.md)
 - [大模型知识文档](docs/learning/llm-knowledge-guide.md)
