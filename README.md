@@ -32,6 +32,9 @@ vLLM OpenAI 兼容接口
 核心原则：训练集用于学习，验证集用于选择 checkpoint 和调参，独立测试集
 只在最终比较时使用，回归集用于检查已经发现的错误是否再次出现。
 
+数据目录的分类、用途、训练/评测边界以及错误回归流程，详见
+[数据分类与错误回归集说明](docs/experiments/data-classification-and-regression-guide.md)。
+
 ## 当前状态
 
 | 模块 | 状态 | 说明 |
@@ -391,6 +394,10 @@ export JUDGE_API_KEY="your-api-key"
 - 同类但条件不同的纠错样本放入 `data/raw/corrections/`，用于后续训练；
 - 原错误题和同类验证题放入 `data/eval/regression/regression.json`，只做回归测试；
 - 不要把原错误题直接加入训练集。
+
+如果已经根据 `test.json` 的错误设计了训练样本，该测试集已经参与开发迭代；正式
+报告应另外保留一份未查看的新测试集作为盲测。完整的数据分流说明见
+[数据分类与错误回归集说明](docs/experiments/data-classification-and-regression-guide.md)。
 
 运行回归评测：
 
