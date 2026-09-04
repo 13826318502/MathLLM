@@ -4,6 +4,7 @@
 
 - `test.json`：固定的最终测试集。用于比较基座模型、LoRA 模型和合并模型；不要把它加入训练集，也不要根据它反复调参。
 - `regression/regression.json`：针对已发现错误的回归集，用于检查模型是否再次犯同类错误。
+- `correction-validation/round-3.json`：第三轮同类型纠错验证集，只用于观察纠错能力是否提升，不参与训练。
 
 测试命令示例：
 

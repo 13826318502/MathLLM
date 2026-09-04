@@ -7,7 +7,7 @@
 
     # 或直接使用 vLLM CLI（本轮模型合并完成后）:
     python -m vllm.entrypoints.openai.api_server \
-        --model ./outputs/correction-round-2-merged \
+        --model ./outputs/correction-round-3-merged \
         --host 0.0.0.0 --port 8000 \
         --max-model-len 2048 --dtype float16
 
@@ -26,7 +26,7 @@ import subprocess
 from pathlib import Path
 
 
-ACTIVE_DEPLOY_CONFIG = "configs/deployment/correction-round-2-20260904-merged.yaml"
+ACTIVE_DEPLOY_CONFIG = "configs/deployment/correction-round-3-20260904-merged.yaml"
 
 
 def load_deploy_config(config_path: str = ACTIVE_DEPLOY_CONFIG) -> dict:

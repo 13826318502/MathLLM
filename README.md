@@ -42,8 +42,8 @@ vLLM OpenAI 兼容接口
 | 正式数据整理 | 已完成当前版本 | GSM8K、Hendrycks MATH、CMID 和纠错样本已放入本地数据目录 |
 | 数据预处理 | 已完成 | 支持 JSON、JSONL、CSV，包含字段统一、ChatML 转换、清洗、去重和划分 |
 | 独立测试集 | 已生成 | `data/eval/test.json`，当前 116 条 |
-| 当前训练集 | 已生成 | `data/processed/train.json`，当前 944 条 |
-| 当前验证集 | 已生成 | `data/processed/eval.json`，当前 105 条 |
+| 当前正式训练集 | 已生成暂存版 | `data/processed/round-3-staging/train.json`，1118 条 |
+| 当前正式验证集 | 已生成暂存版 | `data/processed/round-3-staging/eval.json`，124 条 |
 | LoRA/QLoRA 训练 | 已实现 | `scripts/train.py` 使用 Transformers + TRL + PEFT |
 | LoRA 合并 | 已实现 | `scripts/merge_lora.py` 输出独立模型 |
 | loss 记录 | 已实现 | 保存 train/eval loss、CSV、JSON 和曲线图 |
@@ -75,6 +75,10 @@ Correction Round 2 在云端 RTX 4090D 上完成了训练、LoRA 合并、vLLM �
 
 本轮完整报告见
 [Correction Round 2 训练与评测报告](docs/experiments/correction-round-2-evaluation-20260904.md)。
+
+Round 3 纠错训练在第 330 步安全停止；最佳 checkpoint 为 `checkpoint-110`。
+过拟合分析见
+[Correction Round 3 过拟合分析报告](docs/experiments/correction-round-3-overfitting-20260904.md)。
 
 ## 环境安装
 
@@ -205,20 +209,21 @@ python scripts/prepare_data.py \
 
 不要手动写入 `[im_start]`、`[im_end]`；这些特殊标记由 tokenizer 和训练框架处理。
 
-当前版本重新生成后的数据为：规范化 1166 条，清洗后 1165 条，独立测试集
-116 条，训练集 944 条，验证集 105 条。程序检查不能替代数学证明，正式训练
-前仍应人工抽查并验算参考答案。
+当前 Round 3 暂存数据为：训练集 1118 条，普通验证集 124 条，另有 20 条
+纠错验证集。`data/eval/test.json`（116 条）和
+`data/eval/regression/regression.json`（42 条）保持独立。程序检查不能替代数学证明，
+正式训练前仍应人工抽查并验算参考答案。
 
 ## LoRA/QLoRA 训练
 
 主训练程序是 `scripts/train.py`，不是 LLaMA-Factory：
 
 ```bash
-python scripts/train.py --config configs/training/correction-round-2-20260904/train_config.yaml
+python scripts/train.py --config configs/training/correction-round-3-20260904/train_config.yaml
 ```
 
 本轮主要配置位于
-`configs/training/correction-round-2-20260904/train_config.yaml`：
+`configs/training/correction-round-3-20260904/train_config.yaml`：
 
 ```yaml
 lora:
@@ -228,11 +233,12 @@ lora:
 
 training:
   num_train_epochs: 3
-  per_device_train_batch_size: 2
+  per_device_train_batch_size: 1
   gradient_accumulation_steps: 8
-  learning_rate: 2.0e-4
-  eval_steps: 5
-  save_steps: 5
+  learning_rate: 1.0e-4
+  use_4bit: true
+  eval_steps: 10
+  save_steps: 10
   max_seq_length: 2048
 ```
 
@@ -283,7 +289,7 @@ python deploy/server.py
 
 ```bash
 python -m vllm.entrypoints.openai.api_server \
-  --model ./outputs/math-lora-merged \
+  --model ./outputs/correction-round-3-merged \
   --host 0.0.0.0 \
   --port 8000 \
   --max-model-len 2048
@@ -528,6 +534,7 @@ git pull origin main
 - [LoRA 原理](docs/learning/lora-principle.md)
 - [QLoRA 与 LoRA 对比](docs/learning/qlora-vs-lora.md)
 - [INT4 量化原理](docs/learning/int4-quantization.md)
+- [模型格式转换、量化与本地推理](docs/learning/model-conversion-quantization-local-inference.md)
 - [vLLM PagedAttention](docs/learning/vllm-pagedattention.md)
 - [消融实验方法](docs/learning/ablation-study.md)
 - [首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)

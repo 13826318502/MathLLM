@@ -1,0 +1,17 @@
+# Deployment config for the model produced after correction-round-3.
+# Do not use this path before the new adapter has been trained and merged.
+model:
+  model_path: "./outputs/correction-round-3-merged"
+  dtype: "float16"
+  max_model_len: 2048
+  gpu_memory_utilization: 0.9
+
+server:
+  host: "0.0.0.0"
+  port: 8000
+  max_concurrent_requests: 32
+
+generation:
+  temperature: 0.0
+  top_p: 0.9
+  max_tokens: 2048

@@ -6,7 +6,8 @@ normalised independent-field format expected by ``prepare_data.py``.
 
 Run from the project root::
 
-    python scripts/collect_official_corrections.py --target 100
+    python scripts/collect_official_corrections.py --target 100 \
+        --output data/raw/corrections/correction-round-3.jsonl
 
 The resulting file is a candidate correction set.  Human spot-checking is
 still required before a formal training run.
@@ -103,7 +104,7 @@ def gsm8k_record(item: dict[str, Any]) -> dict[str, str] | None:
         "question": prep._normalize_text(question),
         "solution": prep._normalize_text(solution),
         "answer": prep._normalize_text(answer),
-        "source": "correction-official-gsm8k-round-2",
+        "source": "correction-official-gsm8k-round-3",
         "subject": "应用题",
         "difficulty": "基础",
     }
@@ -124,7 +125,7 @@ def math_record(item: dict[str, Any], config: str) -> dict[str, str] | None:
         "geometry": "几何",
         "precalculus": "函数与预备微积分",
     }
-    normalized["source"] = "correction-official-math-round-2"
+    normalized["source"] = "correction-official-math-round-3"
     normalized["subject"] = subject_map.get(config, config)
     return normalized
 
@@ -153,7 +154,7 @@ def cmid_record(item: dict[str, Any]) -> dict[str, str] | None:
         "question": prep._normalize_text(question),
         "solution": prep._normalize_text(solution),
         "answer": prep._normalize_text(answer),
-        "source": "correction-official-cmid-round-2",
+        "source": "correction-official-cmid-round-3",
         "subject": subject,
         "difficulty": "未标注",
     }
@@ -246,7 +247,7 @@ def main() -> None:
     parser.add_argument(
         "--output",
         type=Path,
-        default=CORRECTION_DIR / "correction-official-round-2.jsonl",
+        default=CORRECTION_DIR / "correction-round-3.jsonl",
     )
     args = parser.parse_args()
     output = args.output if args.output.is_absolute() else ROOT / args.output

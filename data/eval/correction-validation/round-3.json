@@ -1,0 +1,322 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "$240 was divided between Kelvin and Samuel. Samuel received 3/4 of the money. From his share, Samuel then spent 1/5 of the original $240 on drinks. How much does Samuel have left?"
+      },
+      {
+        "role": "assistant",
+        "content": "Samuel received $\\frac{3}{4}$ of \\$240, which is \\$240*($240\\times \\frac{3}{4}=180$\nHe spent $\\frac{1}{5}$ of \\$240, which is \\$240*($240\\times (\\frac{1}{5})=48$\nHe spent this amount from his own share, so he has \\$180-\\$48 = $180-48=132$ left.\n\n**最终答案**\n\n$132$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Stella’s antique shop has 3 dolls, 2 clocks and 5 glasses for sale. She sells the dolls for $5 each. The clocks are priced at $15 each. The glasses are priced at $4 each. If she spent $40 to buy everything and she sells all of her merchandise, how much profit will she make?"
+      },
+      {
+        "role": "assistant",
+        "content": "The dolls will sell for 3 * \\$5 = $3\\times 5=15$.\nThe clocks will bring in 2 * \\$15 = $2\\times 15=30$.\nThe glasses will sell for 5 * \\$4 = $5\\times 4=20$.\nIn total, she will bring in \\$15 + \\$30 + \\$20 = $15+30+20=65$\nHer total profit will be \\$65 - \\$40 = $65-40=25$.\n\n**最终答案**\n\n$25$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Dino does some online gig work for a living. He works 20 hours a month making $10 an hour. He works 30 hours a month making $20 an hour. He works 5 hours a month making $40 an hour. He pays $500 a month in expenses. How much money does Dino have left at the end of the month?"
+      },
+      {
+        "role": "assistant",
+        "content": "Dino works 20 hours at a rate of \\$10 an hour, which means that work pays him $20\\times 10=200$ dollars a month\nDino works 30 hours at a rate of \\$20 an hour, which means that work pays him $30\\times 20=600$ dollars a month\nDino works 5 hours at a rate of \\$40 an hour, which means that work pays him $5\\times 40=200$ dollars a month\nAltogether, this means Dino makes $200+200+600=1000$ dollars a month.\nYou subtract Dino's expenses of 500 from this amount, meaning he has $1000-500=500$ dollars at the end of the month\n\n**最终答案**\n\n$500$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "What is the greatest prime factor of $12! + 14!$? (Reminder: If $n$ is a positive integer, then $n!$ stands for the product $1\\cdot 2\\cdot 3\\cdot \\cdots \\cdot (n-1)\\cdot n$.)"
+      },
+      {
+        "role": "assistant",
+        "content": "Factor out $12!$ from both terms: $12!+14!=12!(1+13\\cdot 14)=12!\\cdot 183$. Factor $183=3\\cdot 61$. Since $12!$ has no prime factors greater than 11, $\\boxed{61}$ is the greatest prime factor of $12!+14!$.\n\n**最终答案**\n\n$61$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "A busy port has 4 cruise ships and twice as many cargo ships. The number of sailboats is 6 more than the cargo ships and seven times more than fishing boats. How many vessels are there on the water?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are 4 x $4\\times 2=8$ cargo ships.\nThere are $8+6=14$ sailboats.\nThere are $\\frac{14}{7}=2$ fishing boats.\nThere are $4+8+14+2=28$ vessels on the water.\n\n**最终答案**\n\n$28$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "The operation $\\star$ is defined as $a \\star b = a + \\frac{a}{b}$. What is the value of $12 \\star 3$?"
+      },
+      {
+        "role": "assistant",
+        "content": "We have $12 \\star 3 = 12+ \\frac{12}{3}=12+4=\\boxed{16}$.\n\n**最终答案**\n\n$16$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a triangle, the area is numerically equal to the perimeter. What is the radius of the inscribed circle?\n$\\text{(A) } 2\\quad \\text{(B) } 3\\quad \\text{(C) } 4\\quad \\text{(D) } 5\\quad \\text{(E) } 6$"
+      },
+      {
+        "role": "assistant",
+        "content": "One of the most common formulas involving the inradius of a triangle is $A = rs$, where $A$ is the area of the triangle, $r$ is the inradius, and $s$ is the semiperimeter.\nThe problem states that $A = p = 2s$. This means $2s = rs$, or $r = \\boxed{2}$\n\n**最终答案**\n\n$2$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Define an ordered quadruple of integers $(a, b, c, d)$ as interesting if $1 \\le a<b<c<d \\le 10$, and $a+d>b+c$. How many interesting ordered quadruples are there?"
+      },
+      {
+        "role": "assistant",
+        "content": "Rearranging the inequality we get $d-c > b-a$. Let $e = 11$, then $(a, b-a, c-b, d-c, e-d)$ is a partition of 11 into 5 positive integers or equivalently: $(a-1, b-a-1, c-b-1, d-c-1, e-d-1)$ is a partition of 6 into 5 non-negative integer parts. Via a standard stars and bars argument, the number of ways to partition 6 into 5 non-negative parts is $\\binom{6+4}4 = \\binom{10}4 = 210$. The interesting quadruples correspond to partitions where the second number is less than the fourth. By symmetry, there are as many partitions where the fourth is less than the second. So, if $N$ is the number of partitions where the second element is equal to the fourth, our answer is $(210-N)/2$.\nWe find $N$ as a sum of 4 cases:\ntwo parts equal to zero, $\\binom82 = 28$ ways,\ntwo parts equal to one, $\\binom62 = 15$ ways,\ntwo parts equal to two, $\\binom42 = 6$ ways,\ntwo parts equal to three, $\\binom22 = 1$ way.\nTherefore, $N = 28 + 15 + 6 + 1 = 50$ and our answer is $(210 - 50)/2 = \\boxed{80}$.\n\n**最终答案**\n\n$80$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "小明在纸上随机写下一位数字(0到9中的任意一个),然后小红也随机猜一个数字。他们两人所写的数字相同的概率是( )。"
+      },
+      {
+        "role": "assistant",
+        "content": "小明和小红各自随机选择一个0到9的数字,两人所写数字相同的概率可以通过以下步骤计算:\n\n1. **总可能情况数**:\n小明有10种选择(0-9),小红也有10种选择,因此总共有 $10 \\times 10 = 100$ 种可能的结果。\n\n2. **事件“数字相同”的情况数**:\n当小明选择某个数字(如0),小红必须猜中该数字才能相同。共有10种匹配情况:(0,0), (1,1), ..., (9,9),即10种。\n\n3. **概率计算**:\n概率 = 相同情况数 / 总情况数 = $\\frac{10}{100} = \\frac{1}{10}$。\n\n**验证思路**:\n无论小明选择哪个数字,小红猜中的概率都是 $\\frac{1}{10}$,因此整体概率为 $\\frac{1}{10}$。\n\n**答案**:\n$$\n\\boxed{\\dfrac{1}{10}}\n$$\n\n**最终答案**\n\n$\\dfrac{1}{10}$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Find the common ratio of the infinite geometric series: $$\\frac{5}{6}-\\frac{4}{9}+\\frac{32}{135}-\\dots$$"
+      },
+      {
+        "role": "assistant",
+        "content": "We take the ratio of consecutive terms: $$\\cfrac{-\\frac{4}{9}}{\\frac{5}{6}}=\\frac{-4}{9}\\cdot \\frac{6}{5}=\\boxed{-\\frac{8}{15}}.$$\n\n**最终答案**\n\n$-\\frac{8}{15}$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Let $\\log_{4}3=x$. Then $\\log_{2}27=kx$. Find $k$."
+      },
+      {
+        "role": "assistant",
+        "content": "We know $\\log_{4}3=x$ so $4^x=3$. We also know $\\log_{2}27=kx$ so $2^{kx}=27$. We need to combine these equations, but note that $27=3^3$, so cube the first equation: $(4^x)^3=3^3=27$, so $4^{3x}=27=2^{kx}$. But $4=2^2$, so we can substitute to get the same base: $(2^2)^{3x}=2^{kx}$, so $2^{6x}=2^{kx}$. Then $6x=kx$ and $\\boxed{k=6}$.\n\n**最终答案**\n\n$k=6$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "What is the coefficient of $x^2y^6$ in the expansion of $\\left(\\frac{3}{5}x-\\frac{y}{2}\\right)^8$? Express your answer as a common fraction."
+      },
+      {
+        "role": "assistant",
+        "content": "By the Binomial theorem, this term is $$\\binom82 \\left(\\frac{3}{5}x\\right)^2\\left(-\\frac{y}{2}\\right)^6=28\\cdot\\frac{9}{25}\\cdot\\frac{1}{64}x^2y^6=\\boxed{\\frac{63}{400}}x^2y^6$$\n\n**最终答案**\n\n$\\frac{63}{400}$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "I have five apples and ten oranges. If a fruit basket must contain at least one piece of fruit, how many kinds of fruit baskets can I make? (The apples are identical and the oranges are identical. A fruit basket consists of some number of pieces of fruit, and it doesn't matter how the fruit are arranged in the basket.)"
+      },
+      {
+        "role": "assistant",
+        "content": "For a moment, consider empty fruit baskets. Now there are $6$ choices total for the apples: no apples, one apple, two apples, three, four, or all five apples. Similarly, there are $11$ choices total for the oranges. Thus, there are $6\\cdot 11 = 66$ potential fruit baskets. But we must subtract one off of that because we counted empty fruit baskets, which aren't actually allowed. So there are $\\boxed{65}$ possible fruit baskets.\n\n**最终答案**\n\n$65$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Simon has 20% more legos than Bruce, who has 20 more than Kent. If Kent has 40 legos, how many does Simon have?"
+      },
+      {
+        "role": "assistant",
+        "content": "Bruce has 20 more legos than Kent who has 40 so Bruce has $20+40=60$ legos\nSimon has 20% more legos than Bruce who has 60 legos so that's .$20\\times 0.01\\times 60=12$ more legos\n20% more is 12 legos and Bruce has 60 so Simon has $12+60 = 72$ legos\n\n**最终答案**\n\n$72$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "某市为鼓励市民绿色出行,推出了“共享单车免押金”活动。据统计,活动开始后,每天新增注册用户数比前一天增加10%,已知第一天有1000人注册,第n天注册人数超过2000人的概率为0.9。若每天新增注册人数可视为独立事件,且标准差为50人,则n至少为多少天?"
+      },
+      {
+        "role": "assistant",
+        "content": "### 问题分析\n\n题目描述了某市“共享单车免押金”活动的注册人数增长情况。已知:\n\n- 第一天新增注册人数为 1000 人;\n- 每天新增注册人数比前一天增加 10%(即均值每天增长 10%);\n- 每天新增注册人数可视为独立事件,且标准差为 50 人;\n- 要求第 $ n $ 天注册人数超过 2000 人的概率为 0.9;\n- 需求出满足条件的最小天数 $ n $。\n\n---\n\n### 解题思路\n\n#### 1. 均值模型\n\n设第 $ n $ 天的注册人数为 $ X_n $,其均值为:\n$$\n\\mu_n = 1000 \\times (1.1)^{n-1}\n$$\n\n由于题目中提到“标准差为 50 人”,我们假设 $ X_n \\sim N(\\mu_n, 50^2) $,即服从正态分布。\n\n#### 2. 概率条件转化\n\n题目给出:\n$$\nP(X_n > 2000) = 0.9\n$$\n\n将其标准化为标准正态分布:\n$$\nP\\left( Z > \\frac{2000 - \\mu_n}{50} \\right) = 0.9\n$$\n\n查标准正态分布表,得到:\n$$\n\\Phi(-1.28) = 0.1 \\Rightarrow P(Z > -1.28) = 0.9\n$$\n\n因此有:\n$$\n\\frac{2000 - \\mu_n}{50} = -1.28 \\Rightarrow \\mu_n = 2000 + 1.28 \\times 50 = 2064\n$$\n\n即需要:\n$$\n1000 \\times (1.1)^{n-1} \\geq 2064\n$$\n\n---\n\n### 3. 计算最小 $ n $\n\n解不等式:\n$$\n(1.1)^{n-1} \\geq \\frac{2064}{1000} = 2.064\n$$\n\n取自然对数:\n$$\n(n - 1)\\ln(1.1) \\geq \\ln(2.064)\n$$\n\n代入数值:\n$$\n\\ln(1.1) \\approx 0.09531,\\quad \\ln(2.064) \\approx 0.725\n$$\n$$\nn - 1 \\geq \\frac{0.725}{0.09531} \\approx 7.606\n\\Rightarrow n \\geq 8.606\n$$\n\n因此,最小整数 $ n = 9 $\n\n---\n\n### 4. 验证\n\n- 当 $ n = 8 $ 时:\n$$\n\\mu_8 = 1000 \\times (1.1)^7 \\approx 1948.72 < 2064 \\Rightarrow P(X_8 > 2000) < 0.9\n$$\n\n- 当 $ n = 9 $ 时:\n$$\n\\mu_9 = 1000 \\times (1.1)^8 \\approx 2143.59 > 2064 \\Rightarrow P(X_9 > 2000) > 0.9\n$$\n\n满足题意的最小天数为 $ n = 9 $\n\n---\n\n### 最终答案\n\n$$\n\\boxed{9}\n$$\n\n**最终答案**\n\n$9$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "My 2 cats had 3 female kittens and 2 male kittens. How many cats do I have in total?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are $3+2=5$ kittens\nIf you originally had 2 cats then you now have $2+5=7$ cats in total\n\n**最终答案**\n\n$7$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "The cost of Joe's new HVAC system is $20,000. It includes 2 conditioning zones, each with 5 vents. In dollars, what is the cost of the system per vent?"
+      },
+      {
+        "role": "assistant",
+        "content": "Two zones with 5 vents per zone is $2\\times 5=10$ vents.\nThus, the \\$20,000 system costs \\$20,$\\frac{20000}{10}=2000$ per vent.\n\n**最终答案**\n\n$2,000$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Forty slips are placed into a hat, each bearing a number 1, 2, 3, 4, 5, 6, 7, 8, 9, or 10, with each number entered on four slips. Four slips are drawn from the hat at random and without replacement. Let $p$ be the probability that all four slips bear the same number. Let $q$ be the probability that two of the slips bear a number $a$ and the other two bear a number $b\\ne a$. What is the value of $q/p$?"
+      },
+      {
+        "role": "assistant",
+        "content": "The total number of ways that the numbers can be chosen is $\n\\binom{40}{4}.\n$ Exactly 10 of these possibilities result in the four slips having the same number.\n\nNow we need to determine the number of ways that two slips can have a number $a$ and the other two slips have a number $b$, with $b\\ne a$. There are $\\binom{10}{2}$ ways to choose the distinct numbers $a$ and $b$. For each value of $a$, there are $\\binom{4}{2}$ ways to choose the two slips with $a$ and for each value of $b$, there are $\\binom{4}{2}$ ways to choose the two slips with $b$. Hence the number of ways that two slips have some number $a$ and the other two slips have some distinct number $b$ is \\[\n\\binom{10}{2}\\cdot\\binom{4}{2}\\cdot\\binom{4}{2}=45\\cdot 6\\cdot6 =1620.\n\\]So the probabilities $p$ and $q$ are $\\displaystyle \\frac{10}{\\binom{40}{4}}$ and $\\displaystyle \\frac{1620}{\\binom{40}{4}}$, respectively, which implies that \\[\n\\frac{q}{p} = \\frac{1620}{10} = \\boxed{162}.\n\\]\n\n**最终答案**\n\n$162$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "A family has three adults and children, both girls and boys. They went out for a family trip and prepared 3 dozen boiled eggs for the trip. Every adult got 3 eggs, and the boys each received 1 more egg than each girl since the girls had some snacks. How many boys went on the trip if the number of girls was 7 and each girl received an egg?"
+      },
+      {
+        "role": "assistant",
+        "content": "The total number of eggs the family had is $3\\times 12=36$ eggs\nIf each adult received 3 eggs, the total number of eggs they got is $3\\times 3=9$ eggs.\nThe children shared $36-9=27$ eggs\nSince each girl received an egg, the boys shared $27-7=20$ eggs\nIf each boy received 1 egg more than each girl, each received $1+1=2$ eggs\nThe boys received 20 eggs, and if each got 2 eggs, then $\\frac{20}{2}=10$ boys went on the trip\n\n**最终答案**\n\n$10$"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "Winnie has 45 cherry lollipops, 116 wintergreen lollipops, 4 grape lollipops, and 229 shrimp cocktail lollipops. With no regard to flavor, Winnie gives each of her 11 nearest and dearest friends some lollipops. Each friend gets the same number of lollipops and she hands out as many lollipops as possible. How many lollipops does Winnie end up keeping for herself?"
+      },
+      {
+        "role": "assistant",
+        "content": "We want to know the remainder when $45+116+4+229$ is divided by 11. The remainders of each of these numbers are easy to compute individually so we can say \\[45+116+4+229\\equiv1+6+4+9=20\\equiv9\\pmod{11}.\\]Therefore Winnie has $\\boxed{9}$ lollipops left over after the distribution. Hopefully she did not keep any shrimp cocktails.\n\n**最终答案**\n\n$9$"
+      }
+    ]
+  }
+]

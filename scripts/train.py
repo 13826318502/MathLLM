@@ -3,7 +3,7 @@
 用法::
 
     python scripts/train.py
-    python scripts/train.py --config configs/training/correction-round-2-20260904/train_config.yaml
+    python scripts/train.py --config configs/training/correction-round-3-20260904/train_config.yaml
 
 训练前确保基座模型和 ``data/processed/train.json``、``eval.json`` 已准备好。
 默认使用标准 LoRA；显存不足时可以在训练配置中设置 ``use_4bit: true``，
@@ -40,7 +40,7 @@ except ModuleNotFoundError:  # supports ``import scripts.train`` from project ro
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-ACTIVE_TRAIN_CONFIG = "configs/training/correction-round-2-20260904/train_config.yaml"
+ACTIVE_TRAIN_CONFIG = "configs/training/correction-round-3-20260904/train_config.yaml"
 
 
 def load_config(config_path: str = ACTIVE_TRAIN_CONFIG) -> dict[str, Any]:
