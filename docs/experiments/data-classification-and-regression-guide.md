@@ -15,7 +15,8 @@
 ```
 
 最重要的边界是：`data/eval/` 中的数据不会被训练数据准备程序扫描，不能复制到
-`data/raw/` 中参加训练。
+`data/raw/` 中参加训练。尤其是原来答错的题，必须保留在回归集，不能同时复制到
+训练集；否则训练后再测这道题会产生数据泄漏。
 
 ## 2. 全流程图
 
@@ -81,7 +82,7 @@ flowchart TD
 | `data/processed/train.json` | ChatML `messages` | 模型梯度训练 | 是 | 否 | 否 |
 | `data/processed/eval.json` | ChatML `messages` | 训练过程中计算 `eval_loss` | 否 | 是 | 否 |
 | `data/eval/test.json` | ChatML `messages` | 固定独立测试集 | 否 | 否 | 是 |
-| `data/eval/regression/regression.json` | ChatML `messages` | 已知错误回归测试 | 否 | 否 | 专项回归 |
+| `data/eval/regression/regression.json` | ChatML `messages` | 原错误题和同类新题的专项回归测试 | 否 | 否 | 专项回归 |
 | `eval/results/` | JSON / PNG / CSV | 推理和评测输出 | 否 | 否 | 结果保存 |
 
 ## 4. 每个阶段的输入、输出和用途
@@ -147,6 +148,7 @@ data/raw/corrections/
 当前版本的 `prepare_data.py` 会递归扫描 `data/raw/`，因此 corrections 文件会被发现。
 并且，只有 `_metadata.source` 以 `correction-` 开头的样本会被强制保留在训练集，不会
 随机进入验证集。因此必须正确填写 `source`，不能写成普通的 `manual` 或 `generic`。
+原错误题不能放入这个目录；它只能保留在 `data/eval/regression/regression.json`。
 
 ### 阶段四：清洗、转换和划分数据
 
@@ -164,7 +166,8 @@ python scripts/prepare_data.py `
 
 程序会读取 `data/raw/` 下的 JSON、JSONL 和 CSV，统一字段，清洗空内容和异常标记，
 规范化 LaTeX，删除重复/近似重复题目，排除测试集和回归集，固定保留 `correction-*`
-样本在训练集，并将其他样本按固定随机种子约 90%/10% 划分。
+样本在训练集，并将其他样本按固定随机种子约 90%/10% 划分。原错误题不应出现在
+`data/raw/`，因此不会被转换为训练样本。
 
 输出：
 
@@ -265,7 +268,8 @@ LLM Judge 判断数学语义，不要求答案文字、LaTeX 或 Markdown 写法
 
 ### 阶段十一：错误确认和数据分流
 
-经过基础评测、LLM Judge 和人工抽查后，只有确认属于真实数学错误的样本才进入分流：
+经过基础评测、LLM Judge 和人工抽查后，只有确认属于真实数学错误的样本才进入分流。
+原错误题本身不进入训练，只作为回归测试样本：
 
 ```text
 原错误题
@@ -283,6 +287,16 @@ LLM Judge 判断数学语义，不要求答案文字、LaTeX 或 Markdown 写法
 
 不要把原错误题直接加入 `data/raw/corrections/`，也不要把整个 regression 目录复制到
 `data/raw/`，否则回归题会进入训练，评测结果会发生数据泄漏。
+
+一条样本只能承担一种角色：原错误题放回归集；同类型新题根据用途二选一。用于学习
+方法的同类型新题放 `data/raw/corrections/`，用于检验泛化的同类型新题放
+`data/eval/regression/regression.json`，不能把同一条新题同时放进两个目录。
+
+这里的 regression 集不是训练过程中的普通验证集 `data/processed/eval.json`：
+
+- `data/processed/eval.json`：训练期间使用，用于观察 `eval_loss` 和选择 checkpoint；
+- `data/eval/regression/regression.json`：训练完成后使用，用于检查旧错误是否复发、
+  同类新题是否能够泛化。
 
 ### 阶段十二：回归测试
 
@@ -363,7 +377,8 @@ eval/results/
 ```
 
 因此，下一轮纠错训练前还需要将人工验算后的同类型样本放入
-`data/raw/corrections/`，并确保每条样本的 `source` 以 `correction-` 开头。
+`data/raw/corrections/`，并确保每条样本的 `source` 以 `correction-` 开头。原来的
+错误题继续留在 `data/eval/regression/regression.json`，不能复制到 corrections。
 
 ## 7. 每轮实验检查清单
 
@@ -371,8 +386,10 @@ eval/results/
 
 - [ ] `data/eval/test.json` 已固定且没有进入训练集；
 - [ ] regression 原题和新题没有复制到 `data/raw/`；
+- [ ] 原错误题没有复制到 `data/raw/corrections/`；
 - [ ] corrections 样本使用 `source: correction-round-N`；
 - [ ] corrections 样本与原错误题条件不同；
+- [ ] 同一条新题没有同时放入 corrections 和 regression；
 - [ ] 所有解题过程和答案已经人工验算；
 - [ ] 重新运行 `prepare_data.py` 后检查训练/验证数量和学科分布；
 - [ ] 检查训练集、验证集、测试集和回归集没有重复或高相似题目。
