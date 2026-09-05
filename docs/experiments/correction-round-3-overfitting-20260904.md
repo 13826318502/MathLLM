@@ -46,6 +46,10 @@ outputs/correction-round-3-report/loss_history.json
 outputs/correction-round-3-report/loss_summary.json
 ```
 
+训练与验证损失曲线：
+
+![Round 3 train/eval loss curve](assets/correction-round-3-loss-curve.png)
+
 ## 3. 判断
 
 本轮存在较明确的过拟合现象：训练 loss 继续下降，但 eval loss 在 checkpoint-110 达到最低后持续回升，从 `0.231639` 上升到 `0.272141`，增幅约 17.5%。因此，`checkpoint-330` 不应作为最终模型，`checkpoint-110` 是当前应优先使用的候选。
