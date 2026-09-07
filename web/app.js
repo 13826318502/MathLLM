@@ -16,7 +16,7 @@ const PAGE_META = {
 const EXAMPLES = [
   ["一元二次方程", "解方程 $x^2-5x+6=0$。"],
   ["函数极值", "求函数 $f(x)=x^3-3x+1$ 的极值点。"],
-  ["矩阵行列式", "计算矩阵 \\begin{pmatrix}1&2\\3&4\\end{pmatrix} 的行列式。"],
+  ["矩阵行列式", "计算矩阵 $\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}$ 的行列式。"],
   ["概率计算", "盒中有 3 个红球和 2 个白球，随机取出 2 个，求恰好取到 1 个红球的概率。"],
 ];
 
@@ -34,7 +34,14 @@ function readJson(key, fallback) {
   try { return JSON.parse(localStorage.getItem(key)) ?? fallback; } catch { return fallback; }
 }
 function writeJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
-function getFavorites() { return readJson(STORAGE.favorites, []).filter(Boolean); }
+function getFavorites() {
+  return readJson(STORAGE.favorites, [])
+    .filter(Boolean)
+    .map((item) => typeof item === "string"
+      ? { question: item, answer: "", createdAt: 0 }
+      : { question: item.question || "", answer: item.answer || "", createdAt: item.createdAt || 0 })
+    .filter((item) => item.question.trim());
+}
 function getHistory() { return readJson(STORAGE.history, []).filter((item) => item && item.question); }
 function apiBase() {
   return (localStorage.getItem(STORAGE.apiBase) || "http://127.0.0.1:8080/api").replace(/\/$/, "");
@@ -50,37 +57,53 @@ function inlineMarkdown(value) {
   text = text.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>');
   text = text.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
   text = text.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+  text = text.replace(/~~([^~]+)~~/g, "<del>$1</del>");
   text = text.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g, "$1<em>$2</em>");
   text = text.replace(/(^|[^_])_([^_\n]+)_(?!_)/g, "$1<em>$2</em>");
-  text = text.replace(/\$([^$\n]+)\$/g, (_, formula) => `<span class="math-inline" data-katex="${escapeHtml(formula)}">${escapeHtml(formula)}</span>`);
-  text = text.replace(/\\\(([^\n]*?)\\\)/g, (_, formula) => `<span class="math-inline" data-katex="${escapeHtml(formula)}">${escapeHtml(formula)}</span>`);
   return text;
 }
 
 function markdownToHtml(source) {
   let text = String(source || "").replace(/\r\n/g, "\n");
   const blocks = [];
-  const stash = (html) => { const token = `MATHLLM_BLOCK_${blocks.length}`; blocks.push([token, html]); return token; };
+  const stash = (html) => { const token = `MATHLLMTOKEN${blocks.length}END`; blocks.push([token, html]); return token; };
   text = text.replace(/```[^\n]*\n([\s\S]*?)```/g, (_, code) => stash(`<pre><code>${escapeHtml(code.trim())}</code></pre>`));
   text = text.replace(/\$\$([\s\S]*?)\$\$/g, (_, formula) => { const value = formula.trim(); return stash(`<div class="math-block" data-katex="${escapeHtml(value)}">${escapeHtml(value)}</div>`); });
   text = text.replace(/\\\[([\s\S]*?)\\\]/g, (_, formula) => { const value = formula.trim(); return stash(`<div class="math-block" data-katex="${escapeHtml(value)}">${escapeHtml(value)}</div>`); });
+  text = text.replace(/`([^`\n]+)`/g, (_, code) => stash(`<code>${escapeHtml(code)}</code>`));
+  text = text.replace(/\$(?!\$)([^$\n]+?)\$(?!\$)/g, (_, formula) => stash(`<span class="math-inline" data-katex="${escapeHtml(formula)}">${escapeHtml(formula)}</span>`));
+  text = text.replace(/\\\(([^\n]*?)\\\)/g, (_, formula) => stash(`<span class="math-inline" data-katex="${escapeHtml(formula)}">${escapeHtml(formula)}</span>`));
 
+  text = text.replace(/\\begin\{(matrix|pmatrix|bmatrix|Bmatrix|vmatrix|Vmatrix|cases|aligned|array)\}([\s\S]*?)\\end\{\1\}/g, (_, env, body) => {
+    const value = "\\begin{" + env + "}" + body + "\\end{" + env + "}";
+    const safeValue = escapeHtml(value);
+    return stash('<span class="math-inline" data-katex="' + safeValue + '">' + safeValue + "</span>");
+  });
   const lines = text.split("\n");
   const output = [];
   let paragraph = [];
-  let inList = false;
+  let listType = null;
   const flushParagraph = () => {
     if (paragraph.length) { output.push(`<p>${inlineMarkdown(paragraph.join("\n")).replace(/\n/g, "<br>")}</p>`); paragraph = []; }
   };
-  const closeList = () => { if (inList) { output.push("</ul>"); inList = false; } };
+  const closeList = () => { if (listType) { output.push(`</${listType}>`); listType = null; } };
   for (const line of lines) {
     if (/^\s*$/.test(line)) { flushParagraph(); closeList(); continue; }
-    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    const heading = line.match(/^\s*(#{1,6})\s+(.+)$/);
     if (heading) { flushParagraph(); closeList(); output.push(`<h${heading[1].length}>${inlineMarkdown(heading[2])}</h${heading[1].length}>`); continue; }
-    const list = line.match(/^\s*[-*]\s+(.+)$/);
-    if (list) { flushParagraph(); if (!inList) { output.push("<ul>"); inList = true; } output.push(`<li>${inlineMarkdown(list[1])}</li>`); continue; }
+    if (/^\s{0,3}([-*_])(?:\s*\1){2,}\s*$/.test(line)) { flushParagraph(); closeList(); output.push("<hr>"); continue; }
+    const unordered = line.match(/^\s*[-*+]\s+(.+)$/);
+    const ordered = line.match(/^\s*\d+[.)]\s+(.+)$/);
+    if (unordered || ordered) {
+      flushParagraph();
+      const nextType = ordered ? "ol" : "ul";
+      if (listType !== nextType) { closeList(); output.push(`<${nextType}>`); listType = nextType; }
+      output.push(`<li>${inlineMarkdown((ordered || unordered)[1])}</li>`);
+      continue;
+    }
     const quote = line.match(/^\s*>\s?(.*)$/);
     if (quote) { flushParagraph(); closeList(); output.push(`<blockquote>${inlineMarkdown(quote[1])}</blockquote>`); continue; }
+    if (listType) closeList();
     paragraph.push(line);
   }
   flushParagraph(); closeList();
@@ -109,7 +132,7 @@ function renderMessages() {
   if (!state.messages.length) return `<div class="empty-chat"><div><div class="empty-icon">∑</div><h3>从一道题开始吧</h3><p>输入题目后，我会尽量把思路、公式和每一步原因讲清楚。</p></div></div>`;
   return state.messages.map((message, index) => {
     const assistant = message.role === "assistant";
-    const content = assistant ? markdownToHtml(message.content) : escapeHtml(message.content).replace(/\n/g, "<br>");
+    const content = markdownToHtml(message.content);
     const actions = assistant && message.content ? `<div class="message-actions"><button data-copy-index="${index}">复制答案</button><button data-favorite-index="${index}">收藏上一道题</button></div>` : "";
     return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div><div class="message-bubble">${content}</div>${actions}</div></div>`;
   }).join("");
@@ -122,13 +145,13 @@ function solvePage() {
     ["✅", "检查我的答案", "找出思路漏洞", "请检查我写出的答案或思路，指出错误并给出改进建议。"],
   ];
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
-    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与 LaTeX 公式</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea><div class="composer-actions"><span class="composer-hint">Ctrl + Enter 快速提交</span><div class="composer-buttons"><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
+    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与 LaTeX 公式</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea><div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
       <div class="side-stack"><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div><div class="card side-card"><h3>快捷学习工具</h3>${quick.map(([icon, title, desc, instruction]) => `<button class="quick-tool" data-instruction="${escapeHtml(instruction)}"><span class="tool-icon">${icon}</span><span><strong>${title}</strong><span>${desc}</span></span></button>`).join("")}</div></div></div>`;
 }
 
 function favoritesPage() {
   const favorites = getFavorites();
-  const list = favorites.length ? `<div class="item-list">${favorites.map((question, index) => `<div class="card list-item"><div class="list-main"><strong title="${escapeHtml(question)}">${escapeHtml(question)}</strong><p>收藏题目 · ${index + 1}</p></div><div class="list-actions"><button class="btn" data-use-favorite="${index}">开始练习</button><button class="btn danger" data-delete-favorite="${index}">移除</button></div></div>`).join("")}</div>` : `<div class="card empty-state"><strong>还没有收藏题目</strong><p>在解题页面点击“收藏当前题目”，把值得复习的题目放到这里。</p></div>`;
+  const list = favorites.length ? `<div class="item-list">${favorites.map((favorite, index) => `<div class="card list-item favorite-card"><div class="favorite-header"><div class="list-main"><strong title="${escapeHtml(favorite.question)}">${escapeHtml(favorite.question)}</strong><p>收藏题目 · ${index + 1}${favorite.answer ? " · 已保存回答" : " · 只有题目"}</p></div><div class="list-actions"><button class="btn" data-toggle-favorite="${index}" aria-expanded="false">查看详情</button><button class="btn" data-use-favorite="${index}">开始练习</button><button class="btn danger" data-delete-favorite="${index}">移除</button></div></div><div class="favorite-detail" id="favorite-detail-${index}" hidden><div class="detail-section"><strong>我的问题</strong><div class="detail-content">${markdownToHtml(favorite.question)}</div></div><div class="detail-section"><strong>模型回答</strong><div class="detail-content">${favorite.answer ? markdownToHtml(favorite.answer) : '<span class="muted">这条收藏是在旧版本中保存的，没有记录模型回答。</span>'}</div></div></div></div>`).join("")}</div>` : `<div class="card empty-state"><strong>还没有收藏题目</strong><p>在解题页面点击“收藏当前题目”，把值得复习的题目放到这里。</p></div>`;
   return `<div class="page-title-row"><div><h2>我的收藏</h2><p>把错过的、重要的和想复习的题目集中管理。</p></div><div class="page-actions">${favorites.length ? '<button class="btn danger" id="clear-favorites">清空收藏</button>' : ""}</div></div>${list}`;
 }
 
@@ -145,7 +168,7 @@ function toolkitPage() {
     ["错因分析", "不要只看答案，先定位自己是概念、计算还是审题出了问题。", "请分析我这道题错在哪里，并告诉我应该复习什么。"],
     ["举一反三", "解完一道题后生成相似但数字不同的新题，帮助真正掌握。", "请根据这道题生成一道相似的新题，先不要给答案。"],
   ];
-  return `<div class="page-title-row"><div><h2>学习工具</h2><p>把同一个模型变成适合不同学习阶段的助手。</p></div></div><div class="tool-grid">${tools.map(([title, desc, instruction]) => `<div class="card tool-panel"><h3>${title}</h3><p>${desc}</p><button class="btn primary" data-tool-instruction="${escapeHtml(instruction)}">使用这个模式</button></div>`).join("")}</div><div class="section-heading"><h3>常见公式速查</h3><p>先理解，再记忆</p></div><div class="tool-grid"><div class="card tool-panel"><h3>一元二次方程</h3><p>当 $a \\ne 0$ 时，方程 $ax^2+bx+c=0$ 的根为：</p><div class="formula">x = (-b ± √(b² - 4ac)) / 2a</div></div><div class="card tool-panel"><h3>等差数列</h3><p>首项为 $a_1$，公差为 $d$ 的数列：</p><div class="formula">aₙ = a₁ + (n - 1)d</div></div></div>`;
+  return `<div class="page-title-row"><div><h2>学习工具</h2><p>把同一个模型变成适合不同学习阶段的助手。</p></div></div><div class="tool-grid">${tools.map(([title, desc, instruction]) => `<div class="card tool-panel"><h3>${title}</h3><div class="tool-description">${markdownToHtml(desc)}</div><button class="btn primary" data-tool-instruction="${escapeHtml(instruction)}">使用这个模式</button></div>`).join("")}</div><div class="section-heading"><h3>常见公式速查</h3><p>先理解，再记忆</p></div><div class="tool-grid"><div class="card tool-panel"><h3>一元二次方程</h3><div class="tool-description">${markdownToHtml("当 $a \\\\ne 0$ 时，方程 $ax^2+bx+c=0$ 的根为：")}</div><div class="formula">${markdownToHtml("$x = \\\\frac{-b \\\\pm \\\\sqrt{b^2 - 4ac}}{2a}$")}</div></div><div class="card tool-panel"><h3>等差数列</h3><div class="tool-description">${markdownToHtml("首项为 $a_1$，公差为 $d$ 的数列：")}</div><div class="formula">${markdownToHtml("$a_n = a_1 + (n - 1)d$")}</div></div></div>`;
 }
 
 function settingsPage() {
@@ -156,16 +179,55 @@ function settingsPage() {
 function render() {
   setActiveNav(); updateCounts();
   pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : settingsPage();
+  renderMarkdownSurfaces();
+  renderFavoriteQuestionPreviews();
   renderMath();
   bindPageEvents();
+  scrollChatToLatest();
+}
+
+function scrollChatToLatest() {
+  if (!state.loading) return;
+  requestAnimationFrame(() => {
+    const chat = $("#chat-messages");
+    if (chat) chat.scrollTop = chat.scrollHeight;
+  });
 }
 
 function mathFallback(formula) {
-  return escapeHtml(formula)
+  let text = escapeHtml(formula)
+    .replace(/\\\\(?=(?:frac|pm|sqrt|ne|left|right|leq?|geq?|times|cdot|begin|end)\b)/g, "\\")
+    .replace(/\\left|\\right/g, "")
+    .replace(/\\pm/g, "±")
+    .replace(/\\ne/g, "≠")
+    .replace(/\\leq?/g, "≤")
+    .replace(/\\geq?/g, "≥")
+    .replace(/\\times/g, "×")
+    .replace(/\\cdot/g, "·");
+  text = text.replace(/\\begin\{(pmatrix|bmatrix|Bmatrix|vmatrix)\}([\s\S]*?)\\end\{\1\}/g, (_, env, body) => `<span class="matrix ${env}">${body.split(/\\\\/).map((row) => `<span class="matrix-row">${row.split("&").map((cell) => `<span class="matrix-cell">${cell.trim()}</span>`).join("")}</span>`).join("")}</span>`);
+  text = text.replace(/\\frac\{(.+)\}\{([^{}]+)\}/g, '<span class="math-frac"><span class="math-frac-num">$1</span><span class="math-frac-den">$2</span></span>');
+  text = text.replace(/\\sqrt\{([^{}]+)\}/g, '√<span class="sqrt-body">$1</span>');
+  return text
     .replace(/\^\{([^}]+)\}/g, "<sup>$1</sup>")
     .replace(/\^([A-Za-z0-9])/g, "<sup>$1</sup>")
     .replace(/_\{([^}]+)\}/g, "<sub>$1</sub>")
     .replace(/_([A-Za-z0-9])/g, "<sub>$1</sub>");
+}
+
+function renderMarkdownSurfaces() {
+  document.querySelectorAll(".example-btn").forEach((button) => {
+    const label = button.querySelector("strong")?.textContent || "";
+    button.innerHTML = `<strong>${escapeHtml(label)}</strong><br>${markdownToHtml(button.dataset.example || "")}`;
+  });
+}
+
+function renderFavoriteQuestionPreviews() {
+  document.querySelectorAll(".favorite-card .list-main strong").forEach((node) => {
+    const preview = document.createElement("div");
+    preview.className = "favorite-question-preview";
+    preview.innerHTML = markdownToHtml(node.getAttribute("title") || node.textContent);
+    node.replaceWith(preview);
+  });
 }
 
 function renderMath() {
@@ -177,7 +239,8 @@ function renderMath() {
       return;
     }
     try {
-      window.katex.render(element.dataset.katex, element, {
+      const formula = element.dataset.katex.replace(/\\\\(?=(?:frac|pm|sqrt|ne|left|right|leq?|geq?|times|cdot|begin|end)\b)/g, "\\");
+      window.katex.render(formula, element, {
         displayMode: element.classList.contains("math-block"),
         throwOnError: false,
         strict: false,
@@ -187,10 +250,11 @@ function renderMath() {
   });
 }
 
-function addFavorite(question) {
+function addFavorite(question, answer = "") {
   const value = String(question || "").trim(); if (!value) return toast("请先输入一道题目。");
-  const favorites = getFavorites(); if (favorites.includes(value)) return toast("这道题已经在收藏中了。");
-  writeJson(STORAGE.favorites, [value, ...favorites].slice(0, 50)); updateCounts(); toast("已收藏当前题目。");
+  const favorites = getFavorites();
+  if (favorites.some((item) => item.question === value)) return toast("这道题已经在收藏中了。");
+  writeJson(STORAGE.favorites, [{ question: value, answer: String(answer || ""), createdAt: Date.now() }, ...favorites].slice(0, 50)); updateCounts(); toast("已收藏当前题目和回答。");
 }
 function addHistory(question, answer) {
   const history = getHistory().filter((item) => item.question !== question);
@@ -235,13 +299,14 @@ async function checkHealth() {
 
 function bindPageEvents() {
   document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => setPage(button.dataset.page));
-  $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => addFavorite($("#question-input").value)); $("#clear-chat")?.addEventListener("click", () => { state.messages = []; render(); });
-  $("#question-input")?.addEventListener("keydown", (event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); sendQuestion(); } });
+  $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => { const question = $("#question-input").value; const answer = [...state.messages].reverse().find((message) => message.role === "assistant")?.content || ""; addFavorite(question, answer); }); $("#clear-chat")?.addEventListener("click", () => { state.messages = []; render(); });
+  $("#question-input")?.addEventListener("keydown", (event) => { if (event.isComposing) return; if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendQuestion(); } });
   document.querySelectorAll("[data-example]").forEach((button) => button.onclick = () => { $("#question-input").value = button.dataset.example; $("#question-input").focus(); });
   document.querySelectorAll("[data-instruction], [data-tool-instruction]").forEach((button) => button.onclick = () => appendInstruction(button.dataset.instruction || button.dataset.toolInstruction));
   document.querySelectorAll("[data-copy-index]").forEach((button) => button.onclick = async () => { await navigator.clipboard.writeText(state.messages[Number(button.dataset.copyIndex)].content); toast("答案已复制。"); });
-  document.querySelectorAll("[data-favorite-index]").forEach((button) => button.onclick = () => { const user = [...state.messages].reverse().find((message) => message.role === "user"); addFavorite(user?.content); });
-  document.querySelectorAll("[data-use-favorite]").forEach((button) => button.onclick = () => useQuestion(getFavorites()[Number(button.dataset.useFavorite)]));
+  document.querySelectorAll("[data-favorite-index]").forEach((button) => button.onclick = () => { const answerIndex = Number(button.dataset.favoriteIndex); const user = [...state.messages.slice(0, answerIndex)].reverse().find((message) => message.role === "user"); addFavorite(user?.content, state.messages[answerIndex]?.content); });
+  document.querySelectorAll("[data-toggle-favorite]").forEach((button) => button.onclick = () => { const detail = $(`#favorite-detail-${button.dataset.toggleFavorite}`); if (!detail) return; const expanded = detail.hidden; detail.hidden = !expanded; button.textContent = expanded ? "收起详情" : "查看详情"; button.setAttribute("aria-expanded", String(expanded)); if (expanded) renderMath(); });
+  document.querySelectorAll("[data-use-favorite]").forEach((button) => button.onclick = () => useQuestion(getFavorites()[Number(button.dataset.useFavorite)].question));
   document.querySelectorAll("[data-delete-favorite]").forEach((button) => button.onclick = () => { const favorites = getFavorites(); favorites.splice(Number(button.dataset.deleteFavorite), 1); writeJson(STORAGE.favorites, favorites); render(); toast("已移除收藏。"); });
   $("#clear-favorites")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.favorites); render(); toast("收藏已清空。"); });
   document.querySelectorAll("[data-use-history]").forEach((button) => button.onclick = () => useQuestion(getHistory()[Number(button.dataset.useHistory)].question));

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>MathLLM · 数学学习助手</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.css" crossorigin="anonymous" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand-lockup">
+        <div class="brand-mark">∑</div>
+        <div>
+          <div class="brand-name">MathLLM</div>
+          <div class="brand-caption">数学学习助手</div>
+        </div>
+      </div>
+
+      <div class="sidebar-section-label">工作区</div>
+      <nav class="primary-nav" aria-label="主要功能">
+        <button class="nav-item active" data-page="solve"><span class="nav-icon">⌁</span><span>开始解题</span></button>
+        <button class="nav-item" data-page="favorites"><span class="nav-icon">♡</span><span>我的收藏</span><span class="nav-count" id="favorite-count">0</span></button>
+        <button class="nav-item" data-page="history"><span class="nav-icon">◷</span><span>学习记录</span></button>
+        <button class="nav-item" data-page="toolkit"><span class="nav-icon">✦</span><span>学习工具</span></button>
+      </nav>
+
+      <div class="sidebar-spacer"></div>
+      <div class="sidebar-section-label">系统</div>
+      <nav class="secondary-nav" aria-label="系统功能">
+        <button class="nav-item" data-page="settings"><span class="nav-icon">⚙</span><span>设置</span></button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="connection-card">
+          <span class="status-dot" id="sidebar-status-dot"></span>
+          <div>
+            <strong id="sidebar-status-title">正在检查服务</strong>
+            <span id="sidebar-status-detail">等待后端响应</span>
+          </div>
+          <button class="icon-button small" id="sidebar-refresh" title="刷新服务状态">↻</button>
+        </div>
+        <button class="theme-switch" id="theme-toggle"><span>◐</span><span>切换深色模式</span></button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div class="topbar-left">
+          <button class="icon-button mobile-only" id="mobile-menu" title="打开菜单">☰</button>
+          <div>
+            <div class="breadcrumb" id="page-kicker">学习工作区 / 开始解题</div>
+            <h1 id="page-title">今天想解决哪道题？</h1>
+          </div>
+        </div>
+        <div class="topbar-actions">
+          <div class="topbar-model"><span class="status-dot" id="header-status-dot"></span><span id="header-status">模型服务检查中</span></div>
+          <button class="avatar" title="本地学习空间">学</button>
+        </div>
+      </header>
+      <section class="page-container" id="page-container"></section>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.22/dist/katex.min.js" crossorigin="anonymous"></script>
+  <script src="app.js?v=20260907-8" defer></script>
+</body>
+</html>
