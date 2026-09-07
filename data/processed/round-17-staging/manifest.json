@@ -1,0 +1,32 @@
+{
+  "round": "correction-round-17",
+  "base_model": "outputs/correction-round-16-merged",
+  "policy": "70% new corrections + 30% clean original replay",
+  "correction_count": 600,
+  "replay_count": 257,
+  "train_count": 857,
+  "validation_count": 120,
+  "correction_subjects": {
+    "多步应用题": 100,
+    "概率与组合": 100,
+    "线性代数": 100,
+    "代数推导": 100,
+    "数论与余数": 100,
+    "坐标几何": 100
+  },
+  "replay_sources": {
+    "gsm8k": 111,
+    "math": 92,
+    "cmid_chinese_math": 31,
+    "base-extra-official-cmid": 23
+  },
+  "protected_sets": [
+    "data/eval/test.json",
+    "data/eval/regression/regression.json",
+    "data/eval/correction-validation/*.json"
+  ],
+  "checks": {
+    "new_question_duplicates": 0,
+    "protected_or_existing_overlap": 0
+  }
+}
