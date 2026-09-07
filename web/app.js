@@ -23,14 +23,14 @@ const EXAMPLES = [
 
 const FORMULA_TEMPLATES = [
   ["分数", "□⁄□", "上下两个占位框"],
-  ["上标", "□²", "输入底数后修改上标"],
-  ["下标", "□₁", "输入变量后修改下标"],
-  ["平方根", "√□", "根号内占位框"],
-  ["n 次根", "ⁿ√□", "根指数和根式内容"],
+  ["上标", "□^□", "底数和上标都可以填写"],
+  ["下标", "□_□", "变量和下标都可以填写"],
+  ["平方根", "√(□)", "根号内占位框"],
+  ["n 次根", "□√(□)", "根指数和根式内容都可以填写"],
   ["绝对值", "|□|", "绝对值内占位框"],
   ["求和", "∑□", "求和表达式"],
-  ["积分", "∫□ dx", "被积表达式"],
-  ["极限", "limₓ→□", "极限趋近值"],
+  ["积分", "∫□ d□", "被积表达式和变量都可以填写"],
+  ["极限", "lim_{□→□}", "趋近变量和趋近值都可以填写"],
   ["二阶矩阵", "⎡□ □⎤\n⎣□ □⎦", "按 Tab 依次填写"],
   ["分段函数", "⎧ □\n⎩ □", "两行表达式"],
   ["向量", "⟨□, □⟩", "向量分量"],
@@ -239,7 +239,7 @@ function formulaEditorMarkup() {
   const templateButtons = FORMULA_TEMPLATES.map(([label, value, hint]) => `<button type="button" class="formula-template" data-formula-template="${escapeHtml(value)}" title="${escapeHtml(hint)}"><span>${label}</span><strong>${escapeHtml(value)}</strong></button>`).join("");
   const symbolPanes = FORMULA_SYMBOL_GROUPS.map(([label, symbols]) => `<div class="formula-symbol-group"><span>${label}</span><div class="formula-symbol-grid">${symbols.map((symbol) => `<button type="button" data-formula-symbol="${escapeHtml(symbol)}">${escapeHtml(symbol)}</button>`).join("")}</div></div>`).join("");
   const greekPanes = FORMULA_GREEK_GROUPS.map(([label, symbols]) => `<div class="formula-symbol-group"><span>${label}</span><div class="formula-symbol-grid">${symbols.map((symbol) => `<button type="button" data-formula-symbol="${escapeHtml(symbol)}">${escapeHtml(symbol)}</button>`).join("")}</div></div>`).join("");
-  return `<div class="formula-editor-panel" id="formula-editor-panel" hidden><div class="formula-editor-header"><div><strong>公式工具</strong><span>像 Word 一样选择结构和符号，不需要写 LaTeX</span></div><button class="formula-editor-clear" id="clear-formula-editor" type="button">清空</button></div><div class="formula-editor-input" id="formula-editor-input" contenteditable="true" role="textbox" aria-label="可视化公式输入" data-placeholder="先选择一个结构，例如分数、根式或矩阵"></div><div class="formula-editor-controls"><button type="button" class="formula-control" id="formula-next-placeholder">下一个占位框 Tab</button><span>点击 □ 填写内容，也可以直接输入数学符号</span></div><div class="formula-tabbar" role="tablist"><button type="button" class="formula-tab active" data-formula-tab="structures">结构</button><button type="button" class="formula-tab" data-formula-tab="symbols">符号</button><button type="button" class="formula-tab" data-formula-tab="greek">希腊字母</button></div><div class="formula-tab-pane" data-formula-pane="structures"><div class="formula-template-grid">${templateButtons}</div></div><div class="formula-tab-pane" data-formula-pane="symbols" hidden>${symbolPanes}</div><div class="formula-tab-pane" data-formula-pane="greek" hidden>${greekPanes}</div><button class="btn primary formula-insert" id="insert-formula" type="button">插入到题目</button></div>`;
+  return `<div class="formula-editor-panel" id="formula-editor-panel" hidden><div class="formula-editor-header"><div><strong>公式工具</strong><span>像 Word 一样选择结构和符号，不需要写 LaTeX</span></div><button class="formula-editor-clear" id="clear-formula-editor" type="button">清空</button></div><div class="formula-editor-input" id="formula-editor-input" contenteditable="true" role="textbox" aria-label="可视化公式输入" data-placeholder="先选择一个结构，例如分数、根式或矩阵"></div><div class="formula-editor-controls"><button type="button" class="formula-control" id="formula-next-placeholder">下一个占位框 Tab</button><span>每个 □ 都可以替换，结构符号也可以直接修改</span></div><div class="formula-tabbar" role="tablist"><button type="button" class="formula-tab active" data-formula-tab="structures">结构</button><button type="button" class="formula-tab" data-formula-tab="symbols">符号</button><button type="button" class="formula-tab" data-formula-tab="greek">希腊字母</button></div><div class="formula-tab-pane" data-formula-pane="structures"><div class="formula-template-grid">${templateButtons}</div></div><div class="formula-tab-pane" data-formula-pane="symbols" hidden>${symbolPanes}</div><div class="formula-tab-pane" data-formula-pane="greek" hidden>${greekPanes}</div><button class="btn primary formula-insert" id="insert-formula" type="button">插入到题目</button></div>`;
 }
 
 function solvePage() {
