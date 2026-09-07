@@ -99,7 +99,8 @@ button { cursor: pointer; }
 .message-avatar { display: grid; flex: 0 0 auto; place-items: center; width: 28px; height: 28px; border-radius: 10px; color: white; font-size: .74rem; font-weight: 700; background: linear-gradient(135deg, #5e61e5, #56bab6); }
 .message-row.user .message-avatar { order: 2; background: #e9eafd; color: var(--primary); }
 .message-bubble { max-width: min(82%, 720px); padding: 11px 14px; border-radius: 16px; color: var(--ink); font-size: .89rem; line-height: 1.72; background: #f4f6fb; }
-.message-row.user .message-bubble { border-bottom-right-radius: 5px; color: white; background: linear-gradient(135deg, #6366e8, #5558cf); }
+.message-row.user > .message-content { flex: 1; min-width: 0; }
+.message-row.user .message-bubble { width: 100%; max-width: 100%; border-bottom-right-radius: 5px; color: white; background: linear-gradient(135deg, #6366e8, #5558cf); }
 .message-row.user .math-inline, .message-row.user .math-block { color: white; }
 .message-row.assistant > .message-content { flex: 1; min-width: 0; }.message-row.assistant .message-bubble { width: 100%; max-width: 100%; border-bottom-left-radius: 5px; border: 1px solid #edf0f6; background: #fbfcff; }
 .message-bubble p { margin: 0 0 9px; }.message-bubble p:last-child { margin-bottom: 0; }

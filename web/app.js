@@ -69,6 +69,7 @@ const state = {
   answerMode: "solve",
   memorySummary: "",
   memoryCursor: 0,
+  activeRequestController: null,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -119,10 +120,11 @@ function shouldSummarize(summary, messages) {
   if (messages.length <= MEMORY_CONFIG.maxRecentMessages) return false;
   return (summary ? estimateTokens(summary) : 0) + estimateMessages(messages) > MEMORY_CONFIG.triggerTokens;
 }
-async function requestConversationSummary(messages, existingSummary) {
+async function requestConversationSummary(messages, existingSummary, signal) {
   const response = await fetch(`${apiBase()}/memory/summarize`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
+    signal,
     body: JSON.stringify({
       messages,
       existing_summary: existingSummary || null,
@@ -250,8 +252,11 @@ function solvePage() {
   const memoryStatus = mode === "follow_up"
     ? `<div class="memory-status ${state.memorySummary ? "active" : ""}"><span class="memory-status-dot"></span>${state.memorySummary ? "已启用压缩摘要，较早对话已整理" : "连续追问会保留最近对话，过长时自动压缩旧内容"}</div>`
     : `<div class="memory-status"><span class="memory-status-dot"></span>单题模式不会发送之前的对话，响应更快</div>`;
+  const generationButton = state.loading
+    ? `<button class="btn danger" id="stop-generation" type="button">暂停输出</button>`
+    : `<button class="btn primary" id="send-question">开始解题  →</button>`;
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
-    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
+    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button>${generationButton}</div></div></div></div></div>
       <div class="side-stack"><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div><div class="card side-card"><h3>快捷学习工具</h3>${quick.map(([icon, title, desc, instruction]) => `<button class="quick-tool" data-instruction="${escapeHtml(instruction)}"><span class="tool-icon">${icon}</span><span><strong>${title}</strong><span>${desc}</span></span></button>`).join("")}</div></div></div>`;
 }
 
@@ -556,6 +561,8 @@ function selectNextFormulaPlaceholder() {
 
 async function sendQuestion() {
   const input = $("#question-input"); const question = input.value.trim(); if (!question || state.loading) return;
+  const requestController = new AbortController();
+  state.activeRequestController = requestController;
   state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, { role: "assistant", content: "" }); render();
   try {
     let endpoint = "/chat";
@@ -577,17 +584,18 @@ async function sendQuestion() {
       const newOldMessages = oldMessages.slice(state.memoryCursor);
       if (shouldSummarize(state.memorySummary, allMessages) && newOldMessages.length) {
         try {
-          state.memorySummary = await requestConversationSummary(newOldMessages, state.memorySummary);
+          state.memorySummary = await requestConversationSummary(newOldMessages, state.memorySummary, requestController.signal);
           state.memoryCursor = oldMessages.length;
           toast("较早对话已自动压缩，后续响应会更稳定。");
         } catch (summaryError) {
+          if (summaryError.name === "AbortError") throw summaryError;
           // The current question can still be answered from the recent window.
           toast("自动摘要暂时失败，将只使用最近对话继续回答。");
         }
       }
       body = { messages: recentMessages, summary: state.memorySummary || undefined, stream: true };
     }
-    const response = await fetch(`${apiBase()}${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const response = await fetch(`${apiBase()}${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: requestController.signal });
     if (!response.ok) throw new Error(`后端请求失败（HTTP ${response.status}）`);
     const reader = response.body.getReader(); const decoder = new TextDecoder("utf-8"); let buffer = "";
     while (true) {
@@ -598,14 +606,33 @@ async function sendQuestion() {
         const payloadText = line.slice(5).trim(); if (!payloadText || payloadText === "[DONE]") continue;
         let payload; try { payload = JSON.parse(payloadText); } catch { continue; }
         if (payload.error) throw new Error(payload.error);
-        if (payload.content) { state.messages[state.messages.length - 1].content += payload.content; updateStreamingAnswer(); }
+        if (payload.content && state.messages.length) { state.messages[state.messages.length - 1].content += payload.content; updateStreamingAnswer(); }
       }
     }
-    addHistory(question, state.messages[state.messages.length - 1].content);
+    if (state.messages.length) addHistory(question, state.messages[state.messages.length - 1].content);
   } catch (error) {
-    state.messages[state.messages.length - 1].content = `**暂时无法完成请求**\n\n${error.message}`;
-    toast("请求失败，请检查后端和模型服务状态。");
-  } finally { state.loading = false; render(); checkHealth(); }
+    if (error.name === "AbortError") {
+      const answer = state.messages[state.messages.length - 1];
+      if (answer) {
+        answer.content = answer.content.trim()
+          ? `${answer.content}\n\n*（输出已暂停）*`
+          : "*（输出已暂停，尚未生成回答）*";
+        addHistory(question, answer.content);
+      }
+      toast("已暂停模型输出。");
+    } else {
+      if (state.messages.length) state.messages[state.messages.length - 1].content = `**暂时无法完成请求**\n\n${error.message}`;
+      toast("请求失败，请检查后端和模型服务状态。");
+    }
+  } finally {
+    if (state.activeRequestController === requestController) state.activeRequestController = null;
+    state.loading = false; render(); checkHealth();
+  }
+}
+
+function stopGeneration() {
+  if (!state.loading || !state.activeRequestController) return;
+  state.activeRequestController.abort();
 }
 
 async function checkHealth() {
@@ -626,11 +653,12 @@ function bindPageEvents() {
     }
     render();
   });
+  $("#stop-generation")?.addEventListener("click", stopGeneration);
   $("#chat-messages")?.addEventListener("scroll", (event) => {
     const chat = event.currentTarget;
     state.chatPinnedToBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 48;
   });
-  $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => { const question = $("#question-input").value; const answer = [...state.messages].reverse().find((message) => message.role === "assistant")?.content || ""; addFavorite(question, answer); }); $("#clear-chat")?.addEventListener("click", () => { state.messages = []; state.memorySummary = ""; state.memoryCursor = 0; render(); });
+  $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => { const question = $("#question-input").value; const answer = [...state.messages].reverse().find((message) => message.role === "assistant")?.content || ""; addFavorite(question, answer); }); $("#clear-chat")?.addEventListener("click", () => { stopGeneration(); state.messages = []; state.memorySummary = ""; state.memoryCursor = 0; render(); });
   $("#question-input")?.addEventListener("keydown", (event) => { if (event.isComposing) return; if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendQuestion(); } });
   document.querySelectorAll("[data-example]").forEach((button) => button.onclick = () => { $("#question-input").value = button.dataset.example; $("#question-input").focus(); });
   document.querySelectorAll("[data-instruction], [data-tool-instruction]").forEach((button) => button.onclick = () => appendInstruction(button.dataset.instruction || button.dataset.toolInstruction));
