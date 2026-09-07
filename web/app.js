@@ -25,6 +25,9 @@ const state = {
   messages: [],
   loading: false,
   health: "checking",
+  selectedFavoriteIndex: 0,
+  openFavoriteIndex: null,
+  chatPinnedToBottom: true,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -181,16 +184,75 @@ function render() {
   pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : settingsPage();
   renderMarkdownSurfaces();
   renderFavoriteQuestionPreviews();
+  renderFavoriteToolbar();
   renderMath();
   bindPageEvents();
   scrollChatToLatest();
 }
 
 function scrollChatToLatest() {
-  if (!state.loading) return;
+  if (!state.loading || !state.chatPinnedToBottom) return;
   requestAnimationFrame(() => {
     const chat = $("#chat-messages");
     if (chat) chat.scrollTop = chat.scrollHeight;
+  });
+}
+
+function renderFavoriteToolbar() {
+  if (state.page !== "favorites") return;
+  const actions = document.querySelector(".page-title-row .page-actions");
+  const favorites = getFavorites();
+  if (!actions || !favorites.length) return;
+  document.querySelectorAll(".favorite-card .list-actions").forEach((node) => node.remove());
+
+  state.selectedFavoriteIndex = Math.min(Math.max(state.selectedFavoriteIndex, 0), favorites.length - 1);
+  const selectedIndex = state.selectedFavoriteIndex;
+  const clearButton = $("#clear-favorites");
+  const select = document.createElement("select");
+  select.className = "btn favorite-toolbar-control favorite-selector";
+  select.setAttribute("aria-label", "选择收藏题目");
+  favorites.forEach((favorite, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = (index + 1) + ". " + favorite.question.slice(0, 24) + (favorite.question.length > 24 ? "…" : "");
+    select.appendChild(option);
+  });
+  select.value = String(selectedIndex);
+  select.onchange = () => { state.selectedFavoriteIndex = Number(select.value); state.openFavoriteIndex = null; render(); };
+
+  const toggleButton = document.createElement("button");
+  toggleButton.className = "btn favorite-toolbar-control";
+  toggleButton.textContent = state.openFavoriteIndex === selectedIndex ? "收起详情" : "查看详情";
+  toggleButton.onclick = () => { state.openFavoriteIndex = state.openFavoriteIndex === selectedIndex ? null : selectedIndex; render(); };
+
+  const useButton = document.createElement("button");
+  useButton.className = "btn favorite-toolbar-control";
+  useButton.textContent = "开始练习";
+  useButton.onclick = () => useQuestion(favorites[selectedIndex].question);
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "btn danger favorite-toolbar-control";
+  deleteButton.textContent = "移除";
+  deleteButton.onclick = () => {
+    favorites.splice(selectedIndex, 1);
+    writeJson(STORAGE.favorites, favorites);
+    state.selectedFavoriteIndex = Math.max(0, selectedIndex - 1);
+    state.openFavoriteIndex = null;
+    render();
+    toast("已移除收藏。");
+  };
+
+  [select, toggleButton, useButton, deleteButton].forEach((control) => actions.insertBefore(control, clearButton || null));
+  document.querySelectorAll(".favorite-card").forEach((card, index) => {
+    card.classList.toggle("selected", index === selectedIndex);
+    const detail = card.querySelector(".favorite-detail");
+    if (detail) detail.hidden = state.openFavoriteIndex !== index;
+    card.onclick = (event) => {
+      if (event.target.closest("a, button, select")) return;
+      state.selectedFavoriteIndex = index;
+      state.openFavoriteIndex = state.openFavoriteIndex === index ? null : index;
+      render();
+    };
   });
 }
 
@@ -265,7 +327,7 @@ function appendInstruction(instruction) { const input = $("#question-input"); if
 
 async function sendQuestion() {
   const input = $("#question-input"); const question = input.value.trim(); if (!question || state.loading) return;
-  state.loading = true; state.messages.push({ role: "user", content: question }, { role: "assistant", content: "" }); render();
+  state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, { role: "assistant", content: "" }); render();
   const messages = state.messages.slice(0, -1).map(({ role, content }) => ({ role, content }));
   try {
     const response = await fetch(`${apiBase()}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages, stream: true }) });
@@ -299,6 +361,10 @@ async function checkHealth() {
 
 function bindPageEvents() {
   document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => setPage(button.dataset.page));
+  $("#chat-messages")?.addEventListener("scroll", (event) => {
+    const chat = event.currentTarget;
+    state.chatPinnedToBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 48;
+  });
   $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => { const question = $("#question-input").value; const answer = [...state.messages].reverse().find((message) => message.role === "assistant")?.content || ""; addFavorite(question, answer); }); $("#clear-chat")?.addEventListener("click", () => { state.messages = []; render(); });
   $("#question-input")?.addEventListener("keydown", (event) => { if (event.isComposing) return; if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendQuestion(); } });
   document.querySelectorAll("[data-example]").forEach((button) => button.onclick = () => { $("#question-input").value = button.dataset.example; $("#question-input").focus(); });
