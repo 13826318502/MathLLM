@@ -1,0 +1,61 @@
+{
+  "round": "correction-round-7",
+  "seed": 20260905,
+  "policy": "150 new corrections + 65 ordinary replay; 40 ordinary internal eval",
+  "train_correction_ratio": 0.697674,
+  "train_replay_ratio": 0.302326,
+  "train": {
+    "count": 215,
+    "sources": {
+      "correction-round-7": 150,
+      "gsm8k": 28,
+      "cmid_chinese_math": 14,
+      "math": 23
+    },
+    "subjects": {
+      "概率与组合": 30,
+      "代数与数论": 30,
+      "应用题": 30,
+      "基础应用题": 28,
+      "高等数学": 38,
+      "线性代数": 32,
+      "Prealgebra": 2,
+      "Geometry": 2,
+      "Counting & Probability": 3,
+      "Algebra": 7,
+      "代数与其他": 1,
+      "Number Theory": 2,
+      "Intermediate Algebra": 7,
+      "概率论与统计": 3
+    }
+  },
+  "eval": {
+    "count": 40,
+    "sources": {
+      "math": 7,
+      "cmid_chinese_math": 9,
+      "gsm8k": 24
+    },
+    "subjects": {
+      "Algebra": 1,
+      "概率论与统计": 3,
+      "基础应用题": 24,
+      "Prealgebra": 3,
+      "高等数学": 3,
+      "线性代数": 2,
+      "代数与其他": 1,
+      "Intermediate Algebra": 1,
+      "Number Theory": 1,
+      "Precalculus": 1
+    }
+  },
+  "excluded_sources": [
+    "correction-round-4",
+    "correction-round-5",
+    "correction-round-6"
+  ],
+  "protected_sets": [
+    "data/eval/test.json",
+    "data/eval/regression/regression.json"
+  ]
+}

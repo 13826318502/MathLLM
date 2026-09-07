@@ -359,7 +359,9 @@ def _normalize_item(item: dict[str, Any], path: Path) -> dict[str, str] | None:
 
 
 def load_raw_data(
-    raw_dir: Path = RAW_DIR, regression_dir: Path | None = REGRESSION_DIR
+    raw_dir: Path = RAW_DIR,
+    regression_dir: Path | None = REGRESSION_DIR,
+    excluded_sources: set[str] | None = None,
 ) -> list[dict[str, str]]:
     """Read JSON, JSONL and CSV files and normalize source-specific schemas."""
     if not raw_dir.exists():
@@ -371,6 +373,7 @@ def load_raw_data(
         LOGGER.info("Protecting %s regression questions from data splits", len(regression_questions))
 
     normalized: list[dict[str, str]] = []
+    excluded_sources = {str(source).strip() for source in (excluded_sources or set())}
     # Scan nested folders as well.  This lets us keep small, reviewed
     # correction sets under data/raw/corrections/ without changing the main
     # training command.  Evaluation/regression data lives under data/eval/
@@ -392,6 +395,13 @@ def load_raw_data(
                 continue
             converted = _normalize_item(record, path)
             if converted is not None:
+                if converted["source"] in excluded_sources:
+                    LOGGER.info(
+                        "Skipping excluded source %s from %s",
+                        converted["source"],
+                        path.name,
+                    )
+                    continue
                 normalized.append(converted)
         LOGGER.info("Loaded %s: %s records, %s normalized", path.name, len(records), len(normalized) - before)
 
@@ -441,12 +451,22 @@ def validate_data(
     tokenizer: Any | None = None,
     max_tokens: int = 2048,
 ) -> list[dict[str, Any]]:
-    """Validate message structure, length rules, exact duplicates and near duplicates."""
+    """Validate structure, length, exact duplicates and source-aware near duplicates.
+
+    Correction samples intentionally target the same skills as existing data.
+    Therefore correction samples are allowed to be similar in wording or
+    structure: repeated practice of one error pattern is useful. Exact
+    duplicate questions remain globally forbidden, and correction samples are
+    forced to the training split by ``split_dataset``. Ordinary replay data
+    still receives the stricter near-duplicate checks.
+    """
     cleaned: list[dict[str, Any]] = []
     seen_questions: set[str] = set()
     seen_signatures: set[str] = set()
+    seen_correction_signatures: set[str] = set()
     accepted_questions: list[str] = []
     accepted_by_length: dict[int, list[str]] = {}
+    accepted_correction_by_length: dict[int, list[str]] = {}
 
     for index, item in enumerate(data, 1):
         messages = item.get("messages") if isinstance(item, dict) else None
@@ -479,7 +499,10 @@ def validate_data(
         if canonical_question in seen_questions:
             LOGGER.warning("Dropping item %s: exact duplicate question", index)
             continue
-        if seen_signatures.intersection(signatures):
+        source = str(item.get("_metadata", {}).get("source", ""))
+        is_correction = source.startswith("correction-")
+        comparable_signatures = seen_correction_signatures if is_correction else seen_signatures
+        if not is_correction and comparable_signatures.intersection(signatures):
             LOGGER.warning("Dropping item %s: template/number/variable near-duplicate question", index)
             continue
         question_length = len(canonical_question)
@@ -487,13 +510,14 @@ def validate_data(
         # lengths differ substantially. Avoid comparing every new question
         # with every accepted question; the length pre-filter preserves the
         # decision rule while keeping large dataset preparation practical.
+        comparable_lengths = accepted_correction_by_length if is_correction else accepted_by_length
         similar_length_candidates = (
             existing
-            for existing_length, values in accepted_by_length.items()
+            for existing_length, values in comparable_lengths.items()
             if min(question_length, existing_length) >= 0.8 * max(question_length, existing_length)
             for existing in values
         )
-        if any(
+        if not is_correction and any(
             SequenceMatcher(None, canonical_question, existing).ratio() >= SIMILARITY_THRESHOLD
             for existing in similar_length_candidates
         ):
@@ -507,8 +531,12 @@ def validate_data(
 
         seen_questions.add(canonical_question)
         seen_signatures.update(signatures)
+        if is_correction:
+            seen_correction_signatures.update(signatures)
         accepted_questions.append(canonical_question)
         accepted_by_length.setdefault(question_length, []).append(canonical_question)
+        if is_correction:
+            accepted_correction_by_length.setdefault(question_length, []).append(canonical_question)
         cleaned.append(item)
 
     return cleaned
@@ -615,10 +643,20 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--tokenizer", type=str, default=None, help="Optional tokenizer for exact token length checks")
     parser.add_argument("--max-tokens", type=int, default=2048)
+    parser.add_argument(
+        "--exclude-source",
+        action="append",
+        default=[],
+        help="Exclude normalized source values; may be supplied multiple times",
+    )
     args = parser.parse_args()
 
     print("Loading raw data...")
-    raw_data = load_raw_data(args.raw_dir, regression_dir=args.regression_dir)
+    raw_data = load_raw_data(
+        args.raw_dir,
+        regression_dir=args.regression_dir,
+        excluded_sources=set(args.exclude_source),
+    )
     print(f"Loaded {len(raw_data)} normalized examples")
 
     print("Formatting examples...")

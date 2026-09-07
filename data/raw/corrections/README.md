@@ -11,27 +11,49 @@
 
 ## 官方来源纠错轮次
 
-`correction-training-all.jsonl` 是上一轮已经纳入训练的纠错数据。
+历史文件 `correction-training-all.jsonl` 已移动到
+`data/archive/corrections/correction-training-all.jsonl`，不再被当前数据准备程序读取。
 
-第三轮候选题先完整归档在 `data/candidates/correction-round-3-all.jsonl`，经过固定
-种子切分后，只有 `correction-round-3-training.jsonl` 放在本目录并会被
-`prepare_data.py` 自动读取；留出的 20 条在 `data/eval/correction-validation/round-3.json`，
-只用于纠错能力验证。
+Round 4 候选题完整归档在
+`data/candidates/archive/correction-round-4-all.jsonl`，经过固定种子切分后，只有
+`correction-round-4-training.jsonl` 放在本目录并会被 `prepare_data.py` 自动读取；
+留出的 20 条在 `data/eval/correction-validation/round-4.json`，只用于纠错能力验证。
 
-第三轮 100 条题目筛选时排除了已有 `data/raw/`、`data/eval/test.json` 和
+Round 4 的 100 条题目筛选时排除了已有 `data/raw/`、`data/eval/test.json` 和
 `data/eval/regression/` 中的题目，并转换为本目录要求的独立字段格式：
 
 - GSM8K：35 条应用题，来源 `openai/gsm8k`；
 - Hendrycks MATH：55 条，覆盖概率组合、代数、数论/模运算、几何和预备微积分，来源 `EleutherAI/hendrycks_math`；
 - CMID：10 条中文高数、线代和概率题，来源 `Mxode/CMID-Chinese_Math_Instruct_Dataset`。
 
-本轮可以用以下命令按固定种子重新收集：
+本轮已按固定种子完成收集和切分：
 
 ```bash
 python scripts/collect_official_corrections.py --target 100 \\
-  --output data/raw/corrections/correction-round-3.jsonl
-python scripts/split_correction_round.py
+  --round-label correction-round-4 \\
+  --output data/candidates/correction-round-4-all.jsonl
+python scripts/split_correction_round.py \\
+  --input data/candidates/correction-round-4-all.jsonl \\
+  --train-output data/raw/corrections/correction-round-4-training.jsonl \\
+  --validation-output data/eval/correction-validation/round-4.json
 ```
 
-第三轮训练文件当前仍是官方筛选候选，不等于项目已完成人工验算。正式训练前仍需
+Round 4 的 80 条训练题和 20 条验证题目前仍是官方筛选候选，不等于项目已完成全量人工验算。正式训练前仍需
 按项目要求抽查并用独立方法复核；原错误题只保留在回归集，不复制到训练集。
+
+## Round 5 与 Round 6
+
+- `correction-round-5-training.jsonl`：Round 5 已完成训练使用的 120 条纠错训练原始数据，历史保留；
+- `correction-round-6-training.jsonl`：Round 6 新增的 240 条纠错训练原始数据，source 固定为
+  `correction-round-6`，进入 Round 6 前会再做纠错组内去重；
+- Round 6 配置明确排除 Round 4、Round 5 两个旧纠错源，避免旧纠错题重复进入本轮。
+
+## Round 7
+
+- `correction-round-7-training.jsonl`：本轮新增 150 条纠错训练题，平均覆盖应用题、代数与数论、概率与组合、线性代数和高等数学五类，每类 30 条；
+- source 统一为 `correction-round-7`；
+- 这些题允许同类型、同能力点的相似变体保留，只禁止完全相同的题目；
+- Round 7 staging 构建时明确排除 Round 4、Round 5、Round 6 纠错源，并从原始数据抽取 65 条回放样本。
+
+Round 4 和 Round 5 的活动训练源现已归档到 `data/archive/round-4-5-20260905/`；
+当前活动纠错目录只保留 Round 7 文件。
