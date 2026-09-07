@@ -20,6 +20,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 html, body { min-height: 100%; margin: 0; }
 body { background: var(--bg); color: var(--ink); }
 button, input, textarea { font: inherit; }
@@ -85,10 +86,10 @@ button { cursor: pointer; }
 .section-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 25px 2px 13px; }
 .section-heading h3 { margin: 0; font-size: 1rem; letter-spacing: -.02em; }
 .section-heading p { margin: 0; color: var(--muted); font-size: .78rem; }
-.chat-card { display: flex; flex-direction: column; min-height: 570px; padding: 18px; }
+.chat-card { display: flex; flex-direction: column; min-height: 660px; padding: 18px; }
 .chat-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 13px; color: var(--muted); font-size: .75rem; }
 .chat-toolbar strong { color: var(--ink); font-size: .88rem; }
-.chat-messages { flex: 1; min-height: 340px; max-height: 570px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 10px 4px; }
+.chat-messages { flex: 1; min-height: 420px; max-height: 680px; overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; padding: 10px 4px; }
 .empty-chat { display: grid; place-items: center; min-height: 320px; color: var(--subtle); text-align: center; }
 .empty-chat .empty-icon { display: grid; place-items: center; width: 58px; height: 58px; margin: 0 auto 14px; border-radius: 19px; color: var(--primary); font-size: 1.8rem; background: var(--primary-soft); }
 .empty-chat h3 { margin: 0 0 6px; color: var(--ink); font-size: 1.03rem; }
@@ -100,7 +101,7 @@ button { cursor: pointer; }
 .message-bubble { max-width: min(82%, 720px); padding: 11px 14px; border-radius: 16px; color: var(--ink); font-size: .89rem; line-height: 1.72; background: #f4f6fb; }
 .message-row.user .message-bubble { border-bottom-right-radius: 5px; color: white; background: linear-gradient(135deg, #6366e8, #5558cf); }
 .message-row.user .math-inline, .message-row.user .math-block { color: white; }
-.message-row.assistant .message-bubble { border-bottom-left-radius: 5px; border: 1px solid #edf0f6; background: #fbfcff; }
+.message-row.assistant > div { flex: 1; min-width: 0; }.message-row.assistant .message-bubble { width: 100%; max-width: 100%; border-bottom-left-radius: 5px; border: 1px solid #edf0f6; background: #fbfcff; }
 .message-bubble p { margin: 0 0 9px; }.message-bubble p:last-child { margin-bottom: 0; }
 .message-bubble strong { color: inherit; }.message-bubble pre { overflow-x: auto; padding: 11px; border-radius: 10px; background: #1d2640; color: #e6ebff; }
 .message-bubble code { padding: 2px 5px; border-radius: 5px; color: var(--primary-dark); background: var(--primary-soft); font-size: .86em; }
@@ -119,6 +120,7 @@ button { cursor: pointer; }
 .matrix-row { display: flex; justify-content: center; gap: 10px; }.matrix-cell { min-width: 1em; text-align: center; }
 .message-actions { display: flex; gap: 5px; margin-top: 7px; }.message-actions button { padding: 0 5px; border: 0; color: var(--subtle); font-size: .7rem; background: transparent; }.message-actions button:hover { color: var(--primary); }
 .composer { display: grid; gap: 9px; margin-top: 10px; padding-top: 14px; border-top: 1px solid var(--line); }
+.formula-editor-panel { display: grid; gap: 11px; padding: 13px; border: 1px solid #dfe3f2; border-radius: 14px; background: var(--surface-soft); }.formula-editor-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }.formula-editor-header strong { display: block; color: var(--ink); font-size: .8rem; }.formula-editor-header span { display: block; margin-top: 3px; color: var(--muted); font-size: .7rem; }.formula-editor-clear { padding: 3px 6px; border: 0; color: var(--muted); font-size: .72rem; background: transparent; cursor: pointer; }.formula-editor-input { min-height: 46px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 10px; outline: none; color: var(--ink); background: var(--surface); font-family: "Cambria Math", "Times New Roman", serif; font-size: 1rem; line-height: 1.5; }.formula-editor-input:focus { border-color: #9b9ef5; box-shadow: 0 0 0 3px rgba(91,92,226,.1); }.formula-editor-input:empty::before { color: var(--subtle); content: attr(data-placeholder); pointer-events: none; }.formula-palette { display: grid; gap: 8px; }.formula-palette-group { display: grid; grid-template-columns: 60px minmax(0, 1fr); align-items: center; gap: 7px; }.formula-palette-group > span { color: var(--muted); font-size: .7rem; }.formula-palette-group > div { display: flex; flex-wrap: wrap; gap: 5px; }.formula-palette button { min-width: 30px; height: 29px; padding: 2px 7px; border: 1px solid var(--line); border-radius: 7px; color: var(--ink); background: var(--surface); cursor: pointer; }.formula-palette button:hover { border-color: #a5a8f7; color: var(--primary-dark); background: var(--primary-soft); }.formula-insert { justify-self: end; min-height: 34px; }
 .composer textarea { width: 100%; resize: vertical; min-height: 74px; max-height: 180px; padding: 13px 14px; border: 1px solid var(--line); border-radius: 14px; outline: none; color: var(--ink); background: var(--surface-soft); line-height: 1.6; }
 .composer textarea:focus { border-color: #9b9ef5; box-shadow: 0 0 0 4px rgba(91,92,226,.10); }
 .composer-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }.composer-hint { color: var(--subtle); font-size: .72rem; }.composer-buttons { display: flex; gap: 8px; }

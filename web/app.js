@@ -160,7 +160,7 @@ function solvePage() {
     ["✅", "检查我的答案", "找出思路漏洞", "请检查我写出的答案或思路，指出错误并给出改进建议。"],
   ];
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
-    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与 LaTeX 公式</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea><div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
+    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea><div class="formula-editor-panel" id="formula-editor-panel" hidden><div class="formula-editor-header"><div><strong>公式工具</strong><span>直接输入或点击符号，不需要写 LaTeX</span></div><button class="formula-editor-clear" id="clear-formula-editor" type="button">清空</button></div><div class="formula-editor-input" id="formula-editor-input" contenteditable="true" role="textbox" aria-label="可视化公式输入" data-placeholder="例如：x² + √(x) = 0"></div><div class="formula-palette"><div class="formula-palette-group"><span>基础</span><div><button type="button" data-formula-symbol="＋">＋</button><button type="button" data-formula-symbol="－">－</button><button type="button" data-formula-symbol="×">×</button><button type="button" data-formula-symbol="÷">÷</button><button type="button" data-formula-symbol="＝">＝</button><button type="button" data-formula-symbol="（">（</button><button type="button" data-formula-symbol="）">）</button><button type="button" data-formula-symbol="，">，</button></div></div><div class="formula-palette-group"><span>关系</span><div><button type="button" data-formula-symbol="≤">≤</button><button type="button" data-formula-symbol="≥">≥</button><button type="button" data-formula-symbol="≠">≠</button><button type="button" data-formula-symbol="≈">≈</button><button type="button" data-formula-symbol="∞">∞</button><button type="button" data-formula-symbol="∈">∈</button></div></div><div class="formula-palette-group"><span>希腊字母</span><div><button type="button" data-formula-symbol="α">α</button><button type="button" data-formula-symbol="β">β</button><button type="button" data-formula-symbol="γ">γ</button><button type="button" data-formula-symbol="θ">θ</button><button type="button" data-formula-symbol="λ">λ</button><button type="button" data-formula-symbol="π">π</button><button type="button" data-formula-symbol="Δ">Δ</button></div></div><div class="formula-palette-group"><span>常用结构</span><div><button type="button" data-formula-symbol="x²">x²</button><button type="button" data-formula-symbol="x₁">x₁</button><button type="button" data-formula-symbol="√( )">√( )</button><button type="button" data-formula-symbol="□⁄□">□⁄□</button><button type="button" data-formula-symbol="∑">∑</button><button type="button" data-formula-symbol="∫">∫</button><button type="button" data-formula-symbol="|x|">|x|</button></div></div></div><button class="btn primary formula-insert" id="insert-formula" type="button">插入到题目</button></div><div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
       <div class="side-stack"><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div><div class="card side-card"><h3>快捷学习工具</h3>${quick.map(([icon, title, desc, instruction]) => `<button class="quick-tool" data-instruction="${escapeHtml(instruction)}"><span class="tool-icon">${icon}</span><span><strong>${title}</strong><span>${desc}</span></span></button>`).join("")}</div></div></div>`;
 }
 
@@ -392,6 +392,38 @@ function addHistory(question, answer) {
 function useQuestion(question) { state.page = "solve"; state.messages = []; location.hash = "solve"; render(); const input = $("#question-input"); input.value = question; input.focus(); }
 function appendInstruction(instruction) { const input = $("#question-input"); if (!input) return; input.value = input.value.trim() ? `${input.value.trim()}\n\n${instruction}` : instruction; input.focus(); }
 
+function insertAtTextareaCursor(input, value) {
+  if (!input) return;
+  const start = input.selectionStart ?? input.value.length;
+  const end = input.selectionEnd ?? start;
+  input.value = input.value.slice(0, start) + value + input.value.slice(end);
+  input.focus();
+  const cursor = start + value.length;
+  input.setSelectionRange(cursor, cursor);
+}
+
+function insertIntoFormulaEditor(value) {
+  const editor = $("#formula-editor-input");
+  if (!editor) return;
+  editor.focus();
+  const selection = window.getSelection();
+  let range;
+  if (selection && selection.rangeCount && editor.contains(selection.getRangeAt(0).commonAncestorContainer)) {
+    range = selection.getRangeAt(0);
+  } else {
+    range = document.createRange();
+    range.selectNodeContents(editor);
+    range.collapse(false);
+  }
+  range.deleteContents();
+  const node = document.createTextNode(value);
+  range.insertNode(node);
+  range.setStartAfter(node);
+  range.collapse(true);
+  selection?.removeAllRanges();
+  selection?.addRange(range);
+}
+
 async function sendQuestion() {
   const input = $("#question-input"); const question = input.value.trim(); if (!question || state.loading) return;
   state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, { role: "assistant", content: "" }); render();
@@ -436,6 +468,23 @@ function bindPageEvents() {
   $("#question-input")?.addEventListener("keydown", (event) => { if (event.isComposing) return; if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendQuestion(); } });
   document.querySelectorAll("[data-example]").forEach((button) => button.onclick = () => { $("#question-input").value = button.dataset.example; $("#question-input").focus(); });
   document.querySelectorAll("[data-instruction], [data-tool-instruction]").forEach((button) => button.onclick = () => appendInstruction(button.dataset.instruction || button.dataset.toolInstruction));
+  $("#toggle-formula-editor")?.addEventListener("click", () => {
+    const panel = $("#formula-editor-panel");
+    if (!panel) return;
+    panel.hidden = !panel.hidden;
+    if (!panel.hidden) $("#formula-editor-input")?.focus();
+  });
+  document.querySelectorAll("[data-formula-symbol]").forEach((button) => {
+    button.onmousedown = (event) => event.preventDefault();
+    button.onclick = () => insertIntoFormulaEditor(button.dataset.formulaSymbol || "");
+  });
+  $("#clear-formula-editor")?.addEventListener("click", () => { $("#formula-editor-input").textContent = ""; $("#formula-editor-input").focus(); });
+  $("#insert-formula")?.addEventListener("click", () => {
+    const formula = $("#formula-editor-input")?.textContent.trim();
+    if (!formula) return toast("请先输入或选择公式符号。");
+    insertAtTextareaCursor($("#question-input"), formula);
+    $("#formula-editor-panel").hidden = true;
+  });
   document.querySelectorAll("[data-copy-index]").forEach((button) => button.onclick = async () => { await navigator.clipboard.writeText(state.messages[Number(button.dataset.copyIndex)].content); toast("答案已复制。"); });
   document.querySelectorAll("[data-favorite-index]").forEach((button) => button.onclick = () => { const answerIndex = Number(button.dataset.favoriteIndex); const user = [...state.messages.slice(0, answerIndex)].reverse().find((message) => message.role === "user"); addFavorite(user?.content, state.messages[answerIndex]?.content); });
   $("#clear-favorites")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.favorites); state.selectedFavoriteIndex = 0; state.favoriteDetailIndex = 0; state.favoriteDeleteMode = false; state.favoriteDeleteSelection = new Set(); render(); toast("收藏已清空。"); });
