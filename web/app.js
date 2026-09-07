@@ -198,6 +198,22 @@ function scrollChatToLatest() {
   });
 }
 
+let streamingAnswerUpdatePending = false;
+function updateStreamingAnswer() {
+  if (streamingAnswerUpdatePending) return;
+  streamingAnswerUpdatePending = true;
+  requestAnimationFrame(() => {
+    streamingAnswerUpdatePending = false;
+    const answer = [...state.messages].reverse().find((message) => message.role === "assistant");
+    const bubbles = document.querySelectorAll("#chat-messages .message-row.assistant .message-bubble");
+    const bubble = bubbles[bubbles.length - 1];
+    if (!answer || !bubble) return;
+    bubble.innerHTML = markdownToHtml(answer.content);
+    renderMath(bubble);
+    scrollChatToLatest();
+  });
+}
+
 function renderFavoriteToolbar() {
   if (state.page !== "favorites") return;
   const actions = document.querySelector(".page-title-row .page-actions");
@@ -292,8 +308,8 @@ function renderFavoriteQuestionPreviews() {
   });
 }
 
-function renderMath() {
-  document.querySelectorAll("[data-katex]").forEach((element) => {
+function renderMath(root = document) {
+  root.querySelectorAll("[data-katex]").forEach((element) => {
     if (element.dataset.katexRendered === "true") return;
     if (!window.katex) {
       element.innerHTML = mathFallback(element.dataset.katex);
@@ -341,7 +357,7 @@ async function sendQuestion() {
         const payloadText = line.slice(5).trim(); if (!payloadText || payloadText === "[DONE]") continue;
         let payload; try { payload = JSON.parse(payloadText); } catch { continue; }
         if (payload.error) throw new Error(payload.error);
-        if (payload.content) { state.messages[state.messages.length - 1].content += payload.content; render(); }
+        if (payload.content) { state.messages[state.messages.length - 1].content += payload.content; updateStreamingAnswer(); }
       }
     }
     addHistory(question, state.messages[state.messages.length - 1].content);
