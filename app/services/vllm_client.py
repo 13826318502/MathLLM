@@ -63,13 +63,18 @@ class VLLMClient:
             if isinstance(item, dict) and item.get("id")
         ]
 
-    async def complete(self, messages: list[dict[str, str]]) -> dict[str, Any]:
+    async def complete(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
         payload = {
             "model": self.settings.model_name,
             "messages": messages,
             "stream": False,
             "temperature": 0.0,
-            "max_tokens": self.settings.max_output_tokens,
+            "max_tokens": max_tokens or self.settings.max_output_tokens,
         }
         try:
             async with httpx.AsyncClient(

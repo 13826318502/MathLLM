@@ -36,6 +36,10 @@ class Settings:
     max_question_chars: int
     max_history_messages: int
     max_history_chars: int
+    memory_trigger_tokens: int
+    memory_summary_max_tokens: int
+    recent_history_messages: int
+    max_context_tokens: int
     max_output_tokens: int
     connect_timeout: float
     read_timeout: float
@@ -60,6 +64,14 @@ class Settings:
             max_question_chars=_as_int("MATHLLM_MAX_QUESTION_CHARS", 8000),
             max_history_messages=_as_int("MATHLLM_MAX_HISTORY_MESSAGES", 20),
             max_history_chars=_as_int("MATHLLM_MAX_HISTORY_CHARS", 24000),
+            memory_trigger_tokens=_as_int("MATHLLM_MEMORY_TRIGGER_TOKENS", 1200),
+            memory_summary_max_tokens=_as_int(
+                "MATHLLM_MEMORY_SUMMARY_MAX_TOKENS", 256
+            ),
+            recent_history_messages=_as_int(
+                "MATHLLM_RECENT_HISTORY_MESSAGES", 6
+            ),
+            max_context_tokens=_as_int("MATHLLM_MAX_CONTEXT_TOKENS", 2048),
             max_output_tokens=_as_int("MATHLLM_MAX_OUTPUT_TOKENS", 512),
             connect_timeout=_as_float("MATHLLM_CONNECT_TIMEOUT", 10.0),
             read_timeout=_as_float("MATHLLM_READ_TIMEOUT", 180.0),

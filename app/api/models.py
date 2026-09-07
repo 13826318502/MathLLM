@@ -19,7 +19,17 @@ class ChatMessage(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[ChatMessage] = Field(..., min_length=1, max_length=20)
+    summary: str | None = Field(default=None, max_length=4000)
     stream: bool = True
+
+
+class MemorySummaryRequest(BaseModel):
+    messages: list[ChatMessage] = Field(..., min_length=1, max_length=20)
+    existing_summary: str | None = Field(default=None, max_length=4000)
+
+
+class MemorySummaryResponse(BaseModel):
+    summary: str
 
 
 class AnswerResponse(BaseModel):

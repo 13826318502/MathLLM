@@ -10,7 +10,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import chat, health, solve
+from app.api.routes import chat, health, memory, solve
 from app.core.config import settings
 from app.services.vllm_client import VLLMClient
 
@@ -33,6 +33,7 @@ def create_app() -> FastAPI:
     application.include_router(health.router, prefix="/api", tags=["health"])
     application.include_router(solve.router, prefix="/api", tags=["solve"])
     application.include_router(chat.router, prefix="/api", tags=["chat"])
+    application.include_router(memory.router, prefix="/api", tags=["memory"])
     return application
 
 

@@ -21,6 +21,40 @@ const EXAMPLES = [
   ["概率计算", "盒中有 3 个红球和 2 个白球，随机取出 2 个，求恰好取到 1 个红球的概率。"],
 ];
 
+const FORMULA_TEMPLATES = [
+  ["分数", "□⁄□", "上下两个占位框"],
+  ["上标", "□²", "输入底数后修改上标"],
+  ["下标", "□₁", "输入变量后修改下标"],
+  ["平方根", "√□", "根号内占位框"],
+  ["n 次根", "ⁿ√□", "根指数和根式内容"],
+  ["绝对值", "|□|", "绝对值内占位框"],
+  ["求和", "∑□", "求和表达式"],
+  ["积分", "∫□ dx", "被积表达式"],
+  ["极限", "limₓ→□", "极限趋近值"],
+  ["二阶矩阵", "⎡□ □⎤\n⎣□ □⎦", "按 Tab 依次填写"],
+  ["分段函数", "⎧ □\n⎩ □", "两行表达式"],
+  ["向量", "⟨□, □⟩", "向量分量"],
+];
+
+const FORMULA_SYMBOL_GROUPS = [
+  ["基础运算", ["＋", "－", "×", "÷", "＝", "（", "）", "，", "．"]],
+  ["关系符号", ["≤", "≥", "≠", "≈", "∝", "∞", "∈", "∉", "∴", "∵"]],
+  ["集合与逻辑", ["∪", "∩", "⊂", "⊆", "∀", "∃", "¬", "⇒", "⇔"]],
+  ["箭头与几何", ["→", "←", "↔", "⊥", "∥", "∠", "°", "△", "□"]],
+];
+
+const FORMULA_GREEK_GROUPS = [
+  ["小写", ["α", "β", "γ", "δ", "ε", "θ", "λ", "μ", "π", "ρ", "σ", "φ", "ω"]],
+  ["大写", ["Α", "Β", "Γ", "Δ", "Θ", "Λ", "Π", "Σ", "Φ", "Ω"]],
+];
+
+const MEMORY_CONFIG = {
+  triggerTokens: 1200,
+  maxRecentMessages: 6,
+  maxContextTokens: 2048,
+  maxOutputTokens: 512,
+};
+
 const initialFavoriteDetail = location.hash.slice(1).match(/^favorite-detail\/(\d+)$/);
 const state = {
   page: initialFavoriteDetail ? "favorite-detail" : (PAGE_META[location.hash.slice(1)] ? location.hash.slice(1) : "solve"),
@@ -32,6 +66,9 @@ const state = {
   favoriteDeleteMode: false,
   favoriteDeleteSelection: new Set(),
   chatPinnedToBottom: true,
+  answerMode: "solve",
+  memorySummary: "",
+  memoryCursor: 0,
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -52,6 +89,49 @@ function getFavorites() {
 function getHistory() { return readJson(STORAGE.history, []).filter((item) => item && item.question); }
 function apiBase() {
   return (localStorage.getItem(STORAGE.apiBase) || "http://127.0.0.1:8080/api").replace(/\/$/, "");
+}
+function estimateTokens(text) {
+  const value = String(text || "");
+  let cjk = 0;
+  for (const char of value) {
+    if ((char >= "\u3400" && char <= "\u4dbf") || (char >= "\u4e00" && char <= "\u9fff")) cjk += 1;
+  }
+  return Math.max(1, Math.ceil(cjk + (value.length - cjk) / 2.5));
+}
+function estimateMessages(messages) {
+  return messages.reduce((total, message) => total + estimateTokens(message.content) + 4, 0);
+}
+function splitHistory(messages, maxRecentMessages, maxRecentTokens) {
+  if (!messages.length) return [[], []];
+  const recent = [];
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    if (recent.length >= maxRecentMessages) break;
+    const candidate = [messages[index], ...recent];
+    if (recent.length && estimateMessages(candidate) > maxRecentTokens) break;
+    recent.unshift(messages[index]);
+  }
+  if (!recent.length) recent.push(messages[messages.length - 1]);
+  if (recent[0]?.role === "assistant") recent.shift();
+  const oldCount = Math.max(0, messages.length - recent.length);
+  return [messages.slice(0, oldCount), recent.length ? recent : [messages[messages.length - 1]]];
+}
+function shouldSummarize(summary, messages) {
+  if (messages.length <= MEMORY_CONFIG.maxRecentMessages) return false;
+  return (summary ? estimateTokens(summary) : 0) + estimateMessages(messages) > MEMORY_CONFIG.triggerTokens;
+}
+async function requestConversationSummary(messages, existingSummary) {
+  const response = await fetch(`${apiBase()}/memory/summarize`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messages,
+      existing_summary: existingSummary || null,
+    }),
+  });
+  if (!response.ok) throw new Error(`摘要请求失败（HTTP ${response.status}）`);
+  const payload = await response.json();
+  if (!payload.summary || typeof payload.summary !== "string") throw new Error("摘要接口没有返回有效内容");
+  return payload.summary.trim();
 }
 function escapeHtml(value) {
   return String(value ?? "").replace(/[&<>'"]/g, (char) => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[char]));
@@ -149,8 +229,15 @@ function renderMessages() {
     const assistant = message.role === "assistant";
     const content = markdownToHtml(message.content);
     const actions = assistant && message.content ? `<div class="message-actions"><button data-copy-index="${index}">复制答案</button><button data-favorite-index="${index}">收藏上一道题</button></div>` : "";
-    return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div><div class="message-bubble">${content}</div>${actions}</div></div>`;
+    return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div class="message-content"><div class="message-bubble">${content}</div>${actions}</div></div>`;
   }).join("");
+}
+
+function formulaEditorMarkup() {
+  const templateButtons = FORMULA_TEMPLATES.map(([label, value, hint]) => `<button type="button" class="formula-template" data-formula-template="${escapeHtml(value)}" title="${escapeHtml(hint)}"><span>${label}</span><strong>${escapeHtml(value)}</strong></button>`).join("");
+  const symbolPanes = FORMULA_SYMBOL_GROUPS.map(([label, symbols]) => `<div class="formula-symbol-group"><span>${label}</span><div class="formula-symbol-grid">${symbols.map((symbol) => `<button type="button" data-formula-symbol="${escapeHtml(symbol)}">${escapeHtml(symbol)}</button>`).join("")}</div></div>`).join("");
+  const greekPanes = FORMULA_GREEK_GROUPS.map(([label, symbols]) => `<div class="formula-symbol-group"><span>${label}</span><div class="formula-symbol-grid">${symbols.map((symbol) => `<button type="button" data-formula-symbol="${escapeHtml(symbol)}">${escapeHtml(symbol)}</button>`).join("")}</div></div>`).join("");
+  return `<div class="formula-editor-panel" id="formula-editor-panel" hidden><div class="formula-editor-header"><div><strong>公式工具</strong><span>像 Word 一样选择结构和符号，不需要写 LaTeX</span></div><button class="formula-editor-clear" id="clear-formula-editor" type="button">清空</button></div><div class="formula-editor-input" id="formula-editor-input" contenteditable="true" role="textbox" aria-label="可视化公式输入" data-placeholder="先选择一个结构，例如分数、根式或矩阵"></div><div class="formula-editor-controls"><button type="button" class="formula-control" id="formula-next-placeholder">下一个占位框 Tab</button><span>点击 □ 填写内容，也可以直接输入数学符号</span></div><div class="formula-tabbar" role="tablist"><button type="button" class="formula-tab active" data-formula-tab="structures">结构</button><button type="button" class="formula-tab" data-formula-tab="symbols">符号</button><button type="button" class="formula-tab" data-formula-tab="greek">希腊字母</button></div><div class="formula-tab-pane" data-formula-pane="structures"><div class="formula-template-grid">${templateButtons}</div></div><div class="formula-tab-pane" data-formula-pane="symbols" hidden>${symbolPanes}</div><div class="formula-tab-pane" data-formula-pane="greek" hidden>${greekPanes}</div><button class="btn primary formula-insert" id="insert-formula" type="button">插入到题目</button></div>`;
 }
 
 function solvePage() {
@@ -159,8 +246,12 @@ function solvePage() {
     ["🧩", "讲简单一点", "适合初学者", "请用适合初学者的简单语言解释，并说明每一步为什么这样做。"],
     ["✅", "检查我的答案", "找出思路漏洞", "请检查我写出的答案或思路，指出错误并给出改进建议。"],
   ];
+  const mode = state.answerMode;
+  const memoryStatus = mode === "follow_up"
+    ? `<div class="memory-status ${state.memorySummary ? "active" : ""}"><span class="memory-status-dot"></span>${state.memorySummary ? "已启用压缩摘要，较早对话已整理" : "连续追问会保留最近对话，过长时自动压缩旧内容"}</div>`
+    : `<div class="memory-status"><span class="memory-status-dot"></span>单题模式不会发送之前的对话，响应更快</div>`;
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
-    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea><div class="formula-editor-panel" id="formula-editor-panel" hidden><div class="formula-editor-header"><div><strong>公式工具</strong><span>直接输入或点击符号，不需要写 LaTeX</span></div><button class="formula-editor-clear" id="clear-formula-editor" type="button">清空</button></div><div class="formula-editor-input" id="formula-editor-input" contenteditable="true" role="textbox" aria-label="可视化公式输入" data-placeholder="例如：x² + √(x) = 0"></div><div class="formula-palette"><div class="formula-palette-group"><span>基础</span><div><button type="button" data-formula-symbol="＋">＋</button><button type="button" data-formula-symbol="－">－</button><button type="button" data-formula-symbol="×">×</button><button type="button" data-formula-symbol="÷">÷</button><button type="button" data-formula-symbol="＝">＝</button><button type="button" data-formula-symbol="（">（</button><button type="button" data-formula-symbol="）">）</button><button type="button" data-formula-symbol="，">，</button></div></div><div class="formula-palette-group"><span>关系</span><div><button type="button" data-formula-symbol="≤">≤</button><button type="button" data-formula-symbol="≥">≥</button><button type="button" data-formula-symbol="≠">≠</button><button type="button" data-formula-symbol="≈">≈</button><button type="button" data-formula-symbol="∞">∞</button><button type="button" data-formula-symbol="∈">∈</button></div></div><div class="formula-palette-group"><span>希腊字母</span><div><button type="button" data-formula-symbol="α">α</button><button type="button" data-formula-symbol="β">β</button><button type="button" data-formula-symbol="γ">γ</button><button type="button" data-formula-symbol="θ">θ</button><button type="button" data-formula-symbol="λ">λ</button><button type="button" data-formula-symbol="π">π</button><button type="button" data-formula-symbol="Δ">Δ</button></div></div><div class="formula-palette-group"><span>常用结构</span><div><button type="button" data-formula-symbol="x²">x²</button><button type="button" data-formula-symbol="x₁">x₁</button><button type="button" data-formula-symbol="√( )">√( )</button><button type="button" data-formula-symbol="□⁄□">□⁄□</button><button type="button" data-formula-symbol="∑">∑</button><button type="button" data-formula-symbol="∫">∫</button><button type="button" data-formula-symbol="|x|">|x|</button></div></div></div><button class="btn primary formula-insert" id="insert-formula" type="button">插入到题目</button></div><div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
+    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button><button class="btn primary" id="send-question">${state.loading ? "生成中…" : "开始解题  →"}</button></div></div></div></div></div>
       <div class="side-stack"><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div><div class="card side-card"><h3>快捷学习工具</h3>${quick.map(([icon, title, desc, instruction]) => `<button class="quick-tool" data-instruction="${escapeHtml(instruction)}"><span class="tool-icon">${icon}</span><span><strong>${title}</strong><span>${desc}</span></span></button>`).join("")}</div></div></div>`;
 }
 
@@ -389,7 +480,7 @@ function addHistory(question, answer) {
   const history = getHistory().filter((item) => item.question !== question);
   writeJson(STORAGE.history, [{ question, answer, createdAt: Date.now() }, ...history].slice(0, 30));
 }
-function useQuestion(question) { state.page = "solve"; state.messages = []; location.hash = "solve"; render(); const input = $("#question-input"); input.value = question; input.focus(); }
+function useQuestion(question) { state.page = "solve"; state.messages = []; state.memorySummary = ""; state.memoryCursor = 0; location.hash = "solve"; render(); const input = $("#question-input"); input.value = question; input.focus(); }
 function appendInstruction(instruction) { const input = $("#question-input"); if (!input) return; input.value = input.value.trim() ? `${input.value.trim()}\n\n${instruction}` : instruction; input.focus(); }
 
 function insertAtTextareaCursor(input, value) {
@@ -402,7 +493,7 @@ function insertAtTextareaCursor(input, value) {
   input.setSelectionRange(cursor, cursor);
 }
 
-function insertIntoFormulaEditor(value) {
+function insertIntoFormulaEditor(value, selectFirstPlaceholder = false) {
   const editor = $("#formula-editor-input");
   if (!editor) return;
   editor.focus();
@@ -418,18 +509,85 @@ function insertIntoFormulaEditor(value) {
   range.deleteContents();
   const node = document.createTextNode(value);
   range.insertNode(node);
-  range.setStartAfter(node);
-  range.collapse(true);
+  const placeholderIndex = selectFirstPlaceholder ? value.indexOf("□") : -1;
+  if (placeholderIndex >= 0) {
+    range.setStart(node, placeholderIndex);
+    range.setEnd(node, placeholderIndex + 1);
+  } else {
+    range.setStartAfter(node);
+    range.collapse(true);
+  }
   selection?.removeAllRanges();
   selection?.addRange(range);
+}
+
+function selectNextFormulaPlaceholder() {
+  const editor = $("#formula-editor-input");
+  if (!editor) return;
+  const selection = window.getSelection();
+  let offset = 0;
+  if (selection && selection.rangeCount && editor.contains(selection.anchorNode)) {
+    const range = document.createRange();
+    range.selectNodeContents(editor);
+    range.setEnd(selection.anchorNode, selection.anchorOffset);
+    offset = range.toString().length + (selection.isCollapsed ? 0 : 1);
+  }
+  const text = editor.textContent || "";
+  let index = text.indexOf("□", offset);
+  if (index < 0) index = text.indexOf("□");
+  if (index < 0) return;
+  const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT);
+  let node;
+  let position = 0;
+  while ((node = walker.nextNode())) {
+    const end = position + node.nodeValue.length;
+    if (index >= position && index < end) {
+      const range = document.createRange();
+      range.setStart(node, index - position);
+      range.setEnd(node, index - position + 1);
+      selection?.removeAllRanges();
+      selection?.addRange(range);
+      editor.focus();
+      return;
+    }
+    position = end;
+  }
 }
 
 async function sendQuestion() {
   const input = $("#question-input"); const question = input.value.trim(); if (!question || state.loading) return;
   state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, { role: "assistant", content: "" }); render();
-  const messages = state.messages.slice(0, -1).map(({ role, content }) => ({ role, content }));
   try {
-    const response = await fetch(`${apiBase()}/chat`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages, stream: true }) });
+    let endpoint = "/chat";
+    let body = { messages: state.messages.slice(0, -1), stream: true };
+    if (state.answerMode === "solve") {
+      endpoint = "/solve";
+      body = { question, stream: true };
+      state.memorySummary = "";
+      state.memoryCursor = 0;
+    } else {
+      const allMessages = state.messages.slice(0, -1).map(({ role, content }) => ({ role, content }));
+      const recentBudget = Math.max(600, MEMORY_CONFIG.maxContextTokens - MEMORY_CONFIG.maxOutputTokens - 450);
+      const [oldMessages, recentMessages] = splitHistory(
+        allMessages,
+        MEMORY_CONFIG.maxRecentMessages,
+        recentBudget,
+      );
+      state.memoryCursor = Math.min(state.memoryCursor, oldMessages.length);
+      const newOldMessages = oldMessages.slice(state.memoryCursor);
+      if (shouldSummarize(state.memorySummary, allMessages) && newOldMessages.length) {
+        try {
+          state.memorySummary = await requestConversationSummary(newOldMessages, state.memorySummary);
+          state.memoryCursor = oldMessages.length;
+          toast("较早对话已自动压缩，后续响应会更稳定。");
+        } catch (summaryError) {
+          // The current question can still be answered from the recent window.
+          toast("自动摘要暂时失败，将只使用最近对话继续回答。");
+        }
+      }
+      body = { messages: recentMessages, summary: state.memorySummary || undefined, stream: true };
+    }
+    const response = await fetch(`${apiBase()}${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
     if (!response.ok) throw new Error(`后端请求失败（HTTP ${response.status}）`);
     const reader = response.body.getReader(); const decoder = new TextDecoder("utf-8"); let buffer = "";
     while (true) {
@@ -460,11 +618,19 @@ async function checkHealth() {
 
 function bindPageEvents() {
   document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => setPage(button.dataset.page));
+  document.querySelectorAll("[data-answer-mode]").forEach((button) => button.onclick = () => {
+    state.answerMode = button.dataset.answerMode === "follow_up" ? "follow_up" : "solve";
+    if (state.answerMode === "solve") {
+      state.memorySummary = "";
+      state.memoryCursor = 0;
+    }
+    render();
+  });
   $("#chat-messages")?.addEventListener("scroll", (event) => {
     const chat = event.currentTarget;
     state.chatPinnedToBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 48;
   });
-  $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => { const question = $("#question-input").value; const answer = [...state.messages].reverse().find((message) => message.role === "assistant")?.content || ""; addFavorite(question, answer); }); $("#clear-chat")?.addEventListener("click", () => { state.messages = []; render(); });
+  $("#send-question")?.addEventListener("click", sendQuestion); $("#save-current-favorite")?.addEventListener("click", () => { const question = $("#question-input").value; const answer = [...state.messages].reverse().find((message) => message.role === "assistant")?.content || ""; addFavorite(question, answer); }); $("#clear-chat")?.addEventListener("click", () => { state.messages = []; state.memorySummary = ""; state.memoryCursor = 0; render(); });
   $("#question-input")?.addEventListener("keydown", (event) => { if (event.isComposing) return; if (event.key === "Enter" && !event.shiftKey) { event.preventDefault(); sendQuestion(); } });
   document.querySelectorAll("[data-example]").forEach((button) => button.onclick = () => { $("#question-input").value = button.dataset.example; $("#question-input").focus(); });
   document.querySelectorAll("[data-instruction], [data-tool-instruction]").forEach((button) => button.onclick = () => appendInstruction(button.dataset.instruction || button.dataset.toolInstruction));
@@ -477,6 +643,24 @@ function bindPageEvents() {
   document.querySelectorAll("[data-formula-symbol]").forEach((button) => {
     button.onmousedown = (event) => event.preventDefault();
     button.onclick = () => insertIntoFormulaEditor(button.dataset.formulaSymbol || "");
+  });
+  document.querySelectorAll("[data-formula-template]").forEach((button) => {
+    button.onmousedown = (event) => event.preventDefault();
+    button.onclick = () => insertIntoFormulaEditor(button.dataset.formulaTemplate || "", true);
+  });
+  document.querySelectorAll("[data-formula-tab]").forEach((button) => {
+    button.onclick = () => {
+      const tab = button.dataset.formulaTab;
+      document.querySelectorAll("[data-formula-tab]").forEach((item) => item.classList.toggle("active", item === button));
+      document.querySelectorAll("[data-formula-pane]").forEach((pane) => { pane.hidden = pane.dataset.formulaPane !== tab; });
+    };
+  });
+  $("#formula-next-placeholder")?.addEventListener("click", selectNextFormulaPlaceholder);
+  $("#formula-editor-input")?.addEventListener("keydown", (event) => {
+    if (event.key === "Tab") {
+      event.preventDefault();
+      selectNextFormulaPlaceholder();
+    }
   });
   $("#clear-formula-editor")?.addEventListener("click", () => { $("#formula-editor-input").textContent = ""; $("#formula-editor-input").focus(); });
   $("#insert-formula")?.addEventListener("click", () => {

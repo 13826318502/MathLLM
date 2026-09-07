@@ -30,6 +30,7 @@ async def chat(
             request.messages,
             settings.max_history_messages,
             settings.max_history_chars,
+            request.summary,
         )
     except ValueError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
