@@ -40,7 +40,91 @@ except ModuleNotFoundError:  # supports ``import scripts.train`` from project ro
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 
-ACTIVE_TRAIN_CONFIG = "configs/training/correction-round-3-20260904/train_config.yaml"
+ACTIVE_TRAIN_CONFIG = "configs/training/correction-round-10-20260908/train_config.yaml"
+
+
+class AssistantOnlyDataCollator:
+    """只对 Qwen ChatML 中 assistant 回复部分计算 causal-LM loss。
+
+    Qwen 的对话模板通常包含 ``<|im_start|>assistant\\n`` 标记。该 collator
+    会把该标记及其之前的 token 标签设为 ``-100``，因此 Trainer 只会对
+    assistant 的答案内容（以及结尾标记）计算损失。padding 位置也会被屏蔽。
+    """
+
+    def __init__(self, tokenizer, response_template: str) -> None:
+        self.tokenizer = tokenizer
+        self.response_template = response_template
+        self.response_template_ids = tokenizer(
+            response_template,
+            add_special_tokens=False,
+        )["input_ids"]
+        if not self.response_template_ids:
+            raise ValueError(
+                "assistant_response_template tokenizes to an empty sequence: "
+                f"{response_template!r}"
+            )
+
+    @staticmethod
+    def _find_subsequence(sequence: list[int], pattern: list[int]) -> int:
+        width = len(pattern)
+        for start in range(len(sequence) - width + 1):
+            if sequence[start : start + width] == pattern:
+                return start
+        return -1
+
+    def __call__(self, features: list[dict[str, Any]]) -> dict[str, Any]:
+        # Depending on the installed TRL version, SFTTrainer may pass already
+        # tokenized examples or raw ``text`` examples to the collator.
+        if features and "input_ids" not in features[0]:
+            texts = [feature["text"] for feature in features]
+            batch = self.tokenizer(
+                texts,
+                padding=True,
+                truncation=True,
+                return_tensors="pt",
+            )
+        else:
+            token_fields = {"input_ids", "attention_mask", "token_type_ids"}
+            token_features = [
+                {key: value for key, value in feature.items() if key in token_fields}
+                for feature in features
+            ]
+            batch = self.tokenizer.pad(
+                token_features,
+                padding=True,
+                return_tensors="pt",
+            )
+
+        input_ids = batch["input_ids"]
+        attention_mask = batch.get("attention_mask")
+        if attention_mask is None:
+            attention_mask = input_ids.ne(self.tokenizer.pad_token_id).long()
+            batch["attention_mask"] = attention_mask
+
+        labels = input_ids.clone()
+        labels[attention_mask == 0] = -100
+        template_ids = self.response_template_ids
+        missing_indices: list[int] = []
+        for row_index in range(input_ids.shape[0]):
+            valid_length = int(attention_mask[row_index].sum().item())
+            row = input_ids[row_index, :valid_length].tolist()
+            marker_start = self._find_subsequence(row, template_ids)
+            if marker_start < 0:
+                missing_indices.append(row_index)
+                continue
+            # Do not train on system/user messages or the assistant header.
+            marker_end = marker_start + len(template_ids)
+            labels[row_index, :marker_end] = -100
+
+        if missing_indices:
+            raise ValueError(
+                "Could not find assistant response marker in tokenized sample(s) "
+                f"{missing_indices}; response_template={self.response_template!r}. "
+                "Check that the tokenizer chat template and the configured marker match."
+            )
+
+        batch["labels"] = labels
+        return batch
 
 
 def load_config(config_path: str = ACTIVE_TRAIN_CONFIG) -> dict[str, Any]:
@@ -248,6 +332,10 @@ def _training_arguments(training: dict[str, Any], output_dir: Path, use_bf16: bo
         kwargs["gradient_checkpointing_kwargs"] = {"use_reentrant": False}
     if _supports_argument(TrainingArguments, "optim"):
         kwargs["optim"] = training.get("optim", "adamw_torch")
+    if _supports_argument(TrainingArguments, "lr_scheduler_type") and training.get(
+        "lr_scheduler_type"
+    ):
+        kwargs["lr_scheduler_type"] = str(training["lr_scheduler_type"])
     return TrainingArguments(**kwargs)
 
 
@@ -281,6 +369,7 @@ def _build_trainer(
     eval_dataset: Dataset,
     args,
     max_seq_length: int,
+    data_collator=None,
 ):
     kwargs: dict[str, Any] = {
         "model": model,
@@ -298,7 +387,19 @@ def _build_trainer(
         kwargs["max_seq_length"] = max_seq_length
     if _supports_argument(SFTTrainer, "packing"):
         kwargs["packing"] = False
+    if data_collator is not None and _supports_argument(SFTTrainer, "data_collator"):
+        kwargs["data_collator"] = data_collator
     return SFTTrainer(**kwargs)
+
+
+def _build_data_collator(tokenizer, training: dict[str, Any]):
+    """根据配置构造 loss collator；默认保持显式可审计的 assistant-only 训练。"""
+    if not bool(training.get("assistant_only_loss", False)):
+        return None
+    response_template = str(
+        training.get("assistant_response_template", "<|im_start|>assistant\n")
+    )
+    return AssistantOnlyDataCollator(tokenizer, response_template)
 
 
 def _save_json(path: Path, value: Any) -> None:
@@ -350,6 +451,12 @@ def train(config_path: str = ACTIVE_TRAIN_CONFIG) -> Path:
     if max_seq_length <= 0:
         raise ValueError("training.max_seq_length must be positive")
     sft_args = _build_sft_args(training, output_dir, use_bf16, max_seq_length)
+    data_collator = _build_data_collator(tokenizer, training)
+    if data_collator is not None:
+        print(
+            "Assistant-only loss enabled: system/user tokens and the assistant header "
+            "will be masked with label=-100."
+        )
     trainer = _build_trainer(
         model,
         tokenizer,
@@ -357,6 +464,7 @@ def train(config_path: str = ACTIVE_TRAIN_CONFIG) -> Path:
         eval_dataset,
         sft_args,
         max_seq_length,
+        data_collator=data_collator,
     )
 
     print("Starting LoRA SFT training...")
@@ -391,6 +499,10 @@ def train(config_path: str = ACTIVE_TRAIN_CONFIG) -> Path:
             "use_4bit": use_4bit,
             "use_bf16": use_bf16,
             "max_seq_length": max_seq_length,
+            "assistant_only_loss": bool(training.get("assistant_only_loss", False)),
+            "assistant_response_template": training.get(
+                "assistant_response_template", "<|im_start|>assistant\n"
+            ),
         },
     )
     print(f"Training complete. LoRA adapter saved to: {output_dir}")

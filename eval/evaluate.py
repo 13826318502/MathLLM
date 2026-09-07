@@ -45,7 +45,14 @@ NUMBER_PATTERN = re.compile(
     r"(?<![A-Za-z])[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
 )
 LATEX_FRACTION_PATTERN = re.compile(
-    r"\\frac\s*\{\s*([^{}]+?)\s*\}\s*\{\s*([^{}]+?)\s*\}"
+    r"\\(?:d?frac)\s*\{\s*([^{}]+?)\s*\}\s*\{\s*([^{}]+?)\s*\}"
+)
+# Also accept plain text fractions such as ``663/5``.  Without this, an
+# expected answer written as ``$663/5$`` is compared as two separate numbers,
+# so an equivalent model answer such as ``132.6`` is incorrectly marked wrong.
+SIMPLE_FRACTION_PATTERN = re.compile(
+    r"(?<![A-Za-z0-9_.])([-+]?(?:\d+(?:\.\d*)?|\.\d+))\s*/\s*"
+    r"([-+]?(?:\d+(?:\.\d*)?|\.\d+))(?![A-Za-z0-9_.])"
 )
 LATEX_BINOM_BRACED_PATTERN = re.compile(
     r"\\binom\s*\{\s*([^{}]+?)\s*\}\s*\{\s*([^{}]+?)\s*\}"
@@ -156,6 +163,31 @@ def _models_url(endpoint: str) -> str:
     return f"{base}/models"
 
 
+def _is_context_length_error(response: httpx.Response) -> bool:
+    """判断 400 是否是输入和输出 token 总量超过上下文窗口。"""
+    try:
+        # ``client.stream`` responses have not necessarily been read when
+        # ``raise_for_status`` raises.  Read the body before calling
+        # ``response.json()``; otherwise httpx raises ResponseNotRead and the
+        # evaluator records a transport failure instead of retrying with a
+        # smaller completion budget.
+        response.read()
+        payload = response.json()
+        message = str(payload.get("error", {}).get("message", ""))
+    except (ValueError, TypeError, AttributeError, RuntimeError):
+        try:
+            message = response.text
+        except RuntimeError:
+            message = ""
+    normalized = message.lower()
+    return (
+        "maximum context length" in normalized
+        or "context length" in normalized
+        or "max_model_len" in normalized
+        or "requested" in normalized and "output token" in normalized
+    )
+
+
 def discover_model_name(endpoint: str, timeout: float = 20.0) -> str | None:
     """Get the first model id advertised by an OpenAI-compatible server."""
     try:
@@ -210,9 +242,10 @@ def call_model(
         if isinstance(question, str)
         else question
     )
+    requested_max_tokens = max(1, int(max_tokens))
     payload: dict[str, Any] = {
         "messages": messages, "temperature": temperature,
-        "max_tokens": max_tokens, "stream": True,
+        "max_tokens": requested_max_tokens, "stream": True,
     }
     if model_name:
         payload["model"] = model_name
@@ -221,36 +254,65 @@ def call_model(
     first_token_at: float | None = None
     chunks: list[str] = []
     with httpx.Client(timeout=timeout) as client:
-        try:
-            with client.stream("POST", _chat_url(endpoint), json=payload) as response:
-                response.raise_for_status()
-                for line in response.iter_lines():
-                    if not line or not line.startswith("data:"):
-                        continue
-                    data = line[len("data:") :].strip()
-                    if data == "[DONE]":
-                        continue
-                    event = json.loads(data)
-                    choices = event.get("choices", [])
-                    delta = choices[0].get("delta", {}).get("content", "") if choices else ""
-                    if delta:
-                        if first_token_at is None:
-                            first_token_at = time.perf_counter()
-                        chunks.append(str(delta))
-        except httpx.HTTPStatusError as error:
-            # A few compatible servers support chat completions but reject SSE.
-            if error.response.status_code < 400 or error.response.status_code >= 500:
-                raise
-            payload["stream"] = False
-            response = client.post(_chat_url(endpoint), json=payload)
-            response.raise_for_status()
-            body = response.json()
+        while True:
             try:
-                answer = str(body["choices"][0]["message"]["content"])
-            except (KeyError, IndexError, TypeError) as parse_error:
-                raise ValueError("模型非流式响应缺少 choices[0].message.content") from parse_error
-            total_ms = (time.perf_counter() - started) * 1000
-            return answer, total_ms, total_ms
+                payload["stream"] = True
+                with client.stream("POST", _chat_url(endpoint), json=payload) as response:
+                    # Read an error body before raising.  In httpx streaming
+                    # mode ``raise_for_status`` otherwise leaves the response
+                    # unread, which prevents the retry logic from inspecting
+                    # vLLM's context-length message.
+                    if response.status_code >= 400:
+                        response.read()
+                        response.raise_for_status()
+                    for line in response.iter_lines():
+                        if not line or not line.startswith("data:"):
+                            continue
+                        data = line[len("data:") :].strip()
+                        if data == "[DONE]":
+                            continue
+                        event = json.loads(data)
+                        choices = event.get("choices", [])
+                        delta = choices[0].get("delta", {}).get("content", "") if choices else ""
+                        if delta:
+                            if first_token_at is None:
+                                first_token_at = time.perf_counter()
+                            chunks.append(str(delta))
+                break
+            except httpx.HTTPStatusError as error:
+                # vLLM rejects a request when prompt tokens + max_tokens exceed
+                # max_model_len. Retry with a smaller completion budget instead
+                # of recording a false model failure. Other 4xx errors retain
+                # the existing non-streaming compatibility fallback below.
+                if (
+                    error.response.status_code == 400
+                    and _is_context_length_error(error.response)
+                    and requested_max_tokens > 128
+                ):
+                    next_max_tokens = max(128, requested_max_tokens // 2)
+                    if next_max_tokens < requested_max_tokens:
+                        requested_max_tokens = next_max_tokens
+                        payload["max_tokens"] = requested_max_tokens
+                        chunks.clear()
+                        first_token_at = None
+                        print(
+                            "  context limit: retrying with "
+                            f"max_tokens={requested_max_tokens}"
+                        )
+                        continue
+                # A few compatible servers support chat completions but reject SSE.
+                if error.response.status_code < 400 or error.response.status_code >= 500:
+                    raise
+                payload["stream"] = False
+                response = client.post(_chat_url(endpoint), json=payload)
+                response.raise_for_status()
+                body = response.json()
+                try:
+                    answer = str(body["choices"][0]["message"]["content"])
+                except (KeyError, IndexError, TypeError) as parse_error:
+                    raise ValueError("模型非流式响应缺少 choices[0].message.content") from parse_error
+                total_ms = (time.perf_counter() - started) * 1000
+                return answer, total_ms, total_ms
 
     total_ms = (time.perf_counter() - started) * 1000
     first_token_ms = (first_token_at - started) * 1000 if first_token_at is not None else total_ms
@@ -311,6 +373,17 @@ def _numeric_values(text: str) -> list[Fraction | float]:
     for start, end in fraction_spans:
         for index in range(start, end):
             remaining[index] = " "
+    for match in SIMPLE_FRACTION_PATTERN.finditer("".join(remaining)):
+        try:
+            numerator = Fraction(match.group(1))
+            denominator = Fraction(match.group(2))
+            if denominator == 0:
+                continue
+            values.append(numerator / denominator)
+            for index in range(*match.span()):
+                remaining[index] = " "
+        except (ValueError, ZeroDivisionError):
+            continue
     for match in NUMBER_PATTERN.finditer("".join(remaining)):
         token = match.group(0)
         try:

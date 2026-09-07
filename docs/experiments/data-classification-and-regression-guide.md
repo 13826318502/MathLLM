@@ -357,23 +357,34 @@ LLM Judge API key → GitHub             禁止
 
 ## 6. 当前仓库数据状态
 
-截至本说明更新时，仓库中可见的数据文件为：
+截至 Round 4 数据整理完成时，仓库中可见的数据文件为：
 
 ```text
 data/eval/test.json
 └── 116 条独立测试题
 
 data/eval/regression/regression.json
-└── 4 条回归样本
+└── 42 条回归样本
 
 data/raw/corrections/
-└── 当前未发现实际 JSON/JSONL 纠错样本，仅有 README.md
+└── correction-round-4-training.jsonl   # Round 4 新增 80 条，待人工验算
 
-data/processed/
-└── 运行生成目录，通常不提交到 GitHub
+data/archive/
+└── corrections/correction-training-all.jsonl
+    # 历史纠错数据，仅供追溯，不会被训练程序读取
+
+data/eval/correction-validation/
+└── round-4.json                         # Round 4 独立纠错验证集 20 条
+
+data/processed/round-4-staging/
+├── train.json                           # 1013 条
+└── eval.json                            # 112 条
+
+data/candidates/archive/
+└── correction-round-4-all.jsonl         # 100 条候选题归档
 
 eval/results/
-└── 评测输出目录，不属于训练数据目录
+└── 评测输出目录，不属于训练数据目录；Round 3 旧评测输出已清理
 ```
 
 因此，下一轮纠错训练前还需要将人工验算后的同类型样本放入

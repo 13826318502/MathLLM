@@ -72,22 +72,22 @@ def main() -> None:
     parser.add_argument(
         "--input",
         type=Path,
-        default=ROOT / "data" / "raw" / "corrections" / "correction-round-3.jsonl",
+        default=ROOT / "data" / "candidates" / "correction-round-4-all.jsonl",
     )
     parser.add_argument(
         "--train-output",
         type=Path,
-        default=ROOT / "data" / "raw" / "corrections" / "correction-round-3-training.jsonl",
+        default=ROOT / "data" / "raw" / "corrections" / "correction-round-4-training.jsonl",
     )
     parser.add_argument(
         "--validation-output",
         type=Path,
-        default=ROOT / "data" / "eval" / "correction-validation" / "round-3.json",
+        default=ROOT / "data" / "eval" / "correction-validation" / "round-4.json",
     )
     parser.add_argument(
         "--archive-output",
         type=Path,
-        default=ROOT / "data" / "candidates" / "correction-round-3-all.jsonl",
+        default=ROOT / "data" / "candidates" / "archive" / "correction-round-4-all.jsonl",
     )
     parser.add_argument("--validation-ratio", type=float, default=0.2)
     parser.add_argument("--seed", type=int, default=20260904)
@@ -97,11 +97,11 @@ def main() -> None:
         raise ValueError("--validation-ratio must be between 0 and 1")
     records = read_jsonl(args.input)
     if len(records) != 100:
-        raise ValueError(f"Expected exactly 100 Round 3 candidates, found {len(records)}")
+        raise ValueError(f"Expected exactly 100 correction candidates, found {len(records)}")
 
     canonical_questions = [prep._canonicalize_question(str(record["question"])) for record in records]
     if len(set(canonical_questions)) != len(canonical_questions):
-        raise ValueError("Round 3 contains duplicate questions after normalization")
+        raise ValueError("Correction candidates contain duplicate questions after normalization")
 
     blocked = set()
     if prep.TEST_FILE.exists():
@@ -110,7 +110,7 @@ def main() -> None:
         blocked.update(prep._load_regression_questions(prep.REGRESSION_DIR))
     leaked = [record["question"] for record, question in zip(records, canonical_questions) if question in blocked]
     if leaked:
-        raise ValueError(f"Round 3 overlaps protected test/regression data: {len(leaked)} questions")
+        raise ValueError(f"Correction candidates overlap protected test/regression data: {len(leaked)} questions")
 
     rng = random.Random(args.seed)
     shuffled = list(records)

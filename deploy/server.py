@@ -1,62 +1,56 @@
-"""基于 vLLM 部署精调后的数学解题模型
+"""Start the vLLM OpenAI-compatible model service.
 
-提供 OpenAI 兼容的 API 接口，支持流式输出。
+The launcher reads deployment settings from environment variables so it does
+not depend on a round-specific configuration file.
 
-启动方式:
+Example:
     python deploy/server.py
 
-    # 或直接使用 vLLM CLI（本轮模型合并完成后）:
-    python -m vllm.entrypoints.openai.api_server \
-        --model ./outputs/correction-round-3-merged \
-        --host 0.0.0.0 --port 8000 \
-        --max-model-len 2048 --dtype float16
-
-API 用法（与 OpenAI API 兼容）:
-    curl http://localhost:8000/v1/chat/completions \
-        -H "Content-Type: application/json" \
-        -d '{
-            "model": "math-solver",
-            "messages": [{"role": "user", "content": "求解方程 x^2 - 5x + 6 = 0"}],
-            "stream": true
-        }'
+Optional environment variables:
+    MATHLLM_MODEL_PATH=./outputs/correction-round-5-merged
+    MATHLLM_MODEL_NAME=mathllm-round5
+    MATHLLM_VLLM_PORT=8000
 """
 
-import yaml
+from __future__ import annotations
+
 import subprocess
-from pathlib import Path
+
+from deploy.settings import DeploymentSettings, settings
 
 
-ACTIVE_DEPLOY_CONFIG = "configs/deployment/correction-round-3-20260904-merged.yaml"
-
-
-def load_deploy_config(config_path: str = ACTIVE_DEPLOY_CONFIG) -> dict:
-    with open(config_path, "r") as f:
-        return yaml.safe_load(f)
-
-
-def start_vllm_server(config: dict):
-    """使用 vLLM 启动模型推理服务"""
-    model_cfg = config["model"]
-    server_cfg = config["server"]
-
-    cmd = [
-        "python", "-m", "vllm.entrypoints.openai.api_server",
-        "--model", model_cfg["model_path"],
-        "--host", server_cfg["host"],
-        "--port", str(server_cfg["port"]),
-        "--max-model-len", str(model_cfg["max_model_len"]),
-        "--gpu-memory-utilization", str(model_cfg["gpu_memory_utilization"]),
-        "--dtype", model_cfg["dtype"],
+def build_command(config: DeploymentSettings) -> list[str]:
+    command = [
+        "python",
+        "-m",
+        "vllm.entrypoints.openai.api_server",
+        "--model",
+        config.model_path,
+        "--served-model-name",
+        config.served_model_name,
+        "--host",
+        config.host,
+        "--port",
+        str(config.port),
+        "--max-model-len",
+        str(config.max_model_len),
+        "--gpu-memory-utilization",
+        str(config.gpu_memory_utilization),
+        "--dtype",
+        config.dtype,
     ]
+    if config.quantization:
+        command.extend(["--quantization", config.quantization])
+    return command
 
-    if model_cfg.get("quantization"):
-        cmd.extend(["--quantization", model_cfg["quantization"]])
 
-    print(f"Starting vLLM server...")
-    print(f"Command: {' '.join(cmd)}")
-    subprocess.run(cmd)
+def start_vllm_server(config: DeploymentSettings = settings) -> None:
+    command = build_command(config)
+    print(f"Starting vLLM with model: {config.model_path}")
+    print(f"Served model name: {config.served_model_name}")
+    print(f"Command: {' '.join(command)}")
+    subprocess.run(command, check=True)
 
 
 if __name__ == "__main__":
-    config = load_deploy_config()
-    start_vllm_server(config)
+    start_vllm_server()

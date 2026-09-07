@@ -51,7 +51,7 @@ vLLM OpenAI 兼容接口
 | LLM Judge | 已实现 | `eval/llm_judge.py` 对模型答案做独立语义判断 |
 | AWQ 量化 | 脚本已实现 | `scripts/quantize.py`，仍需在目标云 GPU 上实跑加载验证 |
 | vLLM 部署 | 已实现启动器 | `deploy/server.py` 可启动 OpenAI 兼容服务 |
-| Web 应用 | 开发中 | FastAPI/Gradio 仍需联调 |
+| Web 应用 | 已实现基础版本 | 独立 HTML/CSS/JavaScript 前端 + FastAPI/SSE |
 
 ## 最近一次完整训练与评测记录（2026-09-04）
 
@@ -103,6 +103,56 @@ python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_
 
 训练环境至少需要 PyTorch、Transformers、Datasets、Accelerate、PEFT 和 TRL。
 `vllm`、`bitsandbytes` 和量化依赖应根据云服务器的 CUDA 驱动和目标版本单独安装。
+
+## 本地一键启动和外部大模型 API
+
+本地前端不需要加载基座模型。当前使用独立的 HTML/CSS/JavaScript 单页前端，启动器会打开两个窗口：
+
+```text
+Web 前端：http://localhost:7860
+FastAPI 后端：http://localhost:8080
+```
+
+后端再通过 OpenAI 兼容的 `/chat/completions` 接口调用外部大模型。
+
+当前前端还提供：
+
+- Markdown 和 LaTeX 公式渲染；
+- 浏览器本地收藏题目，支持加载、移除和清空；
+- “只给我提示”“讲简单一点”“检查我的答案”三个快捷学习入口；
+- `Ctrl+Enter` 快捷提交题目。
+
+前端代码位于 `web/`：
+
+- `web/index.html`：页面骨架和侧边栏导航；
+- `web/styles.css`：响应式布局、明暗主题和组件样式；
+- `web/app.js`：页面切换、Markdown 渲染、SSE 对话、收藏和学习记录。
+
+旧版 Gradio 页面 `app/frontend/gradio_app.py` 仍保留用于兼容和对比，但 Windows 一键启动器默认启动新的 Web 前端。
+
+首次使用时可以复制：
+
+```powershell
+Copy-Item .env.local.example .env.local
+```
+
+然后填写：
+
+```text
+MATHLLM_API_BASE_URL=https://api.example.com/v1
+MATHLLM_MODEL_NAME=your-model-name
+MATHLLM_API_KEY=your-api-key
+```
+
+也可以不创建 `.env.local`，直接双击 `start_local.bat`，启动器会要求输入 API 地址、模型名和 API Key；API Key 输入时不会显示，并且不会写入项目文件。
+
+启动器文件：
+
+- `start_local.bat`：Windows 双击入口；
+- `start_local.ps1`：启动前后端的 PowerShell 脚本；
+- `.env.local.example`：外部 API 配置模板。
+
+`.env.local` 已加入 `.gitignore`，不要把真实 API Key 提交到 GitHub。
 
 ## 数据准备
 
@@ -466,6 +516,19 @@ python scripts/quantize.py \
 ```text
 MathLLM/
 ├── app/                         # FastAPI 和 Gradio 应用
+│   ├── core/                    # 共享配置和 system prompt
+│   ├── api/                     # API 应用、路由和数据模型
+│   ├── services/                # vLLM 调用、prompt 和流式服务
+│   └── frontend/                # 页面、控制器、API 客户端和会话转换
+│       ├── gradio_app.py        # 页面组装和事件绑定
+│       ├── controller.py        # 前端事件处理
+│       ├── api_client.py        # HTTP/SSE 客户端
+│       ├── conversation.py      # 对话历史转换
+│       ├── config.py             # 前端运行配置
+│       ├── examples.py           # 学生示例题
+│       ├── favorites.py          # 浏览器本地收藏和快捷学习工具
+│       ├── ui_behavior.js        # 前端快捷键等轻量交互
+│       └── ui_theme.py            # 页面主题和 CSS
 ├── configs/
 │   ├── training/                # 按实验轮次保存训练配置
 │   ├── deployment/              # 按模型状态保存部署配置
@@ -476,7 +539,12 @@ MathLLM/
 │   ├── processed/               # train.json、eval.json
 │   └── eval/                    # test.json、regression/
 ├── deploy/
-│   └── server.py                # vLLM 启动器
+│   ├── server.py                # vLLM 启动器
+│   └── settings.py              # vLLM 部署配置
+├── web/                         # 独立 HTML/CSS/JavaScript 前端
+│   ├── index.html               # 页面骨架和侧边栏
+│   ├── styles.css               # 响应式布局和主题样式
+│   └── app.js                   # 页面逻辑、SSE 对话和本地学习数据
 ├── eval/
 │   ├── evaluate.py              # 基础数学和延迟评测
 │   ├── llm_judge.py             # 独立大模型语义评测
@@ -516,7 +584,7 @@ git pull origin main
 - [ ] 完整训练并选择最佳 checkpoint；
 - [ ] 在云 GPU 上完成 AWQ 量化和 vLLM 加载验证；
 - [ ] 对比合并模型与量化模型的准确率、显存和延迟；
-- [ ] 完成 FastAPI/Gradio 联调；
+- [ ] 完成独立 Web 前端与 FastAPI/模型服务的完整联调；
 - [ ] 完善消融实验自动评测；
 - [ ] 完成 Docker 部署和最终发布文档。
 
@@ -527,6 +595,7 @@ git pull origin main
 - [第一周：数据准备](docs/development-plan/week1-data-preparation.md)
 - [第二周：训练与部署](docs/development-plan/week2-training-and-deployment.md)
 - [第三周：应用开发](docs/development-plan/week3-application-development.md)
+- [数学助手功能与界面需求报告](docs/development-plan/math-assistant-product-and-interface-requirements.md)
 - [第四周：评测与发布](docs/development-plan/week4-evaluation-and-release.md)
 - [评测说明](eval/README.md)
 - [独立评测数据说明](data/eval/README.md)

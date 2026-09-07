@@ -1,0 +1,962 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation bookshop, case marker aabya (exercise R10V-aabya-1301), $99 is divided between two teams in the ratio 3:6. How much does the second team receive?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are 9 total ratio parts, so one part is $99/9 = $11. The second team receives 6 times $11 = $66.\n\n**最终答案**\n\n$66"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation clinic, case marker aabyb (exercise R10V-aabyb-1302), an arithmetic sequence has first term 9 and common difference 4. Find its term 11."
+      },
+      {
+        "role": "assistant",
+        "content": "Use a_n = a_1 + (n - 1)d. Thus a_11 = 9 + (11 - 1) times 4 = 49.\n\n**最终答案**\n\n49"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation bakery, case marker aabyc (exercise R10V-aabyc-1303), two fair dice are rolled. What is the probability that their sum is 11?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are 2 ordered pairs with this sum among 36 equally likely outcomes, so the probability is 2/36 = \\frac{1}{18}.\n\n**最终答案**\n\n\\frac{1}{18}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation observatory, case marker aabyd (exercise R10V-aabyd-1304), solve 2x + y = 16 and x - y = -1."
+      },
+      {
+        "role": "assistant",
+        "content": "From x - y = -1, x = y + -1. Substitution gives 3y = 18, so y = 6 and x = 5.\n\n**最终答案**\n\n(x,y)=(5,6)"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation depot, case marker aabye (exercise R10V-aabye-1305), evaluate the limit as x approaches 2 of (x^2 - 4)/(x - 2)."
+      },
+      {
+        "role": "assistant",
+        "content": "Factor the numerator: (x^2 - 4)/(x - 2) = x + 2 for x not equal to 2. The limit is 4.\n\n**最终答案**\n\n4"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation lab, case marker aabyf (exercise R10V-aabyf-1306), a vehicle travels 57 km at 19 km/h and stops for 10 minutes. How long is the complete trip?"
+      },
+      {
+        "role": "assistant",
+        "content": "Driving takes 57/19 = 3 hours. Total time is 3 times 60 + 10 = 190 minutes, which is 3 hours 10 minutes.\n\n**最终答案**\n\n3 hours 10 minutes"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bookshop, case marker aabyg (exercise R10V-aabyg-1307), find the sum of the first 4 terms of a geometric sequence with first term 4 and ratio 3."
+      },
+      {
+        "role": "assistant",
+        "content": "S_n = a(r^n - 1)/(r - 1), so S_4 = 4(3^4 - 1)/(3 - 1) = 160.\n\n**最终答案**\n\n160"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation clinic, case marker aabyh (exercise R10V-aabyh-1308), each of 6 independent trials succeeds with probability 1/2. What is the probability of at least one success?"
+      },
+      {
+        "role": "assistant",
+        "content": "Use the complement: P(no success) = (1/2)^6 = \\frac{1}{64}. Therefore P(at least one) = 1 - that value = \\frac{63}{64}.\n\n**最终答案**\n\n\\frac{63}{64}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bakery, case marker aabyi (exercise R10V-aabyi-1309), find the eigenvalues of the diagonal matrix [[6,0],[0,9]]."
+      },
+      {
+        "role": "assistant",
+        "content": "For a diagonal matrix, the diagonal entries are the eigenvalues. They are 6 and 9.\n\n**最终答案**\n\n6, 9"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation observatory, case marker aabyj (exercise R10V-aabyj-1310), find the sum 6 + 6/2 + 6/4 + ... ."
+      },
+      {
+        "role": "assistant",
+        "content": "This is geometric with a = 6, r = 1/2, and |r| < 1. Thus S = a/(1-r) = 6/(1/2) = 12.\n\n**最终答案**\n\n12"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation depot, case marker aabyk (exercise R10V-aabyk-1311), 2 workers each process 5 units per day for 2 days. How many units are processed in total?"
+      },
+      {
+        "role": "assistant",
+        "content": "Multiply workers, daily units, and days: 2 times 5 times 2 = 20.\n\n**最终答案**\n\n20"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation lab, case marker aabyl (exercise R10V-aabyl-1312), find the remainder when 3^4 is divided by 11."
+      },
+      {
+        "role": "assistant",
+        "content": "3^4 = 81 = 11 times 7 + 4, so the remainder is 4.\n\n**最终答案**\n\n4"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation bookshop, case marker aabym (exercise R10V-aabym-1313), in how many orders can 6 distinct exhibits be arranged?"
+      },
+      {
+        "role": "assistant",
+        "content": "All objects are distinct, so the number of orders is 6! = 720.\n\n**最终答案**\n\n720"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation clinic, case marker aabyn (exercise R10V-aabyn-1314), find the area of the parallelogram spanned by vectors (5,2) and (4,6)."
+      },
+      {
+        "role": "assistant",
+        "content": "The area is the absolute value of the determinant: |5 times 6 - 2 times 4| = 22.\n\n**最终答案**\n\n22"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bakery, case marker aabyo (exercise R10V-aabyo-1315), solve y' = 3y with y(0) = 6, giving y(t)."
+      },
+      {
+        "role": "assistant",
+        "content": "Separating and integrating gives y = Ce^(3t). Since y(0) = 6, C = 6; therefore y(t) = 6e^(3t).\n\n**最终答案**\n\n6e^(3t)"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation observatory, case marker aabyp (exercise R10V-aabyp-1316), a tank starts with 150 liters and receives 15 liters each day for 6 days. How many liters are in it afterward?"
+      },
+      {
+        "role": "assistant",
+        "content": "The added amount is 15 times 6 = 90 liters. Therefore the final amount is 150 + 90 = 240 liters.\n\n**最终答案**\n\n240"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation depot, case marker aabyq (exercise R10V-aabyq-1317), determine gcd(12, 4) using the Euclidean algorithm."
+      },
+      {
+        "role": "assistant",
+        "content": "Repeated division gives gcd(12, 4) = 4.\n\n**最终答案**\n\n4"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation lab, case marker aabyr (exercise R10V-aabyr-1318), a box has 5 red and 6 blue tokens. If 3 are drawn without replacement, what is the probability of exactly one red token?"
+      },
+      {
+        "role": "assistant",
+        "content": "Favorable selections are C(5,1)C(6,2) = 75; all selections are C(11,3) = 165. The probability is 75/165 = \\frac{5}{11}.\n\n**最终答案**\n\n\\frac{5}{11}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bookshop, case marker aabys (exercise R10V-aabys-1319), find the slope through (4,4) and (7,10)."
+      },
+      {
+        "role": "assistant",
+        "content": "The slope is (y2-y1)/(x2-x1) = (10-4)/(7-4) = 2.\n\n**最终答案**\n\n2"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation clinic, case marker aabyt (exercise R10V-aabyt-1320), find 1 + 2 + 3 + ... + 7."
+      },
+      {
+        "role": "assistant",
+        "content": "The sum of the first n positive integers is n(n+1)/2, so the result is 7 times 8/2 = 28.\n\n**最终答案**\n\n28"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation bakery, case marker aabyu (exercise R10V-aabyu-1321), 7 kits cost $9 each. A 10% discount is applied to the subtotal, then $7 shipping is added. What is the final cost?"
+      },
+      {
+        "role": "assistant",
+        "content": "The subtotal is 7 times 9, or $63. The discounted subtotal is 63 times 90/100 = $56. Adding shipping gives $63.\n\n**最终答案**\n\n$63"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation observatory, case marker aabyv (exercise R10V-aabyv-1322), solve 7x + 5 = 75."
+      },
+      {
+        "role": "assistant",
+        "content": "Subtract 5: 7x = 70. Divide by 7: x = 10.\n\n**最终答案**\n\n10"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation depot, case marker aabyw (exercise R10V-aabyw-1323), 7 fair coins are tossed. What is the probability of exactly 2 heads?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are C(7,2) = 21 favorable outcomes out of 2^7 = 128. Thus the probability is 21/128 = \\frac{21}{128}.\n\n**最终答案**\n\n\\frac{21}{128}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation lab, case marker aabyx (exercise R10V-aabyx-1324), find the determinant of the diagonal matrix [[8,0],[0,4]]."
+      },
+      {
+        "role": "assistant",
+        "content": "The determinant of a diagonal 2 by 2 matrix is the product of its diagonal entries: 8 times 4 = 32.\n\n**最终答案**\n\n32"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bookshop, case marker aabyy (exercise R10V-aabyy-1325), if f(x) = 5x^2 + 3x - 2, find f'(3)."
+      },
+      {
+        "role": "assistant",
+        "content": "f'(x) = 10x^(1) + 3, so f'(3) = 10 times 3^1 + 3 = 33.\n\n**最终答案**\n\n33"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation clinic, case marker aabyz (exercise R10V-aabyz-1326), a printer makes 18 labels per hour for a 3-hour shift and pauses for 30 minutes. How many labels are printed?"
+      },
+      {
+        "role": "assistant",
+        "content": "Productive time is 150/60 = \\frac{5}{2} hours. Therefore the number printed is 18 times \\frac{5}{2} = 45.\n\n**最终答案**\n\n45"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bakery, case marker aabza (exercise R10V-aabza-1327), find the monic quadratic equation whose roots are 8 and 7."
+      },
+      {
+        "role": "assistant",
+        "content": "Use (x - 8)(x - 7) = 0. Expanding gives x^2 - 15x + 56 = 0.\n\n**最终答案**\n\nx^2-15x+56=0"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation observatory, case marker aabzb (exercise R10V-aabzb-1328), how many committees of 6 people can be selected from 13 distinct people?"
+      },
+      {
+        "role": "assistant",
+        "content": "Order does not matter, so the count is C(13,6) = 1716.\n\n**最终答案**\n\n1716"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation depot, case marker aabzc (exercise R10V-aabzc-1329), compute [[5,1],[1,6]] times [2,4]^T."
+      },
+      {
+        "role": "assistant",
+        "content": "Multiply each row by the column: first entry 5 times 2 + 1 times 4 = 14; second entry 1 times 2 + 6 times 4 = 26.\n\n**最终答案**\n\n(14,26)^T"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation lab, case marker aabzd (exercise R10V-aabzd-1330), evaluate the integral from 0 to 6 of x^2 dx."
+      },
+      {
+        "role": "assistant",
+        "content": "An antiderivative is x^(3)/(3); evaluating gives 6^3/(3) = 72.\n\n**最终答案**\n\n72"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation bookshop, case marker aabze (exercise R10V-aabze-1331), $81 is divided between two teams in the ratio 3:6. How much does the second team receive?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are 9 total ratio parts, so one part is $81/9 = $9. The second team receives 6 times $9 = $54.\n\n**最终答案**\n\n$54"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation clinic, case marker aabzf (exercise R10V-aabzf-1332), an arithmetic sequence has first term 4 and common difference 4. Find its term 9."
+      },
+      {
+        "role": "assistant",
+        "content": "Use a_n = a_1 + (n - 1)d. Thus a_9 = 4 + (9 - 1) times 4 = 36.\n\n**最终答案**\n\n36"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation bakery, case marker aabzg (exercise R10V-aabzg-1333), two fair dice are rolled. What is the probability that their sum is 6?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are 5 ordered pairs with this sum among 36 equally likely outcomes, so the probability is 5/36 = \\frac{5}{36}.\n\n**最终答案**\n\n\\frac{5}{36}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation observatory, case marker aabzh (exercise R10V-aabzh-1334), solve 2x + y = 14 and x - y = 1."
+      },
+      {
+        "role": "assistant",
+        "content": "From x - y = 1, x = y + 1. Substitution gives 3y = 12, so y = 4 and x = 5.\n\n**最终答案**\n\n(x,y)=(5,4)"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation depot, case marker aabzi (exercise R10V-aabzi-1335), evaluate the limit as x approaches 8 of (x^2 - 64)/(x - 8)."
+      },
+      {
+        "role": "assistant",
+        "content": "Factor the numerator: (x^2 - 64)/(x - 8) = x + 8 for x not equal to 8. The limit is 16.\n\n**最终答案**\n\n16"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation lab, case marker aabzj (exercise R10V-aabzj-1336), a vehicle travels 125 km at 25 km/h and stops for 10 minutes. How long is the complete trip?"
+      },
+      {
+        "role": "assistant",
+        "content": "Driving takes 125/25 = 5 hours. Total time is 5 times 60 + 10 = 310 minutes, which is 5 hours 10 minutes.\n\n**最终答案**\n\n5 hours 10 minutes"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bookshop, case marker aabzk (exercise R10V-aabzk-1337), find the sum of the first 4 terms of a geometric sequence with first term 4 and ratio 3."
+      },
+      {
+        "role": "assistant",
+        "content": "S_n = a(r^n - 1)/(r - 1), so S_4 = 4(3^4 - 1)/(3 - 1) = 160.\n\n**最终答案**\n\n160"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation clinic, case marker aabzl (exercise R10V-aabzl-1338), each of 6 independent trials succeeds with probability 1/2. What is the probability of at least one success?"
+      },
+      {
+        "role": "assistant",
+        "content": "Use the complement: P(no success) = (1/2)^6 = \\frac{1}{64}. Therefore P(at least one) = 1 - that value = \\frac{63}{64}.\n\n**最终答案**\n\n\\frac{63}{64}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bakery, case marker aabzm (exercise R10V-aabzm-1339), find the eigenvalues of the diagonal matrix [[4,0],[0,4]]."
+      },
+      {
+        "role": "assistant",
+        "content": "For a diagonal matrix, the diagonal entries are the eigenvalues. They are 4 and 4.\n\n**最终答案**\n\n4, 4"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation observatory, case marker aabzn (exercise R10V-aabzn-1340), find the sum 6 + 6/2 + 6/4 + ... ."
+      },
+      {
+        "role": "assistant",
+        "content": "This is geometric with a = 6, r = 1/2, and |r| < 1. Thus S = a/(1-r) = 6/(1/2) = 12.\n\n**最终答案**\n\n12"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation depot, case marker aabzo (exercise R10V-aabzo-1341), 2 workers each process 3 units per day for 2 days. How many units are processed in total?"
+      },
+      {
+        "role": "assistant",
+        "content": "Multiply workers, daily units, and days: 2 times 3 times 2 = 12.\n\n**最终答案**\n\n12"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation lab, case marker aabzp (exercise R10V-aabzp-1342), find the remainder when 3^4 is divided by 11."
+      },
+      {
+        "role": "assistant",
+        "content": "3^4 = 81 = 11 times 7 + 4, so the remainder is 4.\n\n**最终答案**\n\n4"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation bookshop, case marker aabzq (exercise R10V-aabzq-1343), in how many orders can 6 distinct exhibits be arranged?"
+      },
+      {
+        "role": "assistant",
+        "content": "All objects are distinct, so the number of orders is 6! = 720.\n\n**最终答案**\n\n720"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation clinic, case marker aabzr (exercise R10V-aabzr-1344), find the area of the parallelogram spanned by vectors (5,4) and (4,6)."
+      },
+      {
+        "role": "assistant",
+        "content": "The area is the absolute value of the determinant: |5 times 6 - 4 times 4| = 14.\n\n**最终答案**\n\n14"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bakery, case marker aabzs (exercise R10V-aabzs-1345), solve y' = 1y with y(0) = 6, giving y(t)."
+      },
+      {
+        "role": "assistant",
+        "content": "Separating and integrating gives y = Ce^(1t). Since y(0) = 6, C = 6; therefore y(t) = 6e^(1t).\n\n**最终答案**\n\n6e^(1t)"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation observatory, case marker aabzt (exercise R10V-aabzt-1346), a tank starts with 130 liters and receives 15 liters each day for 4 days. How many liters are in it afterward?"
+      },
+      {
+        "role": "assistant",
+        "content": "The added amount is 15 times 4 = 60 liters. Therefore the final amount is 130 + 60 = 190 liters.\n\n**最终答案**\n\n190"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation depot, case marker aabzu (exercise R10V-aabzu-1347), determine gcd(7, 4) using the Euclidean algorithm."
+      },
+      {
+        "role": "assistant",
+        "content": "Repeated division gives gcd(7, 4) = 1.\n\n**最终答案**\n\n1"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation lab, case marker aabzv (exercise R10V-aabzv-1348), a box has 5 red and 8 blue tokens. If 3 are drawn without replacement, what is the probability of exactly one red token?"
+      },
+      {
+        "role": "assistant",
+        "content": "Favorable selections are C(5,1)C(8,2) = 140; all selections are C(13,3) = 286. The probability is 140/286 = \\frac{70}{143}.\n\n**最终答案**\n\n\\frac{70}{143}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bookshop, case marker aabzw (exercise R10V-aabzw-1349), find the slope through (4,2) and (7,10)."
+      },
+      {
+        "role": "assistant",
+        "content": "The slope is (y2-y1)/(x2-x1) = (10-2)/(7-4) = \\frac{8}{3}.\n\n**最终答案**\n\n\\frac{8}{3}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation clinic, case marker aabzx (exercise R10V-aabzx-1350), find 1 + 2 + 3 + ... + 7."
+      },
+      {
+        "role": "assistant",
+        "content": "The sum of the first n positive integers is n(n+1)/2, so the result is 7 times 8/2 = 28.\n\n**最终答案**\n\n28"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation bakery, case marker aabzy (exercise R10V-aabzy-1351), 9 kits cost $15 each. A 20% discount is applied to the subtotal, then $7 shipping is added. What is the final cost?"
+      },
+      {
+        "role": "assistant",
+        "content": "The subtotal is 9 times 15, or $135. The discounted subtotal is 135 times 80/100 = $108. Adding shipping gives $115.\n\n**最终答案**\n\n$115"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation observatory, case marker aabzz (exercise R10V-aabzz-1352), solve 9x + 11 = 47."
+      },
+      {
+        "role": "assistant",
+        "content": "Subtract 11: 9x = 36. Divide by 9: x = 4.\n\n**最终答案**\n\n4"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation depot, case marker aacaa (exercise R10V-aacaa-1353), 5 fair coins are tossed. What is the probability of exactly 2 heads?"
+      },
+      {
+        "role": "assistant",
+        "content": "There are C(5,2) = 10 favorable outcomes out of 2^5 = 32. Thus the probability is 10/32 = \\frac{5}{16}.\n\n**最终答案**\n\n\\frac{5}{16}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation lab, case marker aacab (exercise R10V-aacab-1354), find the determinant of the diagonal matrix [[3,0],[0,4]]."
+      },
+      {
+        "role": "assistant",
+        "content": "The determinant of a diagonal 2 by 2 matrix is the product of its diagonal entries: 3 times 4 = 12.\n\n**最终答案**\n\n12"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bookshop, case marker aacac (exercise R10V-aacac-1355), if f(x) = 5x^4 + 3x - 2, find f'(3)."
+      },
+      {
+        "role": "assistant",
+        "content": "f'(x) = 20x^(3) + 3, so f'(3) = 20 times 3^3 + 3 = 543.\n\n**最终答案**\n\n543"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "At a validation clinic, case marker aacad (exercise R10V-aacad-1356), a printer makes 21 labels per hour for a 3-hour shift and pauses for 60 minutes. How many labels are printed?"
+      },
+      {
+        "role": "assistant",
+        "content": "Productive time is 120/60 = 2 hours. Therefore the number printed is 21 times 2 = 42.\n\n**最终答案**\n\n42"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation bakery, case marker aacae (exercise R10V-aacae-1357), find the monic quadratic equation whose roots are 6 and 9."
+      },
+      {
+        "role": "assistant",
+        "content": "Use (x - 6)(x - 9) = 0. Expanding gives x^2 - 15x + 54 = 0.\n\n**最终答案**\n\nx^2-15x+54=0"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "In a validation observatory, case marker aacaf (exercise R10V-aacaf-1358), how many committees of 4 people can be selected from 13 distinct people?"
+      },
+      {
+        "role": "assistant",
+        "content": "Order does not matter, so the count is C(13,4) = 715.\n\n**最终答案**\n\n715"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation depot, case marker aacag (exercise R10V-aacag-1359), compute [[5,3],[1,6]] times [4,4]^T."
+      },
+      {
+        "role": "assistant",
+        "content": "Multiply each row by the column: first entry 5 times 4 + 3 times 4 = 32; second entry 1 times 4 + 6 times 4 = 28.\n\n**最终答案**\n\n(32,28)^T"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请按照以下要求回答数学问题：\n1. 先分析题目要求\n2. 给出详细的解题步骤\n3. 用 LaTeX 格式书写数学公式\n4. 最后给出明确的答案\n5. 写出最终答案前，重新检查关键计算，并确认最终答案与解题过程一致\n6. 遇到进制问题，先确认数字的位数，再按位权展开；n 位 b 进制数按从高位到低位使用 b^(n-1), ..., b^1, b^0，不能混淆位数"
+      },
+      {
+        "role": "user",
+        "content": "For a validation lab, case marker aacah (exercise R10V-aacah-1360), evaluate the integral from 0 to 6 of x^4 dx."
+      },
+      {
+        "role": "assistant",
+        "content": "An antiderivative is x^(5)/(5); evaluating gives 6^5/(5) = \\frac{7776}{5}.\n\n**最终答案**\n\n\\frac{7776}{5}"
+      }
+    ]
+  }
+]

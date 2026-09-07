@@ -1,0 +1,39 @@
+model_name_or_path: "./models/Qwen2.5-7B-Instruct-modelscope"
+seed: 42
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules:
+    - q_proj
+    - k_proj
+    - v_proj
+    - o_proj
+    - gate_proj
+    - up_proj
+    - down_proj
+
+training:
+  output_dir: "./outputs/correction-round-10"
+  num_train_epochs: 1
+  per_device_train_batch_size: 1
+  gradient_accumulation_steps: 8
+  learning_rate: 1.0e-4
+  warmup_steps: 10
+  logging_steps: 10
+  save_steps: 50
+  save_total_limit: 3
+  eval_steps: 50
+  per_device_eval_batch_size: 1
+  gradient_checkpointing: true
+  use_4bit: true
+  bf16: true
+  max_seq_length: 2048
+  assistant_only_loss: true
+  assistant_response_template: "<|im_start|>assistant\n"
+
+data:
+  train_file: "./data/processed/round-10-staging/train.json"
+  eval_file: "./data/processed/round-10-staging/eval.json"
+  eval_ratio: 0.1

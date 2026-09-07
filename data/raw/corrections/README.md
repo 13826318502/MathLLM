@@ -56,4 +56,30 @@ Round 4 的 80 条训练题和 20 条验证题目前仍是官方筛选候选，�
 - Round 7 staging 构建时明确排除 Round 4、Round 5、Round 6 纠错源，并从原始数据抽取 65 条回放样本。
 
 Round 4 和 Round 5 的活动训练源现已归档到 `data/archive/round-4-5-20260905/`；
-当前活动纠错目录只保留 Round 7 文件。
+Round 7 的训练源现已归档到 `data/archive/corrections/round-7-20260905/`；
+
+## Round 8
+
+- `correction-round-8-training.jsonl`：Round 8 新增 240 条纠错训练题；
+- source 统一为 `correction-round-8`；
+- 与 Round 7 只做完全相同题目的排除，同能力点的不同数字、不同叙述和不同难度变体允许保留；
+- Round 8 staging 另外抽取 130 条原始数据回放，避免重复训练完整基础训练集；
+- Round 8 的 50 条纠错验证题放在 `data/eval/correction-validation/round-8.json`，不进入训练。
+
+## Round 9
+
+- `correction-round-9-training.jsonl`：Round 9 新增 180 条纠错训练题；
+- source 统一为 `correction-round-9`，题目标记使用全新的 R9 范围；
+- 使用新的参数、场景和题型组合，避免直接复制 Round 8；
+- Round 9 staging 另外抽取 120 条分层原始数据回放；
+- Round 9 的 40 条纠错验证题放在 `data/eval/correction-validation/round-9.json`，不进入训练。
+
+Round 9 的活动纠错源已归档。当前活动纠错目录以 Round 10 为本轮训练入口，历史纠错训练源只在
+`data/archive/` 中保存，Round 10 整理程序会排除 Round 4 至 Round 9 的纠错源。
+
+## Round 10
+
+- `correction-round-10-training.jsonl`：Round 10 新增 360 条纠错训练题；
+- source 统一为 `correction-round-10`，题目标记使用新的 R10 范围；
+- `data/raw/base-extra/`：从 GSM8K、Hendrycks MATH 和 CMID 各补充一批基础训练数据，原始数量共 1,250 条；
+- 清洗后与原有基础数据合并，避免测试集、回归集和历史纠错题泄漏。

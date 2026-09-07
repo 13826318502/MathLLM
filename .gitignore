@@ -33,6 +33,7 @@ eval/results/**/.ipynb_checkpoints/
 eval/results/**/*.zip
 
 .env
+.env.local
 *.log
 
 venv/

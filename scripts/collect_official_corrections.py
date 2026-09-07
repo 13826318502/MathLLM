@@ -7,7 +7,8 @@ normalised independent-field format expected by ``prepare_data.py``.
 Run from the project root::
 
     python scripts/collect_official_corrections.py --target 100 \
-        --output data/raw/corrections/correction-round-3.jsonl
+        --round-label correction-round-4 \
+        --output data/raw/corrections/correction-round-4-candidates.jsonl
 
 The resulting file is a candidate correction set.  Human spot-checking is
 still required before a formal training run.
@@ -31,6 +32,7 @@ import download_formal_data as formal
 ROOT = Path(__file__).resolve().parents[1]
 RAW_DIR = ROOT / "data" / "raw"
 CORRECTION_DIR = RAW_DIR / "corrections"
+CANDIDATE_DIR = ROOT / "data" / "candidates"
 TEST_FILE = ROOT / "data" / "eval" / "test.json"
 REGRESSION_DIR = ROOT / "data" / "eval" / "regression"
 SEED = 20260904
@@ -88,7 +90,7 @@ def existing_raw_questions(output_path: Path) -> set[str]:
     return existing
 
 
-def gsm8k_record(item: dict[str, Any]) -> dict[str, str] | None:
+def gsm8k_record(item: dict[str, Any], round_label: str) -> dict[str, str] | None:
     question = str(item.get("question") or "").strip()
     raw_answer = str(item.get("answer") or "").strip()
     if not question or "####" not in raw_answer:
@@ -104,13 +106,13 @@ def gsm8k_record(item: dict[str, Any]) -> dict[str, str] | None:
         "question": prep._normalize_text(question),
         "solution": prep._normalize_text(solution),
         "answer": prep._normalize_text(answer),
-        "source": "correction-official-gsm8k-round-3",
+        "source": f"{round_label}-official-gsm8k",
         "subject": "应用题",
         "difficulty": "基础",
     }
 
 
-def math_record(item: dict[str, Any], config: str) -> dict[str, str] | None:
+def math_record(item: dict[str, Any], config: str, round_label: str) -> dict[str, str] | None:
     normalized = prep._normalize_item(
         {**item, "source": "math", "_config": config},
         Path(f"official-{config}.jsonl"),
@@ -125,7 +127,7 @@ def math_record(item: dict[str, Any], config: str) -> dict[str, str] | None:
         "geometry": "几何",
         "precalculus": "函数与预备微积分",
     }
-    normalized["source"] = "correction-official-math-round-3"
+    normalized["source"] = f"{round_label}-official-math"
     normalized["subject"] = subject_map.get(config, config)
     return normalized
 
@@ -141,7 +143,7 @@ def cmid_subject(question: str) -> str:
     return ""
 
 
-def cmid_record(item: dict[str, Any]) -> dict[str, str] | None:
+def cmid_record(item: dict[str, Any], round_label: str) -> dict[str, str] | None:
     question = str(item.get("query") or "").strip()
     solution = str(item.get("response") or "").strip()
     subject = cmid_subject(question)
@@ -154,7 +156,7 @@ def cmid_record(item: dict[str, Any]) -> dict[str, str] | None:
         "question": prep._normalize_text(question),
         "solution": prep._normalize_text(solution),
         "answer": prep._normalize_text(answer),
-        "source": "correction-official-cmid-round-3",
+        "source": f"{round_label}-official-cmid",
         "subject": subject,
         "difficulty": "未标注",
     }
@@ -178,15 +180,15 @@ def add_unique(
         selected.append(candidate)
 
 
-def collect(target: int, output_path: Path) -> list[dict[str, str]]:
-    if target != 100:
-        raise ValueError("This curated round is defined for exactly 100 records")
+def collect(target: int, output_path: Path, round_label: str) -> list[dict[str, str]]:
+    if target <= 0:
+        raise ValueError("target must be positive")
     existing = existing_raw_questions(output_path)
     seen = set(existing)
     selected: list[dict[str, str]] = []
     rng = random.Random(SEED)
 
-    quotas = {
+    base_quotas = {
         "gsm8k": 35,
         "counting_and_probability": 20,
         "algebra": 10,
@@ -196,17 +198,30 @@ def collect(target: int, output_path: Path) -> list[dict[str, str]]:
         "precalculus": 2,
         "cmid": 10,
     }
+    # Preserve the curated subject proportions for larger rounds and make the
+    # final quota sum exactly equal to target using largest remainders.
+    scale = target / 100
+    raw_quotas = {key: value * scale for key, value in base_quotas.items()}
+    quotas = {key: int(value) for key, value in raw_quotas.items()}
+    remaining = target - sum(quotas.values())
+    for key in sorted(raw_quotas, key=lambda item: raw_quotas[item] - quotas[item], reverse=True)[:remaining]:
+        quotas[key] += 1
 
     gsm = [dict(item) for item in load_dataset("openai/gsm8k", "main", split="train")]
     rng.shuffle(gsm)
-    add_unique((gsm8k_record(item) for item in gsm), selected, seen, quotas["gsm8k"])
+    add_unique(
+        (gsm8k_record(item, round_label) for item in gsm),
+        selected,
+        seen,
+        quotas["gsm8k"],
+    )
 
     for config in MATH_CONFIGS:
         records = [dict(item) for item in load_dataset("EleutherAI/hendrycks_math", config, split="train")]
         rng.shuffle(records)
         quota = quotas.get(config, 0)
         add_unique(
-            (math_record(item, config) for item in records),
+            (math_record(item, config, round_label) for item in records),
             selected,
             seen,
             len(selected) + quota,
@@ -219,7 +234,7 @@ def collect(target: int, output_path: Path) -> list[dict[str, str]]:
     for item in stream:
         if len(cmid_selected) >= cmid_target:
             break
-        candidate = cmid_record(dict(item))
+        candidate = cmid_record(dict(item), round_label)
         if candidate is None:
             continue
         key = canonical(candidate["question"])
@@ -244,14 +259,17 @@ def write_jsonl(path: Path, records: list[dict[str, str]]) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", type=int, default=100)
+    parser.add_argument("--round-label", default="correction-round-4")
     parser.add_argument(
         "--output",
         type=Path,
-        default=CORRECTION_DIR / "correction-round-3.jsonl",
+        default=CANDIDATE_DIR / "correction-round-4-all.jsonl",
     )
     args = parser.parse_args()
     output = args.output if args.output.is_absolute() else ROOT / args.output
-    records = collect(args.target, output)
+    if not args.round_label.startswith("correction-"):
+        raise ValueError("--round-label must start with correction-")
+    records = collect(args.target, output, args.round_label)
     write_jsonl(output, records)
     counts: dict[str, int] = {}
     for record in records:
