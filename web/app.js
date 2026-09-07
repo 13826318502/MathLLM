@@ -8,6 +8,7 @@ const STORAGE = {
 const PAGE_META = {
   solve: ["学习工作区 / 开始解题", "今天想解决哪道题？"],
   favorites: ["学习工作区 / 我的收藏", "把值得复习的题目留下来"],
+  "favorite-detail": ["学习工作区 / 我的收藏 / 题目详情", "收藏题目详情"],
   history: ["学习工作区 / 学习记录", "看看自己最近解决了什么"],
   toolkit: ["学习工作区 / 学习工具", "用适合自己的方式理解数学"],
   settings: ["系统 / 设置", "调整你的本地学习空间"],
@@ -20,13 +21,16 @@ const EXAMPLES = [
   ["概率计算", "盒中有 3 个红球和 2 个白球，随机取出 2 个，求恰好取到 1 个红球的概率。"],
 ];
 
+const initialFavoriteDetail = location.hash.slice(1).match(/^favorite-detail\/(\d+)$/);
 const state = {
-  page: location.hash.slice(1) || "solve",
+  page: initialFavoriteDetail ? "favorite-detail" : (PAGE_META[location.hash.slice(1)] ? location.hash.slice(1) : "solve"),
   messages: [],
   loading: false,
   health: "checking",
   selectedFavoriteIndex: 0,
-  openFavoriteIndex: null,
+  favoriteDetailIndex: initialFavoriteDetail ? Number(initialFavoriteDetail[1]) : 0,
+  favoriteDeleteMode: false,
+  favoriteDeleteSelection: new Set(),
   chatPinnedToBottom: true,
 };
 
@@ -125,8 +129,16 @@ function setPage(page) {
   render();
   $("#sidebar").classList.remove("open");
 }
+function showFavoriteDetail(index) {
+  state.favoriteDetailIndex = Number(index);
+  state.selectedFavoriteIndex = state.favoriteDetailIndex;
+  state.page = "favorite-detail";
+  location.hash = `favorite-detail/${state.favoriteDetailIndex}`;
+  render();
+}
 function setActiveNav() {
-  document.querySelectorAll(".nav-item[data-page]").forEach((button) => button.classList.toggle("active", button.dataset.page === state.page));
+  const activePage = state.page === "favorite-detail" ? "favorites" : state.page;
+  document.querySelectorAll(".nav-item[data-page]").forEach((button) => button.classList.toggle("active", button.dataset.page === activePage));
   const meta = PAGE_META[state.page]; $("#page-kicker").textContent = meta[0]; $("#page-title").textContent = meta[1];
 }
 function updateCounts() { $("#favorite-count").textContent = getFavorites().length; }
@@ -154,8 +166,17 @@ function solvePage() {
 
 function favoritesPage() {
   const favorites = getFavorites();
-  const list = favorites.length ? `<div class="item-list">${favorites.map((favorite, index) => `<div class="card list-item favorite-card"><div class="favorite-header"><div class="list-main"><strong title="${escapeHtml(favorite.question)}">${escapeHtml(favorite.question)}</strong><p>收藏题目 · ${index + 1}${favorite.answer ? " · 已保存回答" : " · 只有题目"}</p></div><div class="list-actions"><button class="btn" data-toggle-favorite="${index}" aria-expanded="false">查看详情</button><button class="btn" data-use-favorite="${index}">开始练习</button><button class="btn danger" data-delete-favorite="${index}">移除</button></div></div><div class="favorite-detail" id="favorite-detail-${index}" hidden><div class="detail-section"><strong>我的问题</strong><div class="detail-content">${markdownToHtml(favorite.question)}</div></div><div class="detail-section"><strong>模型回答</strong><div class="detail-content">${favorite.answer ? markdownToHtml(favorite.answer) : '<span class="muted">这条收藏是在旧版本中保存的，没有记录模型回答。</span>'}</div></div></div></div>`).join("")}</div>` : `<div class="card empty-state"><strong>还没有收藏题目</strong><p>在解题页面点击“收藏当前题目”，把值得复习的题目放到这里。</p></div>`;
-  return `<div class="page-title-row"><div><h2>我的收藏</h2><p>把错过的、重要的和想复习的题目集中管理。</p></div><div class="page-actions">${favorites.length ? '<button class="btn danger" id="clear-favorites">清空收藏</button>' : ""}</div></div>${list}`;
+  const list = favorites.length ? `<div class="item-list">${favorites.map((favorite, index) => `<div class="card list-item favorite-card" data-favorite-card="${index}"><div class="list-main"><strong title="${escapeHtml(favorite.question)}">${escapeHtml(favorite.question)}</strong><p>收藏题目 · ${index + 1}${favorite.answer ? " · 已保存回答" : " · 只有题目"}</p></div><span class="favorite-check-slot"></span></div>`).join("")}</div>` : `<div class="card empty-state"><strong>还没有收藏题目</strong><p>在解题页面点击“收藏当前题目”，把值得复习的题目放到这里。</p></div>`;
+  return `<div class="page-title-row favorite-page-heading"><div><h2>我的收藏</h2><p>把错过的、重要的和想复习的题目集中管理。</p></div><div class="page-actions">${favorites.length ? '<button class="btn danger" id="clear-favorites">清空收藏</button>' : ""}</div></div>${list}`;
+}
+
+function favoriteDetailPage() {
+  const favorites = getFavorites();
+  const index = Math.min(Math.max(state.favoriteDetailIndex, 0), Math.max(favorites.length - 1, 0));
+  const favorite = favorites[index];
+  if (!favorite) return `<div class="card empty-state"><strong>找不到这条收藏</strong><p>这道题可能已经被移除。</p><button class="btn primary" id="back-to-favorites">返回我的收藏</button></div>`;
+  state.favoriteDetailIndex = index;
+  return `<div class="page-title-row favorite-detail-heading"><div><h2>收藏题目详情</h2><p>第 ${index + 1} 道收藏题目</p></div><div class="page-actions"><button class="btn" id="back-to-favorites">返回我的收藏</button><button class="btn primary" id="practice-favorite-detail">开始练习</button></div></div><div class="card favorite-detail-view"><div class="detail-section"><strong>我的问题</strong><div class="detail-content">${markdownToHtml(favorite.question)}</div></div><div class="detail-section"><strong>模型回答</strong><div class="detail-content">${favorite.answer ? markdownToHtml(favorite.answer) : '<span class="muted">这条收藏是在旧版本中保存的，没有记录模型回答。</span>'}</div></div></div>`;
 }
 
 function historyPage() {
@@ -181,7 +202,7 @@ function settingsPage() {
 
 function render() {
   setActiveNav(); updateCounts();
-  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : settingsPage();
+  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : settingsPage();
   renderMarkdownSurfaces();
   renderFavoriteQuestionPreviews();
   renderFavoriteToolbar();
@@ -216,10 +237,9 @@ function updateStreamingAnswer() {
 
 function renderFavoriteToolbar() {
   if (state.page !== "favorites") return;
-  const actions = document.querySelector(".page-title-row .page-actions");
+  const actions = document.querySelector(".favorite-page-heading .page-actions");
   const favorites = getFavorites();
   if (!actions || !favorites.length) return;
-  document.querySelectorAll(".favorite-card .list-actions").forEach((node) => node.remove());
 
   state.selectedFavoriteIndex = Math.min(Math.max(state.selectedFavoriteIndex, 0), favorites.length - 1);
   const selectedIndex = state.selectedFavoriteIndex;
@@ -234,12 +254,12 @@ function renderFavoriteToolbar() {
     select.appendChild(option);
   });
   select.value = String(selectedIndex);
-  select.onchange = () => { state.selectedFavoriteIndex = Number(select.value); state.openFavoriteIndex = null; render(); };
+  select.onchange = () => { state.selectedFavoriteIndex = Number(select.value); render(); };
 
   const toggleButton = document.createElement("button");
   toggleButton.className = "btn favorite-toolbar-control";
-  toggleButton.textContent = state.openFavoriteIndex === selectedIndex ? "收起详情" : "查看详情";
-  toggleButton.onclick = () => { state.openFavoriteIndex = state.openFavoriteIndex === selectedIndex ? null : selectedIndex; render(); };
+  toggleButton.textContent = "查看详情";
+  toggleButton.onclick = () => showFavoriteDetail(selectedIndex);
 
   const useButton = document.createElement("button");
   useButton.className = "btn favorite-toolbar-control";
@@ -248,25 +268,56 @@ function renderFavoriteToolbar() {
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn danger favorite-toolbar-control";
-  deleteButton.textContent = "移除";
+  const selectedForDeletion = () => state.favoriteDeleteSelection.size;
+  const updateDeleteButton = () => {
+    deleteButton.textContent = state.favoriteDeleteMode
+      ? `确认移除${selectedForDeletion() ? ` (${selectedForDeletion()})` : ""}`
+      : "移除";
+  };
+  updateDeleteButton();
   deleteButton.onclick = () => {
-    favorites.splice(selectedIndex, 1);
-    writeJson(STORAGE.favorites, favorites);
-    state.selectedFavoriteIndex = Math.max(0, selectedIndex - 1);
-    state.openFavoriteIndex = null;
+    if (!state.favoriteDeleteMode) {
+      state.favoriteDeleteMode = true;
+      state.favoriteDeleteSelection = new Set();
+      render();
+      return;
+    }
+    if (!selectedForDeletion()) return toast("请先勾选要移除的题目。");
+    const remaining = favorites.filter((_, index) => !state.favoriteDeleteSelection.has(index));
+    writeJson(STORAGE.favorites, remaining);
+    state.favoriteDeleteMode = false;
+    state.favoriteDeleteSelection = new Set();
+    state.selectedFavoriteIndex = Math.min(state.selectedFavoriteIndex, Math.max(remaining.length - 1, 0));
     render();
-    toast("已移除收藏。");
+    toast("已移除选中的收藏题目。");
   };
 
   [select, toggleButton, useButton, deleteButton].forEach((control) => actions.insertBefore(control, clearButton || null));
   document.querySelectorAll(".favorite-card").forEach((card, index) => {
     card.classList.toggle("selected", index === selectedIndex);
-    const detail = card.querySelector(".favorite-detail");
-    if (detail) detail.hidden = state.openFavoriteIndex !== index;
+    const checkSlot = card.querySelector(".favorite-check-slot");
+    if (checkSlot) {
+      checkSlot.replaceChildren();
+      if (state.favoriteDeleteMode) {
+        const label = document.createElement("label");
+        label.className = "favorite-check-label";
+        label.title = "选择要移除的题目";
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = state.favoriteDeleteSelection.has(index);
+        checkbox.setAttribute("aria-label", `选择收藏题目 ${index + 1}`);
+        checkbox.onchange = () => {
+          if (checkbox.checked) state.favoriteDeleteSelection.add(index);
+          else state.favoriteDeleteSelection.delete(index);
+          updateDeleteButton();
+        };
+        label.appendChild(checkbox);
+        checkSlot.appendChild(label);
+      }
+    }
     card.onclick = (event) => {
-      if (event.target.closest("a, button, select")) return;
+      if (event.target.closest("a, button, select, input, label")) return;
       state.selectedFavoriteIndex = index;
-      state.openFavoriteIndex = state.openFavoriteIndex === index ? null : index;
       render();
     };
   });
@@ -387,20 +438,25 @@ function bindPageEvents() {
   document.querySelectorAll("[data-instruction], [data-tool-instruction]").forEach((button) => button.onclick = () => appendInstruction(button.dataset.instruction || button.dataset.toolInstruction));
   document.querySelectorAll("[data-copy-index]").forEach((button) => button.onclick = async () => { await navigator.clipboard.writeText(state.messages[Number(button.dataset.copyIndex)].content); toast("答案已复制。"); });
   document.querySelectorAll("[data-favorite-index]").forEach((button) => button.onclick = () => { const answerIndex = Number(button.dataset.favoriteIndex); const user = [...state.messages.slice(0, answerIndex)].reverse().find((message) => message.role === "user"); addFavorite(user?.content, state.messages[answerIndex]?.content); });
-  document.querySelectorAll("[data-toggle-favorite]").forEach((button) => button.onclick = () => { const detail = $(`#favorite-detail-${button.dataset.toggleFavorite}`); if (!detail) return; const expanded = detail.hidden; detail.hidden = !expanded; button.textContent = expanded ? "收起详情" : "查看详情"; button.setAttribute("aria-expanded", String(expanded)); if (expanded) renderMath(); });
-  document.querySelectorAll("[data-use-favorite]").forEach((button) => button.onclick = () => useQuestion(getFavorites()[Number(button.dataset.useFavorite)].question));
-  document.querySelectorAll("[data-delete-favorite]").forEach((button) => button.onclick = () => { const favorites = getFavorites(); favorites.splice(Number(button.dataset.deleteFavorite), 1); writeJson(STORAGE.favorites, favorites); render(); toast("已移除收藏。"); });
-  $("#clear-favorites")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.favorites); render(); toast("收藏已清空。"); });
+  $("#clear-favorites")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.favorites); state.selectedFavoriteIndex = 0; state.favoriteDetailIndex = 0; state.favoriteDeleteMode = false; state.favoriteDeleteSelection = new Set(); render(); toast("收藏已清空。"); });
+  $("#back-to-favorites")?.addEventListener("click", () => setPage("favorites"));
+  $("#practice-favorite-detail")?.addEventListener("click", () => useQuestion(getFavorites()[state.favoriteDetailIndex]?.question));
   document.querySelectorAll("[data-use-history]").forEach((button) => button.onclick = () => useQuestion(getHistory()[Number(button.dataset.useHistory)].question));
   $("#clear-history")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.history); render(); toast("学习记录已清空。"); });
   $("#save-settings")?.addEventListener("click", () => { localStorage.setItem(STORAGE.apiBase, $("#api-base-input").value.trim().replace(/\/$/, "")); toast("设置已保存，正在检查服务。"); checkHealth(); });
   $("#settings-theme-toggle")?.addEventListener("click", toggleTheme);
-  $("#clear-local-data")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.favorites); localStorage.removeItem(STORAGE.history); toast("本地收藏和学习记录已清除。"); render(); });
+  $("#clear-local-data")?.addEventListener("click", () => { localStorage.removeItem(STORAGE.favorites); localStorage.removeItem(STORAGE.history); state.selectedFavoriteIndex = 0; state.favoriteDetailIndex = 0; state.favoriteDeleteMode = false; state.favoriteDeleteSelection = new Set(); toast("本地收藏和学习记录已清除。"); render(); });
 }
 function toggleTheme() { const dark = document.body.classList.toggle("dark"); localStorage.setItem(STORAGE.theme, dark ? "dark" : "light"); render(); }
 
 document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => setPage(button.dataset.page));
 $("#mobile-menu").onclick = () => $("#sidebar").classList.toggle("open"); $("#sidebar-refresh").onclick = checkHealth; $("#theme-toggle").onclick = toggleTheme;
-window.addEventListener("hashchange", () => { state.page = location.hash.slice(1) || "solve"; render(); });
+window.addEventListener("hashchange", () => {
+  const hash = location.hash.slice(1);
+  const detail = hash.match(/^favorite-detail\/(\d+)$/);
+  state.page = detail ? "favorite-detail" : (PAGE_META[hash] ? hash : "solve");
+  if (detail) state.favoriteDetailIndex = Number(detail[1]);
+  render();
+});
 if (localStorage.getItem(STORAGE.theme) === "dark") document.body.classList.add("dark");
 render(); checkHealth();
