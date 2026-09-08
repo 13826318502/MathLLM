@@ -1,0 +1,101 @@
+{"text":"解方程 2x + 3 = 9","label":"math"}
+{"text":"计算三角形的面积，底边为 5，高为 8","label":"math"}
+{"text":"求 2、4、6、8 的平均数","label":"math"}
+{"text":"一个骰子掷出偶数的概率是多少","label":"math"}
+{"text":"求函数 f(x)=x^2 的导数","label":"math"}
+{"text":"计算定积分，从 0 到 1 积分 x^2","label":"math"}
+{"text":"矩阵的特征值如何计算","label":"math"}
+{"text":"求 17 除以 5 的余数","label":"math"}
+{"text":"解不等式 3x-1 > 8","label":"math"}
+{"text":"组合数 C(10,3) 等于多少","label":"math"}
+{"text":"证明两个三角形全等","label":"math"}
+{"text":"一个圆的半径是 4，求它的面积","label":"math"}
+{"text":"帮我写一封请假邮件","label":"non_math"}
+{"text":"介绍一下人工智能的发展历史","label":"non_math"}
+{"text":"帮我制定一个学习计划","label":"non_math"}
+{"text":"今天天气怎么样","label":"non_math"}
+{"text":"解释一下什么是机器学习","label":"non_math"}
+{"text":"把下面这段话翻译成英文","label":"non_math"}
+{"text":"帮我写一个 Python 爬虫","label":"non_math"}
+{"text":"推荐几本适合初学者阅读的书","label":"non_math"}
+{"text":"帮我润色这段个人介绍","label":"non_math"}
+{"text":"什么是大语言模型","label":"non_math"}
+{"text":"给我讲一个睡前故事","label":"non_math"}
+{"text":"如何安排一次旅行","label":"non_math"}
+{"text":"若 3x - 7 = 11，求 x","label":"math"}
+{"text":"求函数 y=2x+1 在 x=3 时的值","label":"math"}
+{"text":"一个袋子里有 3 个红球和 2 个蓝球，随机取一个红球的概率是多少","label":"math"}
+{"text":"求正方形周长，边长为 6","label":"math"}
+{"text":"数列 1, 3, 5, 7 的下一项是什么","label":"math"}
+{"text":"求矩阵的行列式","label":"math"}
+{"text":"计算 25% 的 80 是多少","label":"math"}
+{"text":"求 2 的 10 次方","label":"math"}
+{"text":"请帮我修改简历中的自我介绍","label":"non_math"}
+{"text":"如何学习英语口语","label":"non_math"}
+{"text":"帮我生成一份会议纪要模板","label":"non_math"}
+{"text":"解释一下什么是云计算","label":"non_math"}
+{"text":"请把这句话翻译成日语","label":"non_math"}
+{"text":"帮我设计一个网站首页","label":"non_math"}
+{"text":"推荐几部科幻电影","label":"non_math"}
+{"text":"如何提高工作效率","label":"non_math"}
+{"text":"解方程组 x+y=10，x-y=2","label":"math"}
+{"text":"把多项式 x^2-5x+6 因式分解","label":"math"}
+{"text":"求二次函数 y=x^2-4x+3 的顶点","label":"math"}
+{"text":"若 a:b=2:3 且 a+b=20，求 a 和 b","label":"math"}
+{"text":"三个连续整数的和是 36，求这三个整数","label":"math"}
+{"text":"解绝对值方程 |x-2|=5","label":"math"}
+{"text":"求不等式组 x>1 且 x<5 的解集","label":"math"}
+{"text":"已知等差数列首项为 2，公差为 3，求第 10 项","label":"math"}
+{"text":"求等比数列的前 n 项和","label":"math"}
+{"text":"计算 1+2+3+...+100","label":"math"}
+{"text":"一个班有 30 名学生，随机选 2 人，求选到女生的概率","label":"math"}
+{"text":"从 5 个人中选出 3 个人，有多少种选法","label":"math"}
+{"text":"四位数字密码中数字可以重复，有多少种可能","label":"math"}
+{"text":"两枚硬币同时抛掷，恰好出现一个正面的概率","label":"math"}
+{"text":"从一副扑克牌中抽到红桃的概率是多少","label":"math"}
+{"text":"求随机变量的期望和方差","label":"math"}
+{"text":"计算圆柱体的体积，半径为 3，高为 10","label":"math"}
+{"text":"求球的表面积公式并代入半径 2","label":"math"}
+{"text":"直线过点 (1,2) 和 (3,6)，求直线方程","label":"math"}
+{"text":"求两点之间的距离","label":"math"}
+{"text":"判断两个向量是否垂直","label":"math"}
+{"text":"求矩阵乘积 AB","label":"math"}
+{"text":"判断矩阵是否可逆","label":"math"}
+{"text":"求线性方程组的秩","label":"math"}
+{"text":"计算极限 lim x 趋近于 0 时 sin(x)/x","label":"math"}
+{"text":"求函数在某点的切线斜率","label":"math"}
+{"text":"使用积分计算曲线下的面积","label":"math"}
+{"text":"求微分方程 y'=2y 的通解","label":"math"}
+{"text":"求 1001 除以 7 的余数","label":"math"}
+{"text":"判断  prime number 97 是否为质数","label":"math"}
+{"text":"求最大公约数和最小公倍数","label":"math"}
+{"text":"帮我写一段产品介绍文案","label":"non_math"}
+{"text":"请把这段中文翻译成英文","label":"non_math"}
+{"text":"帮我写一个生日祝福","label":"non_math"}
+{"text":"给客户写一封道歉邮件","label":"non_math"}
+{"text":"帮我整理一份项目会议议程","label":"non_math"}
+{"text":"请总结下面这篇文章的主要内容","label":"non_math"}
+{"text":"帮我检查这段代码有什么问题","label":"non_math"}
+{"text":"用 Python 写一个爬虫示例","label":"non_math"}
+{"text":"帮我设计一个数据库表结构","label":"non_math"}
+{"text":"什么是操作系统","label":"non_math"}
+{"text":"解释一下什么是机器学习","label":"non_math"}
+{"text":"推荐几种适合晚餐的家常菜","label":"non_math"}
+{"text":"帮我安排三天的旅游路线","label":"non_math"}
+{"text":"如何准备一次技术面试","label":"non_math"}
+{"text":"帮我写一份读书笔记模板","label":"non_math"}
+{"text":"如何改善睡眠质量","label":"non_math"}
+{"text":"帮我把这段文字改得更加正式","label":"non_math"}
+{"text":"请给这张照片写一句描述","label":"non_math"}
+{"text":"如何在团队中进行有效沟通","label":"non_math"}
+{"text":"帮我生成一个短视频脚本","label":"non_math"}
+{"text":"请推荐一些学习编程的网站","label":"non_math"}
+{"text":"如何给新员工做培训","label":"non_math"}
+{"text":"帮我比较两款手机的区别","label":"non_math"}
+{"text":"写一段欢迎用户注册的提示语","label":"non_math"}
+{"text":"如何制定个人年度计划","label":"non_math"}
+{"text":"请解释一下什么是云服务器","label":"non_math"}
+{"text":"帮我生成一份问卷调查","label":"non_math"}
+{"text":"怎样把 PDF 转成 Word","label":"non_math"}
+{"text":"请帮我润色求职信","label":"non_math"}
+{"text":"如何设置一个安全的密码","label":"non_math"}
