@@ -96,8 +96,8 @@ def main() -> None:
     if not 0 < args.validation_ratio < 1:
         raise ValueError("--validation-ratio must be between 0 and 1")
     records = read_jsonl(args.input)
-    if len(records) != 100:
-        raise ValueError(f"Expected exactly 100 correction candidates, found {len(records)}")
+    if len(records) < 2:
+        raise ValueError(f"Expected at least 2 correction candidates, found {len(records)}")
 
     canonical_questions = [prep._canonicalize_question(str(record["question"])) for record in records]
     if len(set(canonical_questions)) != len(canonical_questions):

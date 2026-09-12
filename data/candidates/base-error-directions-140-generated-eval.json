@@ -1,0 +1,2802 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "书店原有128本练习册，进货37本后售出45本，剩余练习册每6本装一盒，能装满多少盒？"
+      },
+      {
+        "role": "assistant",
+        "content": "剩余\\(128+37-45=120\\)本，装满\\(120\\div6=20\\)盒。\n\n**最终答案**\n\n20盒"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "工厂每小时生产20个零件，工作7小时，其中休息15分钟，休息不计入工作时间，共生产多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "15分钟是0.25小时，实际工作\\(7-0.25=6.75\\)小时，产量\\(20\\times6.75=135\\)。\n\n**最终答案**\n\n135个零件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "汽车以每小时60千米行驶2小时，再以每小时80千米行驶1.5小时，全程多远？"
+      },
+      {
+        "role": "assistant",
+        "content": "两段路程分别是\\(60\\times2=120\\)和\\(80\\times1.5=120\\)千米，总路程为\\(240\\)千米。\n\n**最终答案**\n\n240千米"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "小林有3500元，存入2800元，支付房租1250元和水电费600元，余额是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "余额为\\(3500+2800-1250-600=4450\\)元。\n\n**最终答案**\n\n4450元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "班级有48人，其中\\(\\frac38\\)请假，出勤学生平均分成5组，每组多少人？"
+      },
+      {
+        "role": "assistant",
+        "content": "请假18人，出勤\\(48-18=30\\)人，每组\\(30\\div5=6\\)人。\n\n**最终答案**\n\n6人"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "水箱有240升水，注入18升，用去75升，再注入96升，现在有多少升？"
+      },
+      {
+        "role": "assistant",
+        "content": "按顺序计算：\\(240+18-75+96=279\\)升。\n\n**最终答案**\n\n279升"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "农场12行果树每行收获35千克，损耗总量的\\(\\frac1{12}\\)，剩余水果装入7箱，每箱多少千克？"
+      },
+      {
+        "role": "assistant",
+        "content": "总收获420千克，损耗35千克，剩余385千克；\\(385\\div7=55\\)。\n\n**最终答案**\n\n55千克"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "小明每小时写24个字，连续写3小时，中途休息15分钟，共写多少个字？"
+      },
+      {
+        "role": "assistant",
+        "content": "实际写作时间为\\(3-0.25=2.75\\)小时，字数\\(24\\times2.75=66\\)。\n\n**最终答案**\n\n66个字"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "8名工人每天工作6小时，连续4天；第五天停电只工作4小时，每人每小时完成12件，共完成多少件？"
+      },
+      {
+        "role": "assistant",
+        "content": "前4天完成\\(8\\times6\\times4\\times12=2304\\)件，第5天完成\\(8\\times4\\times12=384\\)件，共2688件。\n\n**最终答案**\n\n2688件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "商品标价480元，打85折后收12元运费，实际支付多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "折后价为\\(480\\times0.85=408\\)元，加运费得\\(408+12=420\\)元。\n\n**最终答案**\n\n420元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "4人份点心需250克面粉，制作10人份并预留8%损耗，需要多少克？"
+      },
+      {
+        "role": "assistant",
+        "content": "理论用量为\\(250\\times\\frac{10}{4}=625\\)克，加损耗为\\(625\\times1.08=675\\)克。\n\n**最终答案**\n\n675克"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "某队初始72分，四轮分别加15分、减9分、加18分、减12分，最终多少分？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(72+15-9+18-12=84\\)，最终得84分。\n\n**最终答案**\n\n84分"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "房间长8米宽5米，固定柜体长2米宽1.5米不铺砖，每块地砖面积0.5平方米，需要多少块？"
+      },
+      {
+        "role": "assistant",
+        "content": "需铺面积为\\(8\\times5-2\\times1.5=37\\)平方米，砖数为\\(37\\div0.5=74\\)。\n\n**最终答案**\n\n74块"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "4本书分别逾期2、3、1、4天，逾期费每天每本1.5元，另收5元提醒费，共多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "逾期总天数为10天，费用为\\(10\\times1.5+5=20\\)元。\n\n**最终答案**\n\n20元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "水池有500升水，连续3天每天排出45升，第四天注入120升，现在有多少升？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(500-3\\times45+120=485\\)升。\n\n**最终答案**\n\n485升"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "大巴上午3批每批42人，下午2批每批比上午少7人，全天运送多少人？"
+      },
+      {
+        "role": "assistant",
+        "content": "上午126人，下午\\(2\\times(42-7)=70\\)人，全天196人。\n\n**最终答案**\n\n196人"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "仓库25箱产品，每箱24件，上午发出总数的\\(\\frac15\\)，下午又发出180件，还剩多少件？"
+      },
+      {
+        "role": "assistant",
+        "content": "总数600件，上午发出120件，剩余\\(600-120-180=300\\)件。\n\n**最终答案**\n\n300件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三次成绩78、85、91分，四次平均分为86分，第四次成绩是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "四次总分\\(4\\times86=344\\)，前三次254分，所以第四次为90分。\n\n**最终答案**\n\n90分"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "甲机每小时18件工作4小时，乙机每小时25件工作3小时，检验后8件不合格，合格品多少件？"
+      },
+      {
+        "role": "assistant",
+        "content": "总产量\\(18\\times4+25\\times3=147\\)，合格品\\(147-8=139\\)件。\n\n**最终答案**\n\n139件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "会议20:20开始，持续1小时35分钟，结束时间是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(20{:}20+1\\text{小时}35\\text{分钟}=21{:}55\\)。\n\n**最终答案**\n\n21:55"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "multi-step",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(3x+7=25\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(3x=18\\)，所以\\(x=6\\)。\n\n**最终答案**\n\nx=6"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(2(x-3)+5=3x-4\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "展开得\\(2x-1=3x-4\\)，所以\\(x=3\\)。\n\n**最终答案**\n\nx=3"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程组\\(\\begin{cases}x+y=17\\\\2x-y=7\\end{cases}\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "两式相加得\\(3x=24\\)，所以\\(x=8,y=9\\)。\n\n**最终答案**\n\nx=8，y=9"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "长方形周长46厘米，长比宽多5厘米，求长和宽。"
+      },
+      {
+        "role": "assistant",
+        "content": "设宽为\\(w\\)，则\\(2(w+w+5)=46\\)，得\\(w=9\\)，长为14厘米。\n\n**最终答案**\n\n长14厘米，宽9厘米"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(x^2-7x+12=0\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(x^2-7x+12=(x-3)(x-4)\\)，所以\\(x=3\\)或\\(x=4\\)。\n\n**最终答案**\n\nx=3或x=4"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(x^2+2x-15=0\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\((x+5)(x-3)=0\\)，所以\\(x=-5\\)或\\(x=3\\)。\n\n**最终答案**\n\nx=-5或x=3"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(\\frac1x+\\frac1{x+2}=\\frac34\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "定义域为\\(x\\ne0,-2\\)。通分得\\(3x^2-2x-8=0=(3x+4)(x-2)\\)，故\\(x=2\\)或\\(x=-\\frac43\\)。\n\n**最终答案**\n\nx=2或x=-\\frac43"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(|2x-5|=7\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "分别解\\(2x-5=7\\)和\\(2x-5=-7\\)，得到\\(x=6\\)或\\(x=-1\\)。\n\n**最终答案**\n\nx=6或x=-1"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解不等式\\(3x-5\\le2x+4\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "移项得\\(x\\le9\\)。\n\n**最终答案**\n\nx\\le9"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "等差数列第5项为17，公差为3，求首项。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(a_5=a_1+4d\\)，所以\\(a_1=17-12=5\\)。\n\n**最终答案**\n\na_1=5"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三个连续偶数的和为42，求这三个偶数。"
+      },
+      {
+        "role": "assistant",
+        "content": "设为\\(x-2,x,x+2\\)，则\\(3x=42\\)，所以三个数为12、14、16。\n\n**最终答案**\n\n12，14，16"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一件商品打八折后售价240元，原价是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "设原价为\\(p\\)，则\\(0.8p=240\\)，得\\(p=300\\)。\n\n**最终答案**\n\n300元"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "用10%和30%的盐水配制20千克18%的盐水，各需多少千克？"
+      },
+      {
+        "role": "assistant",
+        "content": "设10%盐水为\\(x\\)，则\\(0.1x+0.3(20-x)=3.6\\)，得\\(x=12\\)，另一种为8千克。\n\n**最终答案**\n\n10%盐水12千克，30%盐水8千克"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程组\\(\\begin{cases}2x+3y=13\\\\x-y=1\\end{cases}\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "由\\(x=y+1\\)，代入得\\(5y+2=13\\)，故\\(y=\\frac{11}{5},x=\\frac{16}{5}\\)。\n\n**最终答案**\n\nx=\\frac{16}{5}，y=\\frac{11}{5}"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(2^{x+1}=32\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(32=2^5\\)，所以\\(x+1=5\\)，得\\(x=4\\)。\n\n**最终答案**\n\nx=4"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(\\log_2(x-1)=3\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "由定义\\(x-1=2^3=8\\)，所以\\(x=9\\)，且满足\\(x>1\\)。\n\n**最终答案**\n\nx=9"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "方程\\(x^2-10x+m=0\\)的一个根为4，求另一个根和\\(m\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "根和为10，另一个根为6；根积为\\(m\\)，所以\\(m=24\\)。\n\n**最终答案**\n\n另一个根为6，m=24"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(\\frac{x-1}{3}+\\frac{x+2}{2}=5\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边乘6得\\(2x-2+3x+6=30\\)，所以\\(x=\\frac{26}{5}\\)。\n\n**最终答案**\n\nx=\\frac{26}{5}"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知\\(f(x)=2x-1\\)，求满足\\(f(f(x))=15\\)的x。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(f(f(x))=4x-3\\)，令其等于15得\\(x=\\frac92\\)。\n\n**最终答案**\n\nx=\\frac92"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求二次函数\\(y=x^2-6x+5\\)的顶点。"
+      },
+      {
+        "role": "assistant",
+        "content": "配方得\\(y=(x-3)^2-4\\)，顶点为\\((3,-4)\\)。\n\n**最终答案**\n\n(3,-4)"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "equation",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "公平硬币抛3次，恰好2次正面的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "共有\\(2^3=8\\)种结果，有利结果\\(\\binom32=3\\)种，所以概率为\\(\\frac38\\)。\n\n**最终答案**\n\n\\frac38"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "掷两个公平骰子，点数和为7的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "36种结果中有6种和为7，因此\\(P=\\frac6{36}=\\frac16\\)。\n\n**最终答案**\n\n\\frac16"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "袋中5个红球、3个蓝球，不放回取2个，恰好两个红球的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(P=\\frac{\\binom52}{\\binom82}=\\frac5{14}\\)。\n\n**最终答案**\n\n\\frac5{14}"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从5名男生和4名女生中选3人，恰好2男1女的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总数\\(\\binom93=84\\)，有利数\\(\\binom52\\binom41=40\\)，概率\\(\\frac{10}{21}\\)。\n\n**最终答案**\n\n\\frac{10}{21}"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从7本不同的书中选3本并按顺序排列，有多少种排法？"
+      },
+      {
+        "role": "assistant",
+        "content": "排列数为\\(P(7,3)=7\\times6\\times5=210\\)。\n\n**最终答案**\n\n210种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "非负整数\\(x+y+z=10\\)共有多少组解？"
+      },
+      {
+        "role": "assistant",
+        "content": "用隔板法，解数为\\(\\binom{12}{2}=66\\)。\n\n**最终答案**\n\n66组"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从1到10任取2个不同整数，取到连续整数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总数\\(\\binom{10}{2}=45\\)，连续对有9对，所以概率\\(\\frac15\\)。\n\n**最终答案**\n\n\\frac15"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "成功概率0.6的试验独立进行4次，恰好成功3次的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(P=\\binom43(0.6)^3(0.4)=0.3456\\)。\n\n**最终答案**\n\n0.3456"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从1到10任取3个不同整数，至少有两个同奇偶性的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "只有两种奇偶性而取3个数，抽屉原理保证至少两个同奇偶性，概率为1。\n\n**最终答案**\n\n1"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从6本数学书和4本物理书中任取4本，恰好2本数学书的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(P=\\frac{\\binom62\\binom42}{\\binom{10}{4}}=\\frac37\\)。\n\n**最终答案**\n\n\\frac37"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "10件产品中4件次品，抽3件恰好1件次品的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(P=\\frac{\\binom41\\binom62}{\\binom{10}{3}}=\\frac12\\)。\n\n**最终答案**\n\n\\frac12"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从1到20随机取一个数，取到质数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "质数有8个，因此\\(P=\\frac8{20}=\\frac25\\)。\n\n**最终答案**\n\n\\frac25"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "袋中4红6白，不放回取3个，至少取到1个红球的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "用对立事件：\\(P=1-\\frac{\\binom63}{\\binom{10}{3}}=1-\\frac16=\\frac56\\)。\n\n**最终答案**\n\n\\frac56"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "4名学生排队，甲乙相邻的排法有多少种？"
+      },
+      {
+        "role": "assistant",
+        "content": "将甲乙看作整体，有\\(3!\\)种，再乘内部顺序\\(2!\\)，共12种。\n\n**最终答案**\n\n12种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从4名女生和5名男生中选3人，至少有1名女生的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(P=1-\\frac{\\binom53}{\\binom93}=1-\\frac{10}{84}=\\frac{37}{42}\\)。\n\n**最终答案**\n\n\\frac{37}{42}"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "盒1有2红3蓝，盒2有4红1蓝，等概率选盒后取球，取红球概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(P=\\frac12\\cdot\\frac25+\\frac12\\cdot\\frac45=\\frac35\\)。\n\n**最终答案**\n\n\\frac35"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "长度为5的0-1字符串中恰好有2个1，有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "选择两个位置放1，数量为\\(\\binom52=10\\)。\n\n**最终答案**\n\n10个"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "5个人围圆桌而坐，旋转视为同一种，共有多少种坐法？"
+      },
+      {
+        "role": "assistant",
+        "content": "固定一人，其余4人排列，数量为\\(4!=24\\)。\n\n**最终答案**\n\n24种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "4双不同袜子中任取2只，恰好取到一双的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总取法\\(\\binom82=28\\)，成双取法4种，概率\\(\\frac17\\)。\n\n**最终答案**\n\n\\frac17"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从1到30随机取数，能被2或3整除的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "容斥有利数\\(15+10-5=20\\)，概率\\(\\frac{20}{30}=\\frac23\\)。\n\n**最终答案**\n\n\\frac23"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "probability",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求84和126的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(126=84+42\\)，且\\(84=2\\times42\\)，所以最大公约数为42。\n\n**最终答案**\n\n42"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求18和24的最小公倍数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(18=2\\times3^2,24=2^3\\times3\\)，最小公倍数为\\(2^3\\times3^2=72\\)。\n\n**最终答案**\n\n72"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(7^{100}\\)除以10的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "7的个位数以7、9、3、1为周期，100是4的倍数，因此余数为1。\n\n**最终答案**\n\n1"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(3^{50}\\)除以7的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(3^6\\equiv1\\pmod7\\)，且\\(50=6\\times8+2\\)，故\\(3^{50}\\equiv3^2\\equiv2\\)。\n\n**最终答案**\n\n2"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将二进制数\\((110101)_2\\)化为十进制。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(1\\times32+1\\times16+1\\times4+1=53\\)。\n\n**最终答案**\n\n53"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将十进制245化为八进制。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(245=3\\times8^2+6\\times8+5\\)，所以为\\((365)_8\\)。\n\n**最终答案**\n\n(365)_8"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求最小非负整数x，使\\(5x\\equiv3\\pmod7\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "5在模7下逆元为3，故\\(x\\equiv3\\times3\\equiv2\\pmod7\\)，最小值为2。\n\n**最终答案**\n\n2"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "360共有多少个正因数？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(360=2^3\\times3^2\\times5\\)，因数个数为\\((3+1)(2+1)(1+1)=24\\)。\n\n**最终答案**\n\n24个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求391和299的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(391=299+92,299=3\\times92+23,92=4\\times23\\)，最大公约数为23。\n\n**最终答案**\n\n23"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "两个正整数最大公约数为12、最小公倍数为180，其中一个为36，另一个是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "两数乘积为\\(12\\times180\\)，所以另一个为\\((12\\times180)\\div36=60\\)。\n\n**最终答案**\n\n60"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求0到14中满足\\(x\\equiv2\\pmod3\\)、\\(x\\equiv3\\pmod5\\)的数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模5余3的数为3、8、13，其中只有8模3余2，所以\\(x=8\\)。\n\n**最终答案**\n\n8"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(2^{100}\\)除以13的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(2^{12}\\equiv1\\pmod{13}\\)，\\(100=12\\times8+4\\)，故余数为\\(2^4\\equiv3\\)。\n\n**最终答案**\n\n3"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "100到999之间有多少个9的倍数？"
+      },
+      {
+        "role": "assistant",
+        "content": "第一个是108，最后一个是999，个数\\((999-108)\\div9+1=100\\)。\n\n**最终答案**\n\n100个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求12345除以7的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(12345=7\\times1763+4\\)，余数为4。\n\n**最终答案**\n\n4"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求同时被6、8、15整除的最小正整数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(6=2\\times3,8=2^3,15=3\\times5\\)，最小公倍数为120。\n\n**最终答案**\n\n120"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将756分解质因数。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(756=2^2\\times3^3\\times7\\)。\n\n**最终答案**\n\n2^2\\times3^3\\times7"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "模8意义下满足\\(x^2\\equiv1\\pmod8\\)的余数有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "奇数余数1、3、5、7的平方均模8余1，故有4个。\n\n**最终答案**\n\n4个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将五进制数\\((243)_5\\)化为十进制。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(2\\times5^2+4\\times5+3=73\\)。\n\n**最终答案**\n\n73"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求任意整数n的\\(n^2+n\\)除以2的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "连续两个整数中必有一个偶数，所以\\(n(n+1)\\)恒为偶数，余数为0。\n\n**最终答案**\n\n0"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一个数除以5余2，除以3余1，求0到14中满足条件的数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模5余2的数为2、7、12，只有7除以3余1，因此答案为7。\n\n**最终答案**\n\n7"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "number-theory",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "等差数列\\(a_1=5,d=3\\)，求\\(a_{20}\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(a_{20}=5+19\\times3=62\\)。\n\n**最终答案**\n\n62"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求等差数列\\(2,6,10,\\ldots\\)前20项和。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(a_{20}=78\\)，所以\\(S_{20}=20(2+78)/2=800\\)。\n\n**最终答案**\n\n800"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "等比数列\\(3,6,12,\\ldots\\)第8项是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(a_8=3\\times2^7=384\\)。\n\n**最终答案**\n\n384"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求等比数列\\(2,6,18,54,162\\)的和。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(S=2(3^5-1)/(3-1)=242\\)。\n\n**最终答案**\n\n242"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知\\(f(x)=2x^2-3x+1\\)，求\\(f(-2)\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(f(-2)=2\\times4+6+1=15\\)。\n\n**最终答案**\n\n15"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知\\(f(x)=x+1,g(x)=2x-3\\)，求\\(f(g(4))\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(g(4)=5\\)，所以\\(f(g(4))=f(5)=6\\)。\n\n**最终答案**\n\n6"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知\\(f(x)=3x-2\\)，求\\(f^{-1}(10)\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "由\\(y=3x-2\\)得\\(x=(y+2)/3\\)，所以\\(f^{-1}(10)=4\\)。\n\n**最终答案**\n\n4"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求过\\((2,3)\\)和\\((6,11)\\)的直线方程。"
+      },
+      {
+        "role": "assistant",
+        "content": "斜率\\(m=2\\)，代入\\((2,3)\\)得截距\\(b=-1\\)，方程为\\(y=2x-1\\)。\n\n**最终答案**\n\ny=2x-1"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\((-3,5)\\)和\\((7,-1)\\)的中点。"
+      },
+      {
+        "role": "assistant",
+        "content": "中点为\\( ((-3+7)/2,(5-1)/2)=(2,2)\\)。\n\n**最终答案**\n\n(2,2)"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "点\\((4,-2)\\)沿向量\\((-3,5)\\)平移后坐标是什么？"
+      },
+      {
+        "role": "assistant",
+        "content": "坐标相加得\\((4-3,-2+5)=(1,3)\\)。\n\n**最终答案**\n\n(1,3)"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求点\\((1,2)\\)和\\((4,6)\\)的距离。"
+      },
+      {
+        "role": "assistant",
+        "content": "距离为\\(\\sqrt{3^2+4^2}=5\\)。\n\n**最终答案**\n\n5"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "数列\\(a_1=1,a_n=a_{n-1}+2n\\)（n大于等于2），求\\(a_5\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(a_2=5,a_3=11,a_4=19,a_5=29\\)。\n\n**最终答案**\n\n29"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(f(x)=x^2-6x+5\\)图像的顶点。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(f(x)=(x-3)^2-4\\)，顶点为\\((3,-4)\\)。\n\n**最终答案**\n\n(3,-4)"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求直线\\(y=2x+1\\)与\\(y=-x+7\\)的交点。"
+      },
+      {
+        "role": "assistant",
+        "content": "令两式相等得\\(3x=6,x=2\\)，代入得\\(y=5\\)。\n\n**最终答案**\n\n(2,5)"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "点\\((3,-4)\\)关于x轴对称后的坐标是什么？"
+      },
+      {
+        "role": "assistant",
+        "content": "关于x轴对称横坐标不变、纵坐标变号，所以为\\((3,4)\\)。\n\n**最终答案**\n\n(3,4)"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(1+2+2^2+\\cdots+2^9\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "等比数列求和：\\(S=(2^{10}-1)/(2-1)=1023\\)。\n\n**最终答案**\n\n1023"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程\\(3^x=27\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(27=3^3\\)，所以\\(x=3\\)。\n\n**最终答案**\n\nx=3"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求向量\\((2,-1,3)\\)与\\((1,4,-2)\\)的数量积。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(2-4-6=-8\\)。\n\n**最终答案**\n\n-8"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "变换\\(T(x,y)=(x+y,x-y)\\)作用于\\((3,-1)\\)的结果是什么？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(T(3,-1)=(2,4)\\)。\n\n**最终答案**\n\n(2,4)"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "若复数\\(z=1+i\\)，求\\(z^2\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\((1+i)^2=1+2i+i^2=2i\\)。\n\n**最终答案**\n\n2i"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "function-sequence-coordinate",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(A=\\begin{pmatrix}2&3\\\\1&4\\end{pmatrix}\\)的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(\\det A=2\\times4-3\\times1=5\\)。\n\n**最终答案**\n\n5"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算\\(\\begin{pmatrix}1&2\\\\3&4\\end{pmatrix}+\\begin{pmatrix}4&3\\\\2&1\\end{pmatrix}\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "对应元素相加，结果为\\(\\begin{pmatrix}5&5\\\\5&5\\end{pmatrix}\\)。\n\n**最终答案**\n\n\\begin{pmatrix}5&5\\\\5&5\\end{pmatrix}"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算\\(\\begin{pmatrix}1&2\\\\0&1\\end{pmatrix}\\begin{pmatrix}2&0\\\\3&4\\end{pmatrix}\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "按行乘列，结果为\\(\\begin{pmatrix}8&8\\\\3&4\\end{pmatrix}\\)。\n\n**最终答案**\n\n\\begin{pmatrix}8&8\\\\3&4\\end{pmatrix}"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程组\\(x+y=5,2x-y=1\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "两式相加得\\(3x=6\\)，所以\\(x=2,y=3\\)。\n\n**最终答案**\n\nx=2，y=3"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(A=\\begin{pmatrix}2&1\\\\1&1\\end{pmatrix}\\)的逆矩阵。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(\\det A=1\\)，故\\(A^{-1}=\\begin{pmatrix}1&-1\\\\-1&2\\end{pmatrix}\\)。\n\n**最终答案**\n\n\\begin{pmatrix}1&-1\\\\-1&2\\end{pmatrix}"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求上三角矩阵\\(\\begin{pmatrix}2&1&3\\\\0&-1&4\\\\0&0&4\\end{pmatrix}\\)的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "三角矩阵行列式是对角线乘积：\\(2\\times(-1)\\times4=-8\\)。\n\n**最终答案**\n\n-8"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵\\(\\begin{pmatrix}1&2\\\\2&4\\end{pmatrix}\\)的秩是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "第二行是第一行的2倍，只有一个线性无关行，秩为1。\n\n**最终答案**\n\n1"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵\\(\\begin{pmatrix}3&0\\\\0&-2\\end{pmatrix}\\)的特征值是什么？"
+      },
+      {
+        "role": "assistant",
+        "content": "对角矩阵的特征值是对角线元素，因此为3和-2。\n\n**最终答案**\n\n3和-2"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(A=\\begin{pmatrix}4&1\\\\2&3\\end{pmatrix}\\)的迹和行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "迹为\\(4+3=7\\)，行列式为\\(12-2=10\\)。\n\n**最终答案**\n\n迹为7，行列式为10"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(A=\\begin{pmatrix}2&0\\\\0&3\\end{pmatrix}\\)的\\(A^5\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "对角矩阵逐项取幂，\\(A^5=\\begin{pmatrix}32&0\\\\0&243\\end{pmatrix}\\)。\n\n**最终答案**\n\n\\begin{pmatrix}32&0\\\\0&243\\end{pmatrix}"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "线性变换\\(T(x,y)=(x+2y,3x-y)\\)作用于\\((1,2)\\)的结果是什么？"
+      },
+      {
+        "role": "assistant",
+        "content": "代入得\\(T(1,2)=(5,1)\\)。\n\n**最终答案**\n\n(5,1)"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "若\\(A=\\begin{pmatrix}k&1\\\\2&k\\end{pmatrix}\\)，当k=3时行列式是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(\\det A=k^2-2\\)，取\\(k=3\\)得7。\n\n**最终答案**\n\n7"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "向量\\((1,2)\\)和\\((3,1)\\)张成的平行四边形面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "面积为\\(|1\\times1-2\\times3|=5\\)。\n\n**最终答案**\n\n5"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(A=\\begin{pmatrix}a&b\\\\c&d\\end{pmatrix}\\)的伴随矩阵。"
+      },
+      {
+        "role": "assistant",
+        "content": "二维矩阵伴随矩阵为\\(\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}\\)。\n\n**最终答案**\n\n\\begin{pmatrix}d&-b\\\\-c&a\\end{pmatrix}"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "设\\(A=\\begin{pmatrix}1&0\\\\0&2\\end{pmatrix},B=\\begin{pmatrix}3&0\\\\0&4\\end{pmatrix}\\)，求AB和BA。"
+      },
+      {
+        "role": "assistant",
+        "content": "两者均为\\(\\begin{pmatrix}3&0\\\\0&8\\end{pmatrix}\\)。\n\n**最终答案**\n\nAB=BA=\\begin{pmatrix}3&0\\\\0&8\\end{pmatrix}"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知\\(\\det A=-2,\\det B=3\\)，求\\(\\det(AB)\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(\\det(AB)=\\det A\\det B=-6\\)。\n\n**最终答案**\n\n-6"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求\\(A=\\begin{pmatrix}2&-1\\\\1&3\\end{pmatrix})(4,2)^T\\)。"
+      },
+      {
+        "role": "assistant",
+        "content": "矩阵乘向量得\\((8-2,4+6)^T=(6,10)^T\\)。\n\n**最终答案**\n\n(6,10)^T"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "齐次方程组\\(x+2y=0,2x+4y=0\\)的解空间维数是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "系数矩阵秩为1，未知数有2个，零空间维数为\\(2-1=1\\)。\n\n**最终答案**\n\n1"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "向量\\((2,1)\\)在\\((1,0)\\)方向上的投影向量是什么？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(\\operatorname{proj}_{v}u=\\frac{u\\cdot v}{v\\cdot v}v=(2,0)\\)。\n\n**最终答案**\n\n(2,0)"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵\\(\\begin{pmatrix}2&1\\\\1&3\\end{pmatrix}\\)是否为对称矩阵？"
+      },
+      {
+        "role": "assistant",
+        "content": "转置后仍为原矩阵，故它是对称矩阵。\n\n**最终答案**\n\n是对称矩阵"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "linear-algebra",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形底12厘米、高7厘米，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(S=\\frac12\\times12\\times7=42\\)平方厘米。\n\n**最终答案**\n\n42平方厘米"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "长方形对角线13厘米、宽5厘米，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "长为\\(\\sqrt{13^2-5^2}=12\\)厘米，面积为60平方厘米。\n\n**最终答案**\n\n60平方厘米"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "圆周长为\\(10\\pi\\)，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(2\\pi r=10\\pi\\)得\\(r=5\\)，面积为\\(25\\pi\\)。\n\n**最终答案**\n\n25\\pi"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "半径6、圆心角60度的扇形面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(S=\\frac{60}{360}\\pi\\times6^2=6\\pi\\)。\n\n**最终答案**\n\n6\\pi"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "梯形两底8和14，高5，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(S=\\frac{8+14}{2}\\times5=55\\)。\n\n**最终答案**\n\n55平方单位"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正方体棱长4，求体积和表面积。"
+      },
+      {
+        "role": "assistant",
+        "content": "体积\\(4^3=64\\)，表面积\\(6\\times4^2=96\\)。\n\n**最终答案**\n\n体积64，表面积96"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "圆柱半径3、高10，体积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(V=\\pi r^2h=90\\pi\\)。\n\n**最终答案**\n\n90\\pi"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "圆锥半径3、高8，体积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(V=\\frac13\\pi r^2h=24\\pi\\)。\n\n**最终答案**\n\n24\\pi"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "直角三角形两直角边9和12，斜边与面积分别是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "斜边\\(\\sqrt{9^2+12^2}=15\\)，面积\\(\\frac12\\times9\\times12=54\\)。\n\n**最终答案**\n\n斜边15，面积54"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "相似三角形对应边比2:5，小三角形面积12，大三角形面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "面积比为\\(4:25\\)，大面积\\(12\\times25/4=75\\)。\n\n**最终答案**\n\n75平方单位"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形顶点为\\((0,0),(6,0),(0,8)\\)，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "底和高分别为6和8，面积\\(\\frac12\\times6\\times8=24\\)。\n\n**最终答案**\n\n24平方单位"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "圆周角所对弧为80度，圆周角是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "圆周角等于所对圆心角的一半，所以为40度。\n\n**最终答案**\n\n40度"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "圆半径10，一条弦长12，圆心到弦的距离是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "半弦长6，由勾股定理\\(d=\\sqrt{10^2-6^2}=8\\)。\n\n**最终答案**\n\n8"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "长方形周长34，长比宽多3，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "设宽w，则\\(2(2w+3)=34\\)，得宽7、长10，面积70。\n\n**最终答案**\n\n70平方单位"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正六边形边长4，周长是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "六条边等长，周长\\(6\\times4=24\\)。\n\n**最终答案**\n\n24"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "球半径3，求体积和表面积。"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(V=\\frac43\\pi3^3=36\\pi\\)，\\(S=4\\pi3^2=36\\pi\\)。\n\n**最终答案**\n\n体积36\\pi，表面积36\\pi"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正方体棱长6，空间对角线长是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(d=\\sqrt{6^2+6^2+6^2}=6\\sqrt3\\)。\n\n**最终答案**\n\n6\\sqrt3"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "圆环外半径5、内半径3，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "\\(S=\\pi(5^2-3^2)=16\\pi\\)。\n\n**最终答案**\n\n16\\pi"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "边长10正方形内切半径5的圆，在正方形内随机取点，落入圆内概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "几何概率为面积比\\(P=\\frac{\\pi5^2}{10^2}=\\frac\\pi4\\)。\n\n**最终答案**\n\n\\frac\\pi4"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "长8宽5的矩形内随机取点，目标区域为一条对角线分成的一个三角形，落入概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "对角线把矩形分成面积相等的两部分，概率为\\(\\frac12\\)。\n\n**最终答案**\n\n\\frac12"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "geometry",
+    "difficulty": "中等",
+    "source": "base-error-directions-generated-v2"
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "name": "qwen25-7b-math-error-cases-500",
+  "purpose": "候选专项集：针对 Qwen2.5-7B 数学助手常见计算、推理和格式风险",
+  "record_count": 500,
+  "status": "candidate-not-active-training",
+  "subjects": {
+    "代数与方程": 50,
+    "几何": 50,
+    "分数运算": 50,
+    "多步应用题": 50,
+    "数列、函数与坐标": 50,
+    "数论与进制": 50,
+    "概率与组合": 50,
+    "百分数与比例": 50,
+    "算术与运算顺序": 50,
+    "线性代数": 50
+  },
+  "source_file": "data/candidates/qwen25-7b-math-error-cases-500.jsonl",
+  "generator": "scripts/build_qwen25_7b_math_error_dataset.py",
+  "next_step": "人工抽查并用独立计算器/SymPy复核；审核通过后再复制到 data/raw/corrections/ 并运行 scripts/prepare_data.py",
+  "protected_sets": [
+    "data/eval/test.json",
+    "data/eval/regression/regression.json"
+  ]
+}

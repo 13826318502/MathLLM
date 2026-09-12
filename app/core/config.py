@@ -55,9 +55,9 @@ class Settings:
         return cls(
             vllm_base_url=os.getenv(
                 "MATHLLM_API_BASE_URL",
-                os.getenv("MATHLLM_VLLM_BASE_URL", "http://localhost:8000/v1"),
+                os.getenv("MATHLLM_VLLM_BASE_URL", "http://127.0.0.1:11434/v1"),
             ).rstrip("/"),
-            model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-round5"),
+            model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-base-cpu"),
             api_key=os.getenv("MATHLLM_API_KEY") or None,
             api_host=os.getenv("MATHLLM_API_HOST", "0.0.0.0"),
             api_port=_as_int("MATHLLM_API_PORT", 8080),

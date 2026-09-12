@@ -1,0 +1,2802 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一条全长 74 千米的路线内部设置了 8 个检查点。第一个检查点距起点 5 千米，最后一个检查点距终点 6 千米，所有相邻检查点等距。相邻检查点相距多少千米？注意起点和终点不属于检查点。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一个到最后一个检查点之间的路程是 $74-5-6=63$ 千米。8 个检查点之间只有 $8-1=7$ 个间隔，因此距离为\\[63\\div 7=9.\\]\n\n**最终答案**\n\n$9$ 千米"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "interval-boundary",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一条全长 101 千米的路线内部设置了 8 个检查点。第一个检查点距起点 8 千米，最后一个检查点距终点 9 千米，所有相邻检查点等距。相邻检查点相距多少千米？注意起点和终点不属于检查点。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一个到最后一个检查点之间的路程是 $101-8-9=84$ 千米。8 个检查点之间只有 $8-1=7$ 个间隔，因此距离为\\[84\\div 7=12.\\]\n\n**最终答案**\n\n$12$ 千米"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "interval-boundary",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一条全长 137 千米的路线内部设置了 9 个检查点。第一个检查点距起点 11 千米，最后一个检查点距终点 14 千米，所有相邻检查点等距。相邻检查点相距多少千米？注意起点和终点不属于检查点。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一个到最后一个检查点之间的路程是 $137-11-14=112$ 千米。9 个检查点之间只有 $9-1=8$ 个间隔，因此距离为\\[112\\div 8=14.\\]\n\n**最终答案**\n\n$14$ 千米"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "interval-boundary",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一条全长 166 千米的路线内部设置了 10 个检查点。第一个检查点距起点 13 千米，最后一个检查点距终点 9 千米，所有相邻检查点等距。相邻检查点相距多少千米？注意起点和终点不属于检查点。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一个到最后一个检查点之间的路程是 $166-13-9=144$ 千米。10 个检查点之间只有 $10-1=9$ 个间隔，因此距离为\\[144\\div 9=16.\\]\n\n**最终答案**\n\n$16$ 千米"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "interval-boundary",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一条全长 213 千米的路线内部设置了 11 个检查点。第一个检查点距起点 17 千米，最后一个检查点距终点 16 千米，所有相邻检查点等距。相邻检查点相距多少千米？注意起点和终点不属于检查点。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一个到最后一个检查点之间的路程是 $213-17-16=180$ 千米。11 个检查点之间只有 $11-1=10$ 个间隔，因此距离为\\[180\\div 10=18.\\]\n\n**最终答案**\n\n$18$ 千米"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "interval-boundary",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一台设备每小时生产 36 件产品。它按“工作 45 分钟、休息 10 分钟”的周期运行；完成最后一次工作后若测试结束则不再计休息。从开始工作起经过 300 分钟时，共生产多少件产品？"
+      },
+      {
+        "role": "assistant",
+        "content": "300 分钟恰好包含 5 个完整的“工作+休息”周期，再加 25 分钟工作。有效工作时间为 $5\times45+25=250$ 分钟，所以产量为\\[36\\times\\frac{250}{60}=150.\\]\n\n**最终答案**\n\n$150$ 件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "work-break-cycle",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一台设备每小时生产 48 件产品。它按“工作 50 分钟、休息 15 分钟”的周期运行；完成最后一次工作后若测试结束则不再计休息。从开始工作起经过 295 分钟时，共生产多少件产品？"
+      },
+      {
+        "role": "assistant",
+        "content": "295 分钟恰好包含 4 个完整的“工作+休息”周期，再加 35 分钟工作。有效工作时间为 $4\times50+35=235$ 分钟，所以产量为\\[48\\times\\frac{235}{60}=188.\\]\n\n**最终答案**\n\n$188$ 件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "work-break-cycle",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一台设备每小时生产 30 件产品。它按“工作 40 分钟、休息 12 分钟”的周期运行；完成最后一次工作后若测试结束则不再计休息。从开始工作起经过 332 分钟时，共生产多少件产品？"
+      },
+      {
+        "role": "assistant",
+        "content": "332 分钟恰好包含 6 个完整的“工作+休息”周期，再加 20 分钟工作。有效工作时间为 $6\times40+20=260$ 分钟，所以产量为\\[30\\times\\frac{260}{60}=130.\\]\n\n**最终答案**\n\n$130$ 件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "work-break-cycle",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一台设备每小时生产 54 件产品。它按“工作 55 分钟、休息 10 分钟”的周期运行；完成最后一次工作后若测试结束则不再计休息。从开始工作起经过 240 分钟时，共生产多少件产品？"
+      },
+      {
+        "role": "assistant",
+        "content": "240 分钟恰好包含 3 个完整的“工作+休息”周期，再加 45 分钟工作。有效工作时间为 $3\times55+45=210$ 分钟，所以产量为\\[54\\times\\frac{210}{60}=189.\\]\n\n**最终答案**\n\n$189$ 件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "work-break-cycle",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "一台设备每小时生产 42 件产品。它按“工作 35 分钟、休息 8 分钟”的周期运行；完成最后一次工作后若测试结束则不再计休息。从开始工作起经过 316 分钟时，共生产多少件产品？"
+      },
+      {
+        "role": "assistant",
+        "content": "316 分钟恰好包含 7 个完整的“工作+休息”周期，再加 15 分钟工作。有效工作时间为 $7\times35+15=260$ 分钟，所以产量为\\[42\\times\\frac{260}{60}=182.\\]\n\n**最终答案**\n\n$182$ 件"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "work-break-cycle",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "甲单独完成一项工程需要 6 小时，乙单独完成需要 9 小时。两人合作 2 小时后甲离开，剩余工作由乙单独完成。忽略交接时间，从开工到完工共需多少小时？"
+      },
+      {
+        "role": "assistant",
+        "content": "合作效率为 $\frac1{6}+\frac1{9}$，合作后剩余工程量为\\[1-2\\left(\\frac1{6}+\\frac1{9}\\right)=\\frac{4}{9}.\\]乙完成剩余部分需要 $\\frac{4}{9}\times 9=4$ 小时，总时间为 $2+4=6$ 小时。\n\n**最终答案**\n\n$6$ 小时"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "phased-work-rate",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "甲单独完成一项工程需要 8 小时，乙单独完成需要 12 小时。两人合作 3 小时后甲离开，剩余工作由乙单独完成。忽略交接时间，从开工到完工共需多少小时？"
+      },
+      {
+        "role": "assistant",
+        "content": "合作效率为 $\frac1{8}+\frac1{12}$，合作后剩余工程量为\\[1-3\\left(\\frac1{8}+\\frac1{12}\\right)=\\frac{3}{8}.\\]乙完成剩余部分需要 $\\frac{3}{8}\times 12=\\frac{9}{2}$ 小时，总时间为 $3+\\frac{9}{2}=\\frac{15}{2}$ 小时。\n\n**最终答案**\n\n$\\frac{15}{2}$ 小时"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "phased-work-rate",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "甲单独完成一项工程需要 10 小时，乙单独完成需要 15 小时。两人合作 4 小时后甲离开，剩余工作由乙单独完成。忽略交接时间，从开工到完工共需多少小时？"
+      },
+      {
+        "role": "assistant",
+        "content": "合作效率为 $\frac1{10}+\frac1{15}$，合作后剩余工程量为\\[1-4\\left(\\frac1{10}+\\frac1{15}\\right)=\\frac{1}{3}.\\]乙完成剩余部分需要 $\\frac{1}{3}\times 15=5$ 小时，总时间为 $4+5=9$ 小时。\n\n**最终答案**\n\n$9$ 小时"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "phased-work-rate",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "甲单独完成一项工程需要 12 小时，乙单独完成需要 18 小时。两人合作 5 小时后甲离开，剩余工作由乙单独完成。忽略交接时间，从开工到完工共需多少小时？"
+      },
+      {
+        "role": "assistant",
+        "content": "合作效率为 $\frac1{12}+\frac1{18}$，合作后剩余工程量为\\[1-5\\left(\\frac1{12}+\\frac1{18}\\right)=\\frac{11}{36}.\\]乙完成剩余部分需要 $\\frac{11}{36}\times 18=\\frac{11}{2}$ 小时，总时间为 $5+\\frac{11}{2}=\\frac{21}{2}$ 小时。\n\n**最终答案**\n\n$\\frac{21}{2}$ 小时"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "phased-work-rate",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "甲单独完成一项工程需要 14 小时，乙单独完成需要 21 小时。两人合作 6 小时后甲离开，剩余工作由乙单独完成。忽略交接时间，从开工到完工共需多少小时？"
+      },
+      {
+        "role": "assistant",
+        "content": "合作效率为 $\frac1{14}+\frac1{21}$，合作后剩余工程量为\\[1-6\\left(\\frac1{14}+\\frac1{21}\\right)=\\frac{2}{7}.\\]乙完成剩余部分需要 $\\frac{2}{7}\times 21=6$ 小时，总时间为 $6+6=12$ 小时。\n\n**最终答案**\n\n$12$ 小时"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "phased-work-rate",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "某商品单价 128 元，购买 5 件。结算顺序为：先按总价打 8.5 折，再使用 40 元无门槛券，然后对券后金额收取 6% 的税，最后加 18 元运费。实际支付多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "原总价为 $128\times5=640$ 元；折后为 $544$ 元；用券后为 $504$ 元。含税并加运费得到\\[504\\times\\frac{106}{100}+18=\\frac{13806}{25}.\\]\n\n**最终答案**\n\n$\\frac{13806}{25}$ 元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "ordered-discount-tax",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "某商品单价 235 元，购买 3 件。结算顺序为：先按总价打 8 折，再使用 50 元无门槛券，然后对券后金额收取 5% 的税，最后加 12 元运费。实际支付多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "原总价为 $235\times3=705$ 元；折后为 $564$ 元；用券后为 $514$ 元。含税并加运费得到\\[514\\times\\frac{105}{100}+12=\\frac{5517}{10}.\\]\n\n**最终答案**\n\n$\\frac{5517}{10}$ 元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "ordered-discount-tax",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "某商品单价 96 元，购买 8 件。结算顺序为：先按总价打 7.5 折，再使用 60 元无门槛券，然后对券后金额收取 8% 的税，最后加 20 元运费。实际支付多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "原总价为 $96\times8=768$ 元；折后为 $576$ 元；用券后为 $516$ 元。含税并加运费得到\\[516\\times\\frac{108}{100}+20=\\frac{14432}{25}.\\]\n\n**最终答案**\n\n$\\frac{14432}{25}$ 元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "ordered-discount-tax",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "某商品单价 315 元，购买 2 件。结算顺序为：先按总价打 9 折，再使用 30 元无门槛券，然后对券后金额收取 6% 的税，最后加 15 元运费。实际支付多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "原总价为 $315\times2=630$ 元；折后为 $567$ 元；用券后为 $537$ 元。含税并加运费得到\\[537\\times\\frac{106}{100}+15=\\frac{29211}{50}.\\]\n\n**最终答案**\n\n$\\frac{29211}{50}$ 元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "ordered-discount-tax",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "某商品单价 148 元，购买 6 件。结算顺序为：先按总价打 8.8 折，再使用 70 元无门槛券，然后对券后金额收取 5% 的税，最后加 10 元运费。实际支付多少元？"
+      },
+      {
+        "role": "assistant",
+        "content": "原总价为 $148\times6=888$ 元；折后为 $\\frac{19536}{25}$ 元；用券后为 $\\frac{17786}{25}$ 元。含税并加运费得到\\[\\frac{17786}{25}\\times\\frac{105}{100}+10=\\frac{189253}{250}.\\]\n\n**最终答案**\n\n$\\frac{189253}{250}$ 元"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "tag": "ordered-discount-tax",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "首一三次多项式 $P(x)=x^3+ax^2+bx+c$ 的三个根分别为 -4、3、7。不展开三个一次因式，求 $a^2-2b+c$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由韦达定理，$a=-(-4+3+7)=-6$，$b=-12+-28+21=-19$，$c=-(-84)=84$。因此\\[a^2-2b+c=-6^2-2(-19)+84=158.\\]\n\n**最终答案**\n\n$158$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "vieta-cubic",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "首一三次多项式 $P(x)=x^3+ax^2+bx+c$ 的三个根分别为 -5、2、9。不展开三个一次因式，求 $a^2-2b+c$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由韦达定理，$a=-(-5+2+9)=-6$，$b=-10+-45+18=-37$，$c=-(-90)=90$。因此\\[a^2-2b+c=-6^2-2(-37)+90=200.\\]\n\n**最终答案**\n\n$200$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "vieta-cubic",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "首一三次多项式 $P(x)=x^3+ax^2+bx+c$ 的三个根分别为 -7、4、6。不展开三个一次因式，求 $a^2-2b+c$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由韦达定理，$a=-(-7+4+6)=-3$，$b=-28+-42+24=-46$，$c=-(-168)=168$。因此\\[a^2-2b+c=-3^2-2(-46)+168=269.\\]\n\n**最终答案**\n\n$269$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "vieta-cubic",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "首一三次多项式 $P(x)=x^3+ax^2+bx+c$ 的三个根分别为 -3、5、8。不展开三个一次因式，求 $a^2-2b+c$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由韦达定理，$a=-(-3+5+8)=-10$，$b=-15+-24+40=1$，$c=-(-120)=120$。因此\\[a^2-2b+c=-10^2-2(1)+120=218.\\]\n\n**最终答案**\n\n$218$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "vieta-cubic",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "首一三次多项式 $P(x)=x^3+ax^2+bx+c$ 的三个根分别为 -8、1、10。不展开三个一次因式，求 $a^2-2b+c$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由韦达定理，$a=-(-8+1+10)=-3$，$b=-8+-80+10=-78$，$c=-(-80)=80$。因此\\[a^2-2b+c=-3^2-2(-78)+80=245.\\]\n\n**最终答案**\n\n$245$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "vieta-cubic",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程 $x+\\frac{24}x=11$，并检查定义域。"
+      },
+      {
+        "role": "assistant",
+        "content": "定义域要求 $x\\ne0$。两边乘 $x$ 得 $x^2-11x+24=0$，即\\[(x-3)(x-8)=0.\\]两个根均不为零，均符合定义域。\n\n**最终答案**\n\n$x=3$ 或 $x=8$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "rational-domain",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程 $x+\\frac{36}x=13$，并检查定义域。"
+      },
+      {
+        "role": "assistant",
+        "content": "定义域要求 $x\\ne0$。两边乘 $x$ 得 $x^2-13x+36=0$，即\\[(x-4)(x-9)=0.\\]两个根均不为零，均符合定义域。\n\n**最终答案**\n\n$x=4$ 或 $x=9$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "rational-domain",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程 $x+\\frac{60}x=17$，并检查定义域。"
+      },
+      {
+        "role": "assistant",
+        "content": "定义域要求 $x\\ne0$。两边乘 $x$ 得 $x^2-17x+60=0$，即\\[(x-5)(x-12)=0.\\]两个根均不为零，均符合定义域。\n\n**最终答案**\n\n$x=5$ 或 $x=12$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "rational-domain",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程 $x+\\frac{66}x=17$，并检查定义域。"
+      },
+      {
+        "role": "assistant",
+        "content": "定义域要求 $x\\ne0$。两边乘 $x$ 得 $x^2-17x+66=0$，即\\[(x-6)(x-11)=0.\\]两个根均不为零，均符合定义域。\n\n**最终答案**\n\n$x=6$ 或 $x=11$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "rational-domain",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "解方程 $x+\\frac{105}x=22$，并检查定义域。"
+      },
+      {
+        "role": "assistant",
+        "content": "定义域要求 $x\\ne0$。两边乘 $x$ 得 $x^2-22x+105=0$，即\\[(x-7)(x-15)=0.\\]两个根均不为零，均符合定义域。\n\n**最终答案**\n\n$x=7$ 或 $x=15$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "rational-domain",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知 $P(x)$ 是次数不超过3的多项式，且 $P(0),P(1),P(2),P(3)$ 依次为 7、11、21、49。求 $P(7)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "对四个值作有限差分，三阶差分恒定，因此可唯一确定三次多项式。恢复得到\\[P(x)=2x^3+(-3)x^2+(5)x+(7).\\]代入 $x=7$，得到 $P(7)=581$。\n\n**最终答案**\n\n$581$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "polynomial-interpolation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知 $P(x)$ 是次数不超过3的多项式，且 $P(0),P(1),P(2),P(3)$ 依次为 9、10、13、12。求 $P(8)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "对四个值作有限差分，三阶差分恒定，因此可唯一确定三次多项式。恢复得到\\[P(x)=-1x^3+(4)x^2+(-2)x+(9).\\]代入 $x=8$，得到 $P(8)=-263$。\n\n**最终答案**\n\n$-263$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "polynomial-interpolation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知 $P(x)$ 是次数不超过3的多项式，且 $P(0),P(1),P(2),P(3)$ 依次为 4、2、18、70。求 $P(9)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "对四个值作有限差分，三阶差分恒定，因此可唯一确定三次多项式。恢复得到\\[P(x)=3x^3+(0)x^2+(-5)x+(4).\\]代入 $x=9$，得到 $P(9)=2146$。\n\n**最终答案**\n\n$2146$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "polynomial-interpolation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知 $P(x)$ 是次数不超过3的多项式，且 $P(0),P(1),P(2),P(3)$ 依次为 1、1、23、79。求 $P(10)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "对四个值作有限差分，三阶差分恒定，因此可唯一确定三次多项式。恢复得到\\[P(x)=2x^3+(5)x^2+(-7)x+(1).\\]代入 $x=10$，得到 $P(10)=2431$。\n\n**最终答案**\n\n$2431$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "polynomial-interpolation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "已知 $P(x)$ 是次数不超过3的多项式，且 $P(0),P(1),P(2),P(3)$ 依次为 -4、3、4、-13。求 $P(11)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "对四个值作有限差分，三阶差分恒定，因此可唯一确定三次多项式。恢复得到\\[P(x)=-2x^3+(3)x^2+(6)x+(-4).\\]代入 $x=11$，得到 $P(11)=-2237$。\n\n**最终答案**\n\n$-2237$"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "polynomial-interpolation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "整数 $x$ 满足 $-30\\le x\\le 40$ 且 $|7x-11|\\le 21$。这样的整数共有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "绝对值不等式等价于 $-21\\le 7x-11\\le 21$，即\\[\\frac{-10}{7}\\le x\\le\\frac{32}{7}.\\]再与题设区间取交集，整数解为 [-1, 0, 1, 2, 3, 4]，共 6 个。\n\n**最终答案**\n\n$6$ 个"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "integer-absolute-inequality",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "整数 $x$ 满足 $-50\\le x\\le 35$ 且 $|9x-14|\\le 27$。这样的整数共有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "绝对值不等式等价于 $-27\\le 9x-14\\le 27$，即\\[\\frac{-13}{9}\\le x\\le\\frac{41}{9}.\\]再与题设区间取交集，整数解为 [-1, 0, 1, 2, 3, 4]，共 6 个。\n\n**最终答案**\n\n$6$ 个"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "integer-absolute-inequality",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "整数 $x$ 满足 $-45\\le x\\le 60$ 且 $|11x-8|\\le 33$。这样的整数共有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "绝对值不等式等价于 $-33\\le 11x-8\\le 33$，即\\[\\frac{-25}{11}\\le x\\le\\frac{41}{11}.\\]再与题设区间取交集，整数解为 [-2, -1, 0, 1, 2, 3]，共 6 个。\n\n**最终答案**\n\n$6$ 个"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "integer-absolute-inequality",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "整数 $x$ 满足 $-70\\le x\\le 55$ 且 $|13x-17|\\le 39$。这样的整数共有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "绝对值不等式等价于 $-39\\le 13x-17\\le 39$，即\\[\\frac{-22}{13}\\le x\\le\\frac{56}{13}.\\]再与题设区间取交集，整数解为 [-1, 0, 1, 2, 3, 4]，共 6 个。\n\n**最终答案**\n\n$6$ 个"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "integer-absolute-inequality",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "整数 $x$ 满足 $-80\\le x\\le 75$ 且 $|15x-19|\\le 45$。这样的整数共有多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "绝对值不等式等价于 $-45\\le 15x-19\\le 45$，即\\[\\frac{-26}{15}\\le x\\le\\frac{64}{15}.\\]再与题设区间取交集，整数解为 [-1, 0, 1, 2, 3, 4]，共 6 个。\n\n**最终答案**\n\n$6$ 个"
+      }
+    ],
+    "category": "代数与方程",
+    "tag": "integer-absolute-inequality",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 $1,2,\\ldots,15$ 中等概率选取 5 个不同整数。所选整数中至少有一对相邻整数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{15}{5}=3003$。没有任何相邻数的选法用移位法计算为$\\binom{11}{5}=462$。故所求概率为\\[1-\\frac{462}{3003}=\\frac{11}{13}.\\]\n\n**最终答案**\n\n$\\frac{11}{13}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "at-least-one-adjacent",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 $1,2,\\ldots,18$ 中等概率选取 6 个不同整数。所选整数中至少有一对相邻整数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{18}{6}=18564$。没有任何相邻数的选法用移位法计算为$\\binom{13}{6}=1716$。故所求概率为\\[1-\\frac{1716}{18564}=\\frac{108}{119}.\\]\n\n**最终答案**\n\n$\\frac{108}{119}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "at-least-one-adjacent",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 $1,2,\\ldots,20$ 中等概率选取 7 个不同整数。所选整数中至少有一对相邻整数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{20}{7}=77520$。没有任何相邻数的选法用移位法计算为$\\binom{14}{7}=3432$。故所求概率为\\[1-\\frac{3432}{77520}=\\frac{3087}{3230}.\\]\n\n**最终答案**\n\n$\\frac{3087}{3230}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "at-least-one-adjacent",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 $1,2,\\ldots,22$ 中等概率选取 6 个不同整数。所选整数中至少有一对相邻整数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{22}{6}=74613$。没有任何相邻数的选法用移位法计算为$\\binom{17}{6}=12376$。故所求概率为\\[1-\\frac{12376}{74613}=\\frac{523}{627}.\\]\n\n**最终答案**\n\n$\\frac{523}{627}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "at-least-one-adjacent",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 $1,2,\\ldots,25$ 中等概率选取 8 个不同整数。所选整数中至少有一对相邻整数的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{25}{8}=1081575$。没有任何相邻数的选法用移位法计算为$\\binom{18}{8}=43758$。故所求概率为\\[1-\\frac{43758}{1081575}=\\frac{10483}{10925}.\\]\n\n**最终答案**\n\n$\\frac{10483}{10925}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "at-least-one-adjacent",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 7 名男生和 6 名女生中随机选出 5 人，至少有 2 名女生的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{13}{5}=1287$。按女生人数分类求和，有利选法为 1056，所以\\[P=\\frac{1056}{1287}=\\frac{32}{39}.\\]\n\n**最终答案**\n\n$\\frac{32}{39}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "committee-at-least",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 8 名男生和 5 名女生中随机选出 5 人，至少有 2 名女生的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{13}{5}=1287$。按女生人数分类求和，有利选法为 881，所以\\[P=\\frac{881}{1287}=\\frac{881}{1287}.\\]\n\n**最终答案**\n\n$\\frac{881}{1287}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "committee-at-least",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 9 名男生和 7 名女生中随机选出 6 人，至少有 3 名女生的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{16}{6}=8008$。按女生人数分类求和，有利选法为 4396，所以\\[P=\\frac{4396}{8008}=\\frac{157}{286}.\\]\n\n**最终答案**\n\n$\\frac{157}{286}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "committee-at-least",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 10 名男生和 6 名女生中随机选出 6 人，至少有 2 名女生的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{16}{6}=8008$。按女生人数分类求和，有利选法为 6286，所以\\[P=\\frac{6286}{8008}=\\frac{449}{572}.\\]\n\n**最终答案**\n\n$\\frac{449}{572}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "committee-at-least",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从 8 名男生和 8 名女生中随机选出 7 人，至少有 3 名女生的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总选法为 $\binom{16}{7}=11440$。按女生人数分类求和，有利选法为 9640，所以\\[P=\\frac{9640}{11440}=\\frac{241}{286}.\\]\n\n**最终答案**\n\n$\\frac{241}{286}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "committee-at-least",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将 7 个互不相同的球放入 4 个互不相同的盒子，要求每个盒子至少有一个球，共有多少种放法？"
+      },
+      {
+        "role": "assistant",
+        "content": "用容斥原理，从所有 $4^7$ 种映射中排除空盒情形：\\[\\sum_{j=0}^{4}(-1)^j\\binom{4}j(4-j)^{7}=8400.\\]\n\n**最终答案**\n\n$8400$ 种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "onto-functions",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将 8 个互不相同的球放入 5 个互不相同的盒子，要求每个盒子至少有一个球，共有多少种放法？"
+      },
+      {
+        "role": "assistant",
+        "content": "用容斥原理，从所有 $5^8$ 种映射中排除空盒情形：\\[\\sum_{j=0}^{5}(-1)^j\\binom{5}j(5-j)^{8}=126000.\\]\n\n**最终答案**\n\n$126000$ 种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "onto-functions",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将 9 个互不相同的球放入 5 个互不相同的盒子，要求每个盒子至少有一个球，共有多少种放法？"
+      },
+      {
+        "role": "assistant",
+        "content": "用容斥原理，从所有 $5^9$ 种映射中排除空盒情形：\\[\\sum_{j=0}^{5}(-1)^j\\binom{5}j(5-j)^{9}=834120.\\]\n\n**最终答案**\n\n$834120$ 种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "onto-functions",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将 10 个互不相同的球放入 6 个互不相同的盒子，要求每个盒子至少有一个球，共有多少种放法？"
+      },
+      {
+        "role": "assistant",
+        "content": "用容斥原理，从所有 $6^10$ 种映射中排除空盒情形：\\[\\sum_{j=0}^{6}(-1)^j\\binom{6}j(6-j)^{10}=16435440.\\]\n\n**最终答案**\n\n$16435440$ 种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "onto-functions",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "将 11 个互不相同的球放入 7 个互不相同的盒子，要求每个盒子至少有一个球，共有多少种放法？"
+      },
+      {
+        "role": "assistant",
+        "content": "用容斥原理，从所有 $7^11$ 种映射中排除空盒情形：\\[\\sum_{j=0}^{7}(-1)^j\\binom{7}j(7-j)^{11}=322494480.\\]\n\n**最终答案**\n\n$322494480$ 种"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "onto-functions",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "7 个人随机排成一列，其中甲与乙相邻，且乙与丙不相邻的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "甲乙相邻有 $2(6)!$ 种。甲乙相邻且乙丙也相邻时，三人只能按“丙乙甲”或“甲乙丙”排列，有 $2(5)!$ 种。故概率为\\[\\frac{2(6)!-2(5)!}{7!}=\\frac{5}{21}.\\]\n\n**最终答案**\n\n$\\frac{5}{21}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "overlapping-adjacency",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "8 个人随机排成一列，其中甲与乙相邻，且乙与丙不相邻的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "甲乙相邻有 $2(7)!$ 种。甲乙相邻且乙丙也相邻时，三人只能按“丙乙甲”或“甲乙丙”排列，有 $2(6)!$ 种。故概率为\\[\\frac{2(7)!-2(6)!}{8!}=\\frac{3}{14}.\\]\n\n**最终答案**\n\n$\\frac{3}{14}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "overlapping-adjacency",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "9 个人随机排成一列，其中甲与乙相邻，且乙与丙不相邻的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "甲乙相邻有 $2(8)!$ 种。甲乙相邻且乙丙也相邻时，三人只能按“丙乙甲”或“甲乙丙”排列，有 $2(7)!$ 种。故概率为\\[\\frac{2(8)!-2(7)!}{9!}=\\frac{7}{36}.\\]\n\n**最终答案**\n\n$\\frac{7}{36}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "overlapping-adjacency",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "10 个人随机排成一列，其中甲与乙相邻，且乙与丙不相邻的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "甲乙相邻有 $2(9)!$ 种。甲乙相邻且乙丙也相邻时，三人只能按“丙乙甲”或“甲乙丙”排列，有 $2(8)!$ 种。故概率为\\[\\frac{2(9)!-2(8)!}{10!}=\\frac{8}{45}.\\]\n\n**最终答案**\n\n$\\frac{8}{45}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "overlapping-adjacency",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "11 个人随机排成一列，其中甲与乙相邻，且乙与丙不相邻的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "甲乙相邻有 $2(10)!$ 种。甲乙相邻且乙丙也相邻时，三人只能按“丙乙甲”或“甲乙丙”排列，有 $2(9)!$ 种。故概率为\\[\\frac{2(10)!-2(9)!}{11!}=\\frac{9}{55}.\\]\n\n**最终答案**\n\n$\\frac{9}{55}$"
+      }
+    ],
+    "category": "概率与组合",
+    "tag": "overlapping-adjacency",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求满足 $x\\equiv 3\\pmod{7}$、$x\\equiv 8\\pmod{11}$ 的最小非负整数 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "模两个模数逐步检验或用中国剩余定理。模 $77$ 的唯一解为 $x=52$；核验：$52\bmod 7=3$，$52\bmod 11=8$。\n\n**最终答案**\n\n$52$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "crt",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求满足 $x\\equiv 5\\pmod{8}$、$x\\equiv 7\\pmod{13}$ 的最小非负整数 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "模两个模数逐步检验或用中国剩余定理。模 $104$ 的唯一解为 $x=85$；核验：$85\bmod 8=5$，$85\bmod 13=7$。\n\n**最终答案**\n\n$85$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "crt",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求满足 $x\\equiv 4\\pmod{9}$、$x\\equiv 7\\pmod{10}$ 的最小非负整数 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "模两个模数逐步检验或用中国剩余定理。模 $90$ 的唯一解为 $x=67$；核验：$67\bmod 9=4$，$67\bmod 10=7$。\n\n**最终答案**\n\n$67$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "crt",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求满足 $x\\equiv 6\\pmod{11}$、$x\\equiv 9\\pmod{14}$ 的最小非负整数 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "模两个模数逐步检验或用中国剩余定理。模 $154$ 的唯一解为 $x=149$；核验：$149\bmod 11=6$，$149\bmod 14=9$。\n\n**最终答案**\n\n$149$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "crt",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求满足 $x\\equiv 9\\pmod{13}$、$x\\equiv 4\\pmod{17}$ 的最小非负整数 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "模两个模数逐步检验或用中国剩余定理。模 $221$ 的唯一解为 $x=191$；核验：$191\bmod 13=9$，$191\bmod 17=4$。\n\n**最终答案**\n\n$191$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "crt",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求 $7^{222}$ 除以 1000 的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用模意义下的平方-乘算法，将指数写成二进制并逐次平方约化。计算得到\\[7^{222}\\equiv 49\\pmod{1000}.\\]\n\n**最终答案**\n\n$49$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "modular-exponentiation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求 $13^{137}$ 除以 1001 的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用模意义下的平方-乘算法，将指数写成二进制并逐次平方约化。计算得到\\[13^{137}\\equiv 832\\pmod{1001}.\\]\n\n**最终答案**\n\n$832$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "modular-exponentiation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求 $17^{256}$ 除以 97 的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用模意义下的平方-乘算法，将指数写成二进制并逐次平方约化。计算得到\\[17^{256}\\equiv 35\\pmod{97}.\\]\n\n**最终答案**\n\n$35$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "modular-exponentiation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求 $19^{123}$ 除以 125 的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用模意义下的平方-乘算法，将指数写成二进制并逐次平方约化。计算得到\\[19^{123}\\equiv 9\\pmod{125}.\\]\n\n**最终答案**\n\n$9$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "modular-exponentiation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求 $23^{321}$ 除以 343 的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用模意义下的平方-乘算法，将指数写成二进制并逐次平方约化。计算得到\\[23^{321}\\equiv 274\\pmod{343}.\\]\n\n**最终答案**\n\n$274$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "modular-exponentiation",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "令 $a=3549$。求 $2a^2+29a+65$ 与 $a+13$ 的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模 $a+13$ 时有 $a\\equiv-13$，故多项式余数为$2(13)^2-29(13)+65=26$。于是\\[\\gcd(2a^2+29a+65,a+13)=\\gcd(3562,26)=26.\\]\n\n**最终答案**\n\n$26$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "gcd-polynomial",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "令 $a=2991$。求 $2a^2+31a+65$ 与 $a+17$ 的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模 $a+17$ 时有 $a\\equiv-17$，故多项式余数为$2(17)^2-31(17)+65=116$。于是\\[\\gcd(2a^2+31a+65,a+17)=\\gcd(3008,116)=4.\\]\n\n**最终答案**\n\n$4$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "gcd-polynomial",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "令 $a=3669$。求 $2a^2+37a+65$ 与 $a+19$ 的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模 $a+19$ 时有 $a\\equiv-19$，故多项式余数为$2(19)^2-37(19)+65=84$。于是\\[\\gcd(2a^2+37a+65,a+19)=\\gcd(3688,84)=4.\\]\n\n**最终答案**\n\n$4$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "gcd-polynomial",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "令 $a=4287$。求 $2a^2+41a+65$ 与 $a+23$ 的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模 $a+23$ 时有 $a\\equiv-23$，故多项式余数为$2(23)^2-41(23)+65=180$。于是\\[\\gcd(2a^2+41a+65,a+23)=\\gcd(4310,180)=10.\\]\n\n**最终答案**\n\n$10$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "gcd-polynomial",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "令 $a=4839$。求 $2a^2+43a+65$ 与 $a+29$ 的最大公约数。"
+      },
+      {
+        "role": "assistant",
+        "content": "模 $a+29$ 时有 $a\\equiv-29$，故多项式余数为$2(29)^2-43(29)+65=500$。于是\\[\\gcd(2a^2+43a+65,a+29)=\\gcd(4868,500)=4.\\]\n\n**最终答案**\n\n$4$"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "gcd-polynomial",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正整数 $N=10800=2^43^35^2$ 的正因数中，有多少个不是完全平方数？"
+      },
+      {
+        "role": "assistant",
+        "content": "正因数总数为 $(4+1)(3+1)(2+1)=60$。完全平方因数的三个指数必须为偶数，共有 $(2+1)(1+1)(1+1)=12$ 个。故非平方因数有 $60-12=48$ 个。\n\n**最终答案**\n\n$48$ 个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "nonsquare-divisors",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正整数 $N=36000=2^53^25^3$ 的正因数中，有多少个不是完全平方数？"
+      },
+      {
+        "role": "assistant",
+        "content": "正因数总数为 $(5+1)(2+1)(3+1)=72$。完全平方因数的三个指数必须为偶数，共有 $(2+1)(1+1)(1+1)=12$ 个。故非平方因数有 $72-12=60$ 个。\n\n**最终答案**\n\n$60$ 个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "nonsquare-divisors",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正整数 $N=48600=2^33^55^2$ 的正因数中，有多少个不是完全平方数？"
+      },
+      {
+        "role": "assistant",
+        "content": "正因数总数为 $(3+1)(5+1)(2+1)=72$。完全平方因数的三个指数必须为偶数，共有 $(1+1)(2+1)(1+1)=12$ 个。故非平方因数有 $72-12=60$ 个。\n\n**最终答案**\n\n$60$ 个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "nonsquare-divisors",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正整数 $N=8640=2^63^35^1$ 的正因数中，有多少个不是完全平方数？"
+      },
+      {
+        "role": "assistant",
+        "content": "正因数总数为 $(6+1)(3+1)(1+1)=56$。完全平方因数的三个指数必须为偶数，共有 $(3+1)(1+1)(0+1)=8$ 个。故非平方因数有 $56-8=48$ 个。\n\n**最终答案**\n\n$48$ 个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "nonsquare-divisors",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "正整数 $N=162000=2^43^45^3$ 的正因数中，有多少个不是完全平方数？"
+      },
+      {
+        "role": "assistant",
+        "content": "正因数总数为 $(4+1)(4+1)(3+1)=100$。完全平方因数的三个指数必须为偶数，共有 $(2+1)(2+1)(1+1)=18$ 个。故非平方因数有 $100-18=82$ 个。\n\n**最终答案**\n\n$82$ 个"
+      }
+    ],
+    "category": "数论与模运算",
+    "tag": "nonsquare-divisors",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "数列满足 $a_1=1$，$a_n=2a_{n-1}+(3)$（$n\\ge2$）。求 $a_{10}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "递推的不动点为 $-3$。令 $b_n=a_n--3$，则 $b_n=2b_{n-1}$。因此 $a_{10}=-3+(1--3)2^{9}=2045$。\n\n**最终答案**\n\n$2045$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "affine-recurrence",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "数列满足 $a_1=4$，$a_n=3a_{n-1}+(-2)$（$n\\ge2$）。求 $a_{8}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "递推的不动点为 $1$。令 $b_n=a_n-1$，则 $b_n=3b_{n-1}$。因此 $a_{8}=1+(4-1)3^{7}=6562$。\n\n**最终答案**\n\n$6562$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "affine-recurrence",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "数列满足 $a_1=7$，$a_n=2a_{n-1}+(-5)$（$n\\ge2$）。求 $a_{9}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "递推的不动点为 $5$。令 $b_n=a_n-5$，则 $b_n=2b_{n-1}$。因此 $a_{9}=5+(7-5)2^{8}=517$。\n\n**最终答案**\n\n$517$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "affine-recurrence",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "数列满足 $a_1=2$，$a_n=4a_{n-1}+(1)$（$n\\ge2$）。求 $a_{7}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "递推的不动点为 $\\frac{-1}{3}$。令 $b_n=a_n-\\frac{-1}{3}$，则 $b_n=4b_{n-1}$。因此 $a_{7}=\\frac{-1}{3}+(2-\\frac{-1}{3})4^{6}=9557$。\n\n**最终答案**\n\n$9557$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "affine-recurrence",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "数列满足 $a_1=-1$，$a_n=3a_{n-1}+(4)$（$n\\ge2$）。求 $a_{9}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "递推的不动点为 $-2$。令 $b_n=a_n--2$，则 $b_n=3b_{n-1}$。因此 $a_{9}=-2+(-1--2)3^{8}=6559$。\n\n**最终答案**\n\n$6559$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "affine-recurrence",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算 $\\displaystyle\\sum_{k=2}^{20}\\frac1{k(k+3)}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "利用 $\\frac1{k(k+3)}=\\frac1{3}\\left(\\frac1k-\\frac1{k+3}\\right)$，展开后中间项消去，精确求和得 $\\displaystyle \\frac{6707}{21252}$。\n\n**最终答案**\n\n$\\frac{6707}{21252}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "telescoping-sum",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算 $\\displaystyle\\sum_{k=3}^{25}\\frac1{k(k+4)}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "利用 $\\frac1{k(k+4)}=\\frac1{4}\\left(\\frac1k-\\frac1{k+4}\\right)$，展开后中间项消去，精确求和得 $\\displaystyle \\frac{573091}{2850120}$。\n\n**最终答案**\n\n$\\frac{573091}{2850120}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "telescoping-sum",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算 $\\displaystyle\\sum_{k=5}^{30}\\frac1{k(k+2)}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "利用 $\\frac1{k(k+2)}=\\frac1{2}\\left(\\frac1k-\\frac1{k+2}\\right)$，展开后中间项消去，精确求和得 $\\displaystyle \\frac{4511}{29760}$。\n\n**最终答案**\n\n$\\frac{4511}{29760}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "telescoping-sum",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算 $\\displaystyle\\sum_{k=4}^{28}\\frac1{k(k+5)}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "利用 $\\frac1{k(k+5)}=\\frac1{5}\\left(\\frac1k-\\frac1{k+5}\\right)$，展开后中间项消去，精确求和得 $\\displaystyle \\frac{4803943}{33227040}$。\n\n**最终答案**\n\n$\\frac{4803943}{33227040}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "telescoping-sum",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "计算 $\\displaystyle\\sum_{k=6}^{35}\\frac1{k(k+3)}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "利用 $\\frac1{k(k+3)}=\\frac1{3}\\left(\\frac1k-\\frac1{k+3}\\right)$，展开后中间项消去，精确求和得 $\\displaystyle \\frac{125215}{1062936}$。\n\n**最终答案**\n\n$\\frac{125215}{1062936}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "telescoping-sum",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "所有向量 $\\mathbf u=(x,y)$ 满足 $\\operatorname{proj}_{(3,4)}\\mathbf u=2(3,4)$。求这些点所在直线的斜截式方程。"
+      },
+      {
+        "role": "assistant",
+        "content": "投影条件等价于 $\\mathbf u\\cdot(3,4)=2\\bigl(3^2+4^2\\bigr)=50$，即$3x+4y=50$。解出 $y$ 得 $y=\\frac{-3}{4}x+\\frac{25}{2}$。\n\n**最终答案**\n\n$y=\\frac{-3}{4}x+\\frac{25}{2}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "projection-locus",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "所有向量 $\\mathbf u=(x,y)$ 满足 $\\operatorname{proj}_{(2,5)}\\mathbf u=-1(2,5)$。求这些点所在直线的斜截式方程。"
+      },
+      {
+        "role": "assistant",
+        "content": "投影条件等价于 $\\mathbf u\\cdot(2,5)=-1\\bigl(2^2+5^2\\bigr)=-29$，即$2x+5y=-29$。解出 $y$ 得 $y=\\frac{-2}{5}x+\\frac{-29}{5}$。\n\n**最终答案**\n\n$y=\\frac{-2}{5}x+\\frac{-29}{5}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "projection-locus",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "所有向量 $\\mathbf u=(x,y)$ 满足 $\\operatorname{proj}_{(5,-2)}\\mathbf u=3(5,-2)$。求这些点所在直线的斜截式方程。"
+      },
+      {
+        "role": "assistant",
+        "content": "投影条件等价于 $\\mathbf u\\cdot(5,-2)=3\\bigl(5^2+-2^2\\bigr)=87$，即$5x+-2y=87$。解出 $y$ 得 $y=\\frac{5}{2}x+\\frac{-87}{2}$。\n\n**最终答案**\n\n$y=\\frac{5}{2}x+\\frac{-87}{2}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "projection-locus",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "所有向量 $\\mathbf u=(x,y)$ 满足 $\\operatorname{proj}_{(4,7)}\\mathbf u=1(4,7)$。求这些点所在直线的斜截式方程。"
+      },
+      {
+        "role": "assistant",
+        "content": "投影条件等价于 $\\mathbf u\\cdot(4,7)=1\\bigl(4^2+7^2\\bigr)=65$，即$4x+7y=65$。解出 $y$ 得 $y=\\frac{-4}{7}x+\\frac{65}{7}$。\n\n**最终答案**\n\n$y=\\frac{-4}{7}x+\\frac{65}{7}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "projection-locus",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "所有向量 $\\mathbf u=(x,y)$ 满足 $\\operatorname{proj}_{(6,-5)}\\mathbf u=-2(6,-5)$。求这些点所在直线的斜截式方程。"
+      },
+      {
+        "role": "assistant",
+        "content": "投影条件等价于 $\\mathbf u\\cdot(6,-5)=-2\\bigl(6^2+-5^2\\bigr)=-122$，即$6x+-5y=-122$。解出 $y$ 得 $y=\\frac{6}{5}x+\\frac{122}{5}$。\n\n**最终答案**\n\n$y=\\frac{6}{5}x+\\frac{122}{5}$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "projection-locus",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "函数 $f(x)=x^3+2x+(-10)$ 在实数上严格递增。$y=f(x)$ 与 $y=f^{-1}(x)$ 的图像交于一点，求该交点。"
+      },
+      {
+        "role": "assistant",
+        "content": "严格递增函数与其反函数的交点必在 $y=x$ 上，因此解 $f(x)=x$：$x^3+(1)x+(-10)=0$。该函数导数 $3x^2+1>0$，故只有一个实根；代入可得根为 $x=2$。\n\n**最终答案**\n\n$(2,2)$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "inverse-intersection",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "函数 $f(x)=x^3+3x+(12)$ 在实数上严格递增。$y=f(x)$ 与 $y=f^{-1}(x)$ 的图像交于一点，求该交点。"
+      },
+      {
+        "role": "assistant",
+        "content": "严格递增函数与其反函数的交点必在 $y=x$ 上，因此解 $f(x)=x$：$x^3+(2)x+(12)=0$。该函数导数 $3x^2+2>0$，故只有一个实根；代入可得根为 $x=-2$。\n\n**最终答案**\n\n$(-2,-2)$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "inverse-intersection",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "函数 $f(x)=x^3+4x+(-4)$ 在实数上严格递增。$y=f(x)$ 与 $y=f^{-1}(x)$ 的图像交于一点，求该交点。"
+      },
+      {
+        "role": "assistant",
+        "content": "严格递增函数与其反函数的交点必在 $y=x$ 上，因此解 $f(x)=x$：$x^3+(3)x+(-4)=0$。该函数导数 $3x^2+3>0$，故只有一个实根；代入可得根为 $x=1$。\n\n**最终答案**\n\n$(1,1)$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "inverse-intersection",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "函数 $f(x)=x^3+5x+(5)$ 在实数上严格递增。$y=f(x)$ 与 $y=f^{-1}(x)$ 的图像交于一点，求该交点。"
+      },
+      {
+        "role": "assistant",
+        "content": "严格递增函数与其反函数的交点必在 $y=x$ 上，因此解 $f(x)=x$：$x^3+(4)x+(5)=0$。该函数导数 $3x^2+4>0$，故只有一个实根；代入可得根为 $x=-1$。\n\n**最终答案**\n\n$(-1,-1)$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "inverse-intersection",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "函数 $f(x)=x^3+6x+(-42)$ 在实数上严格递增。$y=f(x)$ 与 $y=f^{-1}(x)$ 的图像交于一点，求该交点。"
+      },
+      {
+        "role": "assistant",
+        "content": "严格递增函数与其反函数的交点必在 $y=x$ 上，因此解 $f(x)=x$：$x^3+(5)x+(-42)=0$。该函数导数 $3x^2+5>0$，故只有一个实根；代入可得根为 $x=3$。\n\n**最终答案**\n\n$(3,3)$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "tag": "inverse-intersection",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "设 $A=\\begin{pmatrix}2&3\\\\0&1\\end{pmatrix}$，求 $A^{8}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "上三角矩阵幂的右上角为 $3\\sum_{j=0}^{7}2^{7-j}1^j=3\\frac{2^8-1^8}{2-1}=765$。因此\\[A^{8}=\\begin{pmatrix}256&765\\\\0&1\\end{pmatrix}.\\]\n\n**最终答案**\n\n$\\begin{pmatrix}256&765\\\\0&1\\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "triangular-matrix-power",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "设 $A=\\begin{pmatrix}3&-2\\\\0&1\\end{pmatrix}$，求 $A^{7}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "上三角矩阵幂的右上角为 $-2\\sum_{j=0}^{6}3^{6-j}1^j=-2\\frac{3^7-1^7}{3-1}=-2186$。因此\\[A^{7}=\\begin{pmatrix}2187&-2186\\\\0&1\\end{pmatrix}.\\]\n\n**最终答案**\n\n$\\begin{pmatrix}2187&-2186\\\\0&1\\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "triangular-matrix-power",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "设 $A=\\begin{pmatrix}2&5\\\\0&-1\\end{pmatrix}$，求 $A^{6}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "上三角矩阵幂的右上角为 $5\\sum_{j=0}^{5}2^{5-j}-1^j=5\\frac{2^6--1^6}{2--1}=105$。因此\\[A^{6}=\\begin{pmatrix}64&105\\\\0&1\\end{pmatrix}.\\]\n\n**最终答案**\n\n$\\begin{pmatrix}64&105\\\\0&1\\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "triangular-matrix-power",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "设 $A=\\begin{pmatrix}4&1\\\\0&2\\end{pmatrix}$，求 $A^{5}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "上三角矩阵幂的右上角为 $1\\sum_{j=0}^{4}4^{4-j}2^j=1\\frac{4^5-2^5}{4-2}=496$。因此\\[A^{5}=\\begin{pmatrix}1024&496\\\\0&32\\end{pmatrix}.\\]\n\n**最终答案**\n\n$\\begin{pmatrix}1024&496\\\\0&32\\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "triangular-matrix-power",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "设 $A=\\begin{pmatrix}3&4\\\\0&-2\\end{pmatrix}$，求 $A^{6}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "上三角矩阵幂的右上角为 $4\\sum_{j=0}^{5}3^{5-j}-2^j=4\\frac{3^6--2^6}{3--2}=532$。因此\\[A^{6}=\\begin{pmatrix}729&532\\\\0&64\\end{pmatrix}.\\]\n\n**最终答案**\n\n$\\begin{pmatrix}729&532\\\\0&64\\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "triangular-matrix-power",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵 $A=\\begin{pmatrix}1&1&1\\\\1&k&2\\\\1&2&k\\end{pmatrix}$ 中取 $k=-3$。求 $\\det A$ 和 $\\operatorname{rank}A$。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一行从后二行消去，计算得 $\\det A=k(k-2)$。代入 $k=-3$ 得行列式 15。行列式非零，所以秩为3。\n\n**最终答案**\n\n$\\det A=15$，$\\operatorname{rank}A=3$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "rank-parameter",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵 $A=\\begin{pmatrix}1&1&1\\\\1&k&2\\\\1&2&k\\end{pmatrix}$ 中取 $k=-1$。求 $\\det A$ 和 $\\operatorname{rank}A$。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一行从后二行消去，计算得 $\\det A=k(k-2)$。代入 $k=-1$ 得行列式 3。行列式非零，所以秩为3。\n\n**最终答案**\n\n$\\det A=3$，$\\operatorname{rank}A=3$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "rank-parameter",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵 $A=\\begin{pmatrix}1&1&1\\\\1&k&2\\\\1&2&k\\end{pmatrix}$ 中取 $k=0$。求 $\\det A$ 和 $\\operatorname{rank}A$。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一行从后二行消去，计算得 $\\det A=k(k-2)$。代入 $k=0$ 得行列式 0。行列式为零，但存在非零二阶子式，所以秩为2。\n\n**最终答案**\n\n$\\det A=0$，$\\operatorname{rank}A=2$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "rank-parameter",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵 $A=\\begin{pmatrix}1&1&1\\\\1&k&2\\\\1&2&k\\end{pmatrix}$ 中取 $k=2$。求 $\\det A$ 和 $\\operatorname{rank}A$。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一行从后二行消去，计算得 $\\det A=k(k-2)$。代入 $k=2$ 得行列式 0。行列式为零，但存在非零二阶子式，所以秩为2。\n\n**最终答案**\n\n$\\det A=0$，$\\operatorname{rank}A=2$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "rank-parameter",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "矩阵 $A=\\begin{pmatrix}1&1&1\\\\1&k&2\\\\1&2&k\\end{pmatrix}$ 中取 $k=4$。求 $\\det A$ 和 $\\operatorname{rank}A$。"
+      },
+      {
+        "role": "assistant",
+        "content": "第一行从后二行消去，计算得 $\\det A=k(k-2)$。代入 $k=4$ 得行列式 8。行列式非零，所以秩为3。\n\n**最终答案**\n\n$\\det A=8$，$\\operatorname{rank}A=3$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "rank-parameter",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A$ 是 3 阶可逆矩阵，且 $\\det A=-2$。求 $\\det(\\operatorname{adj}A)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $\\operatorname{adj}A=(\\det A)A^{-1}$，取行列式得$\\det(\\operatorname{adj}A)=(\\det A)^{2}=(-2)^{2}=4$。\n\n**最终答案**\n\n$4$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "adjugate-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A$ 是 3 阶可逆矩阵，且 $\\det A=3$。求 $\\det(\\operatorname{adj}A)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $\\operatorname{adj}A=(\\det A)A^{-1}$，取行列式得$\\det(\\operatorname{adj}A)=(\\det A)^{2}=(3)^{2}=9$。\n\n**最终答案**\n\n$9$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "adjugate-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A$ 是 4 阶可逆矩阵，且 $\\det A=-4$。求 $\\det(\\operatorname{adj}A)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $\\operatorname{adj}A=(\\det A)A^{-1}$，取行列式得$\\det(\\operatorname{adj}A)=(\\det A)^{3}=(-4)^{3}=-64$。\n\n**最终答案**\n\n$-64$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "adjugate-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A$ 是 4 阶可逆矩阵，且 $\\det A=5$。求 $\\det(\\operatorname{adj}A)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $\\operatorname{adj}A=(\\det A)A^{-1}$，取行列式得$\\det(\\operatorname{adj}A)=(\\det A)^{3}=(5)^{3}=125$。\n\n**最终答案**\n\n$125$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "adjugate-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A$ 是 5 阶可逆矩阵，且 $\\det A=-3$。求 $\\det(\\operatorname{adj}A)$。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $\\operatorname{adj}A=(\\det A)A^{-1}$，取行列式得$\\det(\\operatorname{adj}A)=(\\det A)^{4}=(-3)^{4}=81$。\n\n**最终答案**\n\n$81$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "adjugate-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A,B$ 为二阶方阵，$\\det A=2$，$\\det B=3$。求四阶分块矩阵 $M=\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "对两个大小均为2的块，有 $\\det\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}=(-1)^2\\det(AB)$。因此\\[\\det M=\\det A\\det B=(2)(3)=6.\\]\n\n**最终答案**\n\n$6$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "block-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A,B$ 为二阶方阵，$\\det A=-2$，$\\det B=5$。求四阶分块矩阵 $M=\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "对两个大小均为2的块，有 $\\det\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}=(-1)^2\\det(AB)$。因此\\[\\det M=\\det A\\det B=(-2)(5)=-10.\\]\n\n**最终答案**\n\n$-10$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "block-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A,B$ 为二阶方阵，$\\det A=4$，$\\det B=-3$。求四阶分块矩阵 $M=\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "对两个大小均为2的块，有 $\\det\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}=(-1)^2\\det(AB)$。因此\\[\\det M=\\det A\\det B=(4)(-3)=-12.\\]\n\n**最终答案**\n\n$-12$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "block-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A,B$ 为二阶方阵，$\\det A=-5$，$\\det B=-2$。求四阶分块矩阵 $M=\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "对两个大小均为2的块，有 $\\det\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}=(-1)^2\\det(AB)$。因此\\[\\det M=\\det A\\det B=(-5)(-2)=10.\\]\n\n**最终答案**\n\n$10$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "block-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "$A,B$ 为二阶方阵，$\\det A=6$，$\\det B=7$。求四阶分块矩阵 $M=\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "对两个大小均为2的块，有 $\\det\\begin{pmatrix}O&A\\\\B&O\\end{pmatrix}=(-1)^2\\det(AB)$。因此\\[\\det M=\\det A\\det B=(6)(7)=42.\\]\n\n**最终答案**\n\n$42$"
+      }
+    ],
+    "category": "线性代数",
+    "tag": "block-determinant",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "半径为 13 的圆中，一条弦到圆心的距离为 5。求弦长。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆心到弦的垂线平分弦。半弦长为 $\\sqrt{13^2-5^2}=12$，所以弦长为 $24$。\n\n**最终答案**\n\n$24$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "circle-chord",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "半径为 17 的圆中，一条弦到圆心的距离为 8。求弦长。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆心到弦的垂线平分弦。半弦长为 $\\sqrt{17^2-8^2}=15$，所以弦长为 $30$。\n\n**最终答案**\n\n$30$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "circle-chord",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "半径为 25 的圆中，一条弦到圆心的距离为 7。求弦长。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆心到弦的垂线平分弦。半弦长为 $\\sqrt{25^2-7^2}=24$，所以弦长为 $48$。\n\n**最终答案**\n\n$48$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "circle-chord",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "半径为 10 的圆中，一条弦到圆心的距离为 6。求弦长。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆心到弦的垂线平分弦。半弦长为 $\\sqrt{10^2-6^2}=8$，所以弦长为 $16$。\n\n**最终答案**\n\n$16$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "circle-chord",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "半径为 15 的圆中，一条弦到圆心的距离为 9。求弦长。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆心到弦的垂线平分弦。半弦长为 $\\sqrt{15^2-9^2}=12$，所以弦长为 $24$。\n\n**最终答案**\n\n$24$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "circle-chord",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形两边长分别为 6、8，第三边上的中线长为 5。求第三边长。"
+      },
+      {
+        "role": "assistant",
+        "content": "由阿波罗尼斯定理，$4m^2=2a^2+2b^2-c^2$，因此\\[c^2=2(6)^2+2(8)^2-4(5)^2=100,\\quad c=10.\\]\n\n**最终答案**\n\n$10$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "median-heron",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形两边长分别为 7、9，第三边上的中线长为 7。求第三边长。"
+      },
+      {
+        "role": "assistant",
+        "content": "由阿波罗尼斯定理，$4m^2=2a^2+2b^2-c^2$，因此\\[c^2=2(7)^2+2(9)^2-4(7)^2=64,\\quad c=8.\\]\n\n**最终答案**\n\n$8$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "median-heron",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形两边长分别为 9、17，第三边上的中线长为 11。求第三边长。"
+      },
+      {
+        "role": "assistant",
+        "content": "由阿波罗尼斯定理，$4m^2=2a^2+2b^2-c^2$，因此\\[c^2=2(9)^2+2(17)^2-4(11)^2=256,\\quad c=16.\\]\n\n**最终答案**\n\n$16$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "median-heron",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形两边长分别为 10、20，第三边上的中线长为 13。求第三边长。"
+      },
+      {
+        "role": "assistant",
+        "content": "由阿波罗尼斯定理，$4m^2=2a^2+2b^2-c^2$，因此\\[c^2=2(10)^2+2(20)^2-4(13)^2=324,\\quad c=18.\\]\n\n**最终答案**\n\n$18$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "median-heron",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "三角形两边长分别为 11、23，第三边上的中线长为 15。求第三边长。"
+      },
+      {
+        "role": "assistant",
+        "content": "由阿波罗尼斯定理，$4m^2=2a^2+2b^2-c^2$，因此\\[c^2=2(11)^2+2(23)^2-4(15)^2=400,\\quad c=20.\\]\n\n**最终答案**\n\n$20$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "median-heron",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在半径为 10 的圆盘内均匀随机取一点。该点到圆心的距离不小于 4 的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "目标区域是内半径 4、外半径 10 的圆环。概率等于面积比：\\[P=\\frac{\\pi(10^2-4^2)}{\\pi 10^2}=\\frac{21}{25}.\\]\n\n**最终答案**\n\n$\\frac{21}{25}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "annulus-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在半径为 12 的圆盘内均匀随机取一点。该点到圆心的距离不小于 5 的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "目标区域是内半径 5、外半径 12 的圆环。概率等于面积比：\\[P=\\frac{\\pi(12^2-5^2)}{\\pi 12^2}=\\frac{119}{144}.\\]\n\n**最终答案**\n\n$\\frac{119}{144}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "annulus-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在半径为 15 的圆盘内均匀随机取一点。该点到圆心的距离不小于 9 的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "目标区域是内半径 9、外半径 15 的圆环。概率等于面积比：\\[P=\\frac{\\pi(15^2-9^2)}{\\pi 15^2}=\\frac{16}{25}.\\]\n\n**最终答案**\n\n$\\frac{16}{25}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "annulus-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在半径为 20 的圆盘内均匀随机取一点。该点到圆心的距离不小于 8 的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "目标区域是内半径 8、外半径 20 的圆环。概率等于面积比：\\[P=\\frac{\\pi(20^2-8^2)}{\\pi 20^2}=\\frac{21}{25}.\\]\n\n**最终答案**\n\n$\\frac{21}{25}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "annulus-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在半径为 25 的圆盘内均匀随机取一点。该点到圆心的距离不小于 7 的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "目标区域是内半径 7、外半径 25 的圆环。概率等于面积比：\\[P=\\frac{\\pi(25^2-7^2)}{\\pi 25^2}=\\frac{576}{625}.\\]\n\n**最终答案**\n\n$\\frac{576}{625}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "annulus-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在边长为 12 的正方形内均匀随机取一点。从左下角沿底边取长 5、沿左边取长 7，连接两端点形成直角三角形。点落在该三角形之外的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方形面积为 $12^2=144$，角部三角形面积为 $\\frac12\\times5\\times7=\\frac{35}{2}$。因此所求概率为 $1-\\frac{\\frac{35}{2}}{144}=\\frac{253}{288}$。\n\n**最终答案**\n\n$\\frac{253}{288}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "polygon-area-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在边长为 15 的正方形内均匀随机取一点。从左下角沿底边取长 6、沿左边取长 9，连接两端点形成直角三角形。点落在该三角形之外的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方形面积为 $15^2=225$，角部三角形面积为 $\\frac12\\times6\\times9=27$。因此所求概率为 $1-\\frac{27}{225}=\\frac{22}{25}$。\n\n**最终答案**\n\n$\\frac{22}{25}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "polygon-area-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在边长为 18 的正方形内均匀随机取一点。从左下角沿底边取长 8、沿左边取长 10，连接两端点形成直角三角形。点落在该三角形之外的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方形面积为 $18^2=324$，角部三角形面积为 $\\frac12\\times8\\times10=40$。因此所求概率为 $1-\\frac{40}{324}=\\frac{71}{81}$。\n\n**最终答案**\n\n$\\frac{71}{81}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "polygon-area-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在边长为 20 的正方形内均匀随机取一点。从左下角沿底边取长 7、沿左边取长 13，连接两端点形成直角三角形。点落在该三角形之外的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方形面积为 $20^2=400$，角部三角形面积为 $\\frac12\\times7\\times13=\\frac{91}{2}$。因此所求概率为 $1-\\frac{\\frac{91}{2}}{400}=\\frac{709}{800}$。\n\n**最终答案**\n\n$\\frac{709}{800}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "polygon-area-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业、严谨的数学解题助手。请完整分析题目中的约束和边界，给出可复核的推导，使用 Markdown 和 LaTeX 表示公式，最后单独给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在边长为 24 的正方形内均匀随机取一点。从左下角沿底边取长 11、沿左边取长 15，连接两端点形成直角三角形。点落在该三角形之外的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方形面积为 $24^2=576$，角部三角形面积为 $\\frac12\\times11\\times15=\\frac{165}{2}$。因此所求概率为 $1-\\frac{\\frac{165}{2}}{576}=\\frac{329}{384}$。\n\n**最终答案**\n\n$\\frac{329}{384}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "tag": "polygon-area-probability",
+    "difficulty": "高难度",
+    "source": "base-error-directions-hard-generated-v1"
+  }
+]

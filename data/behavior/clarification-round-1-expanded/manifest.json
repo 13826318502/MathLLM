@@ -1,0 +1,13 @@
+{
+  "round": "clarification-round-1-expanded",
+  "train": 20,
+  "validation": 10,
+  "test": 60,
+  "behaviors": [
+    "answer_from_context",
+    "answer_directly",
+    "need_clarification",
+    "ambiguous"
+  ],
+  "test_is_frozen": true
+}

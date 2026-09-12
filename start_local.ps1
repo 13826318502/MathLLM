@@ -38,6 +38,31 @@ function Import-LocalEnvironment {
 
 Import-LocalEnvironment -Path $envFile
 
+if ($env:MATHLLM_API_BASE_URL -eq "http://127.0.0.1:11434/v1" -or
+    $env:MATHLLM_API_BASE_URL -eq "http://localhost:11434/v1") {
+    try {
+        $ollamaTags = Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 5
+        $installedModels = @($ollamaTags.models | ForEach-Object { $_.name })
+        $modelReady = $installedModels -contains $env:MATHLLM_MODEL_NAME -or
+            $installedModels -contains "$($env:MATHLLM_MODEL_NAME):latest" -or
+            ($installedModels | Where-Object { $_ -like "$($env:MATHLLM_MODEL_NAME):*" }).Count -gt 0
+        if (-not $modelReady) {
+            Write-Host "Ollama is running, but model '$env:MATHLLM_MODEL_NAME' is not installed." -ForegroundColor Red
+            Write-Host "Available models: $($installedModels -join ', ')" -ForegroundColor Yellow
+            Write-Host "Install it with: ollama create $env:MATHLLM_MODEL_NAME -f models/cpu/Modelfile" -ForegroundColor Yellow
+            Read-Host "Press Enter to exit"
+            exit 1
+        }
+        Write-Host "Ollama model ready: $env:MATHLLM_MODEL_NAME" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Cannot reach Ollama at http://127.0.0.1:11434." -ForegroundColor Red
+        Write-Host "Start Ollama first, then run this launcher again." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+}
+
 if (-not $env:MATHLLM_API_BASE_URL) {
     $env:MATHLLM_API_BASE_URL = Read-Host "Enter API base URL (for example https://api.openai.com/v1)"
 }

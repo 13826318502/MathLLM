@@ -1,0 +1,1472 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "星河图书馆的方程题是：解 $ 2x+1=5 $。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边同时减去 1：$2x=5-1=4$，再除以 2，所以 $x=2$。代回：$2\\times2+1=5$。\\n\\n最终答案：$x=2$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 101
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在青禾农场，请解方程 $ 3(x+3)=24 $。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边除以 3 得 $x+3=8$，再减去 3，所以 $x=5$。代回原式：$3(5+3)=24$。\\n\\n最终答案：$x=5$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 102
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "海风书店要求解一次方程 $ 4x-5=27 $，求 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边同时加 5：$4x=27+5=32$，再除以 4，得到 $x=8$。\\n\\n最终答案：$x=8$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 103
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "请在晨光实验室解方程 $\\frac{x}{5}+7=9$。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边先减去 7：$\\\\frac{x}{5}=2$，再乘以 5，得到 $x=10$。\\n\\n最终答案：$x=10$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 104
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "远山中学的练习题为 $\\frac{x+9}{6}=5$，求 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边乘以 6：$x+9=30$，再减去 9，所以 $x=21$。\\n\\n最终答案：$x=21$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 105
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "白鹭公园的方程题是：解 $ 7x+2=58 $。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边同时减去 2：$7x=58-2=56$，再除以 7，所以 $x=8$。代回：$7\\times8+2=58$。\\n\\n最终答案：$x=8$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 106
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在蓝鲸水族馆，请解方程 $ 8(x+4)=48 $。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边除以 8 得 $x+4=6$，再减去 4，所以 $x=2$。代回原式：$8(2+4)=48$。\\n\\n最终答案：$x=2$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 107
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "云朵烘焙坊要求解一次方程 $ 9x-6=39 $，求 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边同时加 6：$9x=39+6=45$，再除以 9，得到 $x=5$。\\n\\n最终答案：$x=5$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 108
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "请在枫叶社区解方程 $\\frac{x}{2}+8=16$。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边先减去 8：$\\\\frac{x}{2}=8$，再乘以 2，得到 $x=16$。\\n\\n最终答案：$x=16$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 109
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "北辰博物馆的练习题为 $\\frac{x+1}{3}=2$，求 $x$。"
+      },
+      {
+        "role": "assistant",
+        "content": "两边乘以 3：$x+1=6$，再减去 1，所以 $x=5$。\\n\\n最终答案：$x=5$"
+      }
+    ],
+    "category": "代数与方程",
+    "source_subject": "代数与方程",
+    "tag": "linear-equation",
+    "difficulty": "Level 3",
+    "source_index": 110
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "星河图书馆有一台设备连续安排工作 5 小时，其中停机 1 小时，每小时生产 12 个零件。实际生产多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "实际工作时间为 $5-1=4$ 小时，产量为 $12\\times4=48$ 个。\\n\\n最终答案：$48$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "work-time",
+    "difficulty": "Level 3",
+    "source_index": 201
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从青禾农场出发，车辆以每小时 36 千米行驶 3 小时，行驶路程是多少千米？"
+      },
+      {
+        "role": "assistant",
+        "content": "路程等于速度乘时间：$36\\times3=108$ 千米。\\n\\n最终答案：$108$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "speed-distance",
+    "difficulty": "Level 3",
+    "source_index": 202
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "海风书店购买 6 件单价 20 元的物品，先打 80 折，再加 7 元运费，总价是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "折前总价为 $6\\times20=120$ 元，折后为 $120\\times80\\%=96$ 元，再加运费得 $103$ 元。\\n\\n最终答案：$103$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "discount-shipping",
+    "difficulty": "Level 3",
+    "source_index": 203
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "晨光实验室第一天整理了 6 份资料，之后每天比前一天多整理 2 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$6+(7-1)\\times2=18$ 份。\\n\\n最终答案：$18$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 204
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "远山中学有 80 本书，先借出总数的 $\\frac{1}{2}$，后来又归还 20 本，现在有多少本？"
+      },
+      {
+        "role": "assistant",
+        "content": "先借出 $80\\div2=40$ 本，剩下 $80-40=40$ 本；归还后为 $40+20=60$ 本。\\n\\n最终答案：$60$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "multi-step",
+    "difficulty": "Level 3",
+    "source_index": 205
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "白鹭公园有一台设备连续安排工作 6 小时，其中停机 2 小时，每小时生产 17 个零件。实际生产多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "实际工作时间为 $6-2=4$ 小时，产量为 $17\\times4=68$ 个。\\n\\n最终答案：$68$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "work-time",
+    "difficulty": "Level 3",
+    "source_index": 206
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从蓝鲸水族馆出发，车辆以每小时 41 千米行驶 4 小时，行驶路程是多少千米？"
+      },
+      {
+        "role": "assistant",
+        "content": "路程等于速度乘时间：$41\\times4=164$ 千米。\\n\\n最终答案：$164$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "speed-distance",
+    "difficulty": "Level 3",
+    "source_index": 207
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "云朵烘焙坊购买 4 件单价 25 元的物品，先打 85 折，再加 12 元运费，总价是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "折前总价为 $4\\times25=100$ 元，折后为 $100\\times85\\%=85$ 元，再加运费得 $97$ 元。\\n\\n最终答案：$97$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "discount-shipping",
+    "difficulty": "Level 3",
+    "source_index": 208
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "枫叶社区第一天整理了 3 份资料，之后每天比前一天多整理 4 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$3+(7-1)\\times4=27$ 份。\\n\\n最终答案：$27$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 209
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "北辰博物馆有 60 本书，先借出总数的 $\\frac{1}{3}$，后来又归还 10 本，现在有多少本？"
+      },
+      {
+        "role": "assistant",
+        "content": "先借出 $60\\div3=20$ 本，剩下 $60-20=40$ 本；归还后为 $40+10=50$ 本。\\n\\n最终答案：$50$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "multi-step",
+    "difficulty": "Level 3",
+    "source_index": 210
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "春雨商店有一台设备连续安排工作 7 小时，其中停机 1 小时，每小时生产 13 个零件。实际生产多少个？"
+      },
+      {
+        "role": "assistant",
+        "content": "实际工作时间为 $7-1=6$ 小时，产量为 $13\\times6=78$ 个。\\n\\n最终答案：$78$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "work-time",
+    "difficulty": "Level 3",
+    "source_index": 211
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "从银杏校园出发，车辆以每小时 35 千米行驶 5 小时，行驶路程是多少千米？"
+      },
+      {
+        "role": "assistant",
+        "content": "路程等于速度乘时间：$35\\times5=175$ 千米。\\n\\n最终答案：$175$"
+      }
+    ],
+    "category": "多步应用与运算计数",
+    "source_subject": "多步应用题",
+    "tag": "speed-distance",
+    "difficulty": "Level 3",
+    "source_index": 212
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "向日葵基地第一天整理了 4 份资料，之后每天比前一天多整理 3 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$4+(7-1)\\times3=22$ 份。\\n\\n最终答案：$22$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 214
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "新月车站第一天整理了 5 份资料，之后每天比前一天多整理 2 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$5+(7-1)\\times2=17$ 份。\\n\\n最终答案：$17$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 219
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "山茶花园第一天整理了 6 份资料，之后每天比前一天多整理 4 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$6+(7-1)\\times4=30$ 份。\\n\\n最终答案：$30$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 224
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "荷塘公园第一天整理了 3 份资料，之后每天比前一天多整理 3 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$3+(7-1)\\times3=21$ 份。\\n\\n最终答案：$21$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 229
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "青藤工作室第一天整理了 4 份资料，之后每天比前一天多整理 2 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$4+(7-1)\\times2=16$ 份。\\n\\n最终答案：$16$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 234
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "小鹿文具店第一天整理了 5 份资料，之后每天比前一天多整理 4 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$5+(7-1)\\times4=29$ 份。\\n\\n最终答案：$29$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 239
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "玉兰小学第一天整理了 6 份资料，之后每天比前一天多整理 3 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$6+(7-1)\\times3=24$ 份。\\n\\n最终答案：$24$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 244
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "风铃商场第一天整理了 3 份资料，之后每天比前一天多整理 2 份，连续整理 7 天，第 7 天整理多少份？"
+      },
+      {
+        "role": "assistant",
+        "content": "这是等差数列，第 7 天为首项加 $6$ 个公差：$3+(7-1)\\times2=15$ 份。\\n\\n最终答案：$15$"
+      }
+    ],
+    "category": "函数、数列与坐标",
+    "source_subject": "多步应用题",
+    "tag": "arithmetic-sequence",
+    "difficulty": "Level 3",
+    "source_index": 249
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在星河图书馆抛掷一枚公平硬币 5 次，恰好出现 1 次正面的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "有 $\\binom{5}{1}=5$ 种位置选择，总结果数为 $2^5=32$，概率为 $\\frac{5}{32}$。\\n\\n最终答案：$\\frac{5}{32}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "binomial-probability",
+    "difficulty": "Level 3",
+    "source_index": 251
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "青禾农场要从 8 名候选人中选出 3 人组成小组，不考虑顺序，共有多少种选法？"
+      },
+      {
+        "role": "assistant",
+        "content": "不考虑顺序，使用组合数：$\\binom{8}{3}=56$。\\n\\n最终答案：$56$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "combination",
+    "difficulty": "Level 3",
+    "source_index": 252
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "海风书店袋中有 4 个红球和 5 个蓝球，随机取 1 个，取到红球的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总球数为 $4+5=9$，红球数为 4，概率为 $\\\\frac{4}{9}=\\frac{4}{9}$。\\n\\n最终答案：$\\frac{4}{9}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "basic-probability",
+    "difficulty": "Level 3",
+    "source_index": 253
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "晨光实验室盒中有 6 个红球和 7 个蓝球，不放回连续取 2 个，两个都是红球的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "第一球为红球的概率是 $\\\\frac{6}{13}$，第二球为红球的概率是 $\\\\frac{5}{12}$，乘积为 $\\frac{5}{26}$。\\n\\n最终答案：$\\frac{5}{26}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "without-replacement",
+    "difficulty": "Level 3",
+    "source_index": 254
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "远山中学转动一个标有 1 到 8 的公平转盘，指针停在偶数上的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "1 到 8 中有 4 个偶数，总共有 8 个等可能结果，所以概率为 $\\\\frac{4}{8}=\\frac{1}{2}$。\\n\\n最终答案：$\\frac{1}{2}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "sample-space",
+    "difficulty": "Level 3",
+    "source_index": 255
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在白鹭公园抛掷一枚公平硬币 5 次，恰好出现 3 次正面的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "有 $\\binom{5}{3}=10$ 种位置选择，总结果数为 $2^5=32$，概率为 $\\frac{5}{16}$。\\n\\n最终答案：$\\frac{5}{16}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "binomial-probability",
+    "difficulty": "Level 3",
+    "source_index": 256
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "蓝鲸水族馆要从 7 名候选人中选出 4 人组成小组，不考虑顺序，共有多少种选法？"
+      },
+      {
+        "role": "assistant",
+        "content": "不考虑顺序，使用组合数：$\\binom{7}{4}=35$。\\n\\n最终答案：$35$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "combination",
+    "difficulty": "Level 3",
+    "source_index": 257
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "云朵烘焙坊袋中有 4 个红球和 6 个蓝球，随机取 1 个，取到红球的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "总球数为 $4+6=10$，红球数为 4，概率为 $\\\\frac{4}{10}=\\frac{2}{5}$。\\n\\n最终答案：$\\frac{2}{5}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "basic-probability",
+    "difficulty": "Level 3",
+    "source_index": 258
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "枫叶社区盒中有 3 个红球和 7 个蓝球，不放回连续取 2 个，两个都是红球的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "第一球为红球的概率是 $\\\\frac{3}{10}$，第二球为红球的概率是 $\\\\frac{2}{9}$，乘积为 $\\frac{1}{15}$。\\n\\n最终答案：$\\frac{1}{15}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "without-replacement",
+    "difficulty": "Level 3",
+    "source_index": 259
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "北辰博物馆转动一个标有 1 到 8 的公平转盘，指针停在偶数上的概率是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "1 到 8 中有 4 个偶数，总共有 8 个等可能结果，所以概率为 $\\\\frac{4}{8}=\\frac{1}{2}$。\\n\\n最终答案：$\\frac{1}{2}$"
+      }
+    ],
+    "category": "概率与组合",
+    "source_subject": "概率与组合",
+    "tag": "sample-space",
+    "difficulty": "Level 3",
+    "source_index": 260
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "星河图书馆有一个长为 6 厘米、宽为 3 厘米的长方形，面积是多少平方厘米？"
+      },
+      {
+        "role": "assistant",
+        "content": "长方形面积为 $长\\times宽=6\\times3=18$ 平方厘米。\\n\\n最终答案：$18$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "rectangle-area",
+    "difficulty": "Level 2",
+    "source_index": 301
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "请计算青禾农场展板上底为 9 米、高为 5 米的三角形面积。"
+      },
+      {
+        "role": "assistant",
+        "content": "三角形面积为 $\\\\frac{1}{2}\\\\times底\\\\times高=\\\\frac{1}{2}\\\\times9\\times5=\\frac{45}{2}$ 平方米。\\n\\n最终答案：$\\frac{45}{2}$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "triangle-area",
+    "difficulty": "Level 2",
+    "source_index": 302
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "海风书店设计一个上底 7 米、下底 11 米、高 6 米的梯形，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "梯形面积为 $\\\\frac{(7+11)\\\\times6}{2}=54$ 平方米。\\n\\n最终答案：$54$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "trapezoid-area",
+    "difficulty": "Level 2",
+    "source_index": 303
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "晨光实验室有一个半径为 5 厘米的圆，求它的面积，结果保留 $\\pi$。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆面积公式是 $S=\\\\pi r^2$，所以 $S=25\\\\pi$ 平方厘米。\\n\\n最终答案：$25\\pi$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "circle-area",
+    "difficulty": "Level 2",
+    "source_index": 304
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "远山中学制作一个棱长为 6 分米的正方体，体积是多少立方分米？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方体体积为 $a^3=6^3=216$ 立方分米。\\n\\n最终答案：$216$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "cube-volume",
+    "difficulty": "Level 2",
+    "source_index": 305
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "白鹭公园有一个长为 11 厘米、宽为 3 厘米的长方形，面积是多少平方厘米？"
+      },
+      {
+        "role": "assistant",
+        "content": "长方形面积为 $长\\times宽=11\\times3=33$ 平方厘米。\\n\\n最终答案：$33$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "rectangle-area",
+    "difficulty": "Level 2",
+    "source_index": 306
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "请计算蓝鲸水族馆展板上底为 14 米、高为 4 米的三角形面积。"
+      },
+      {
+        "role": "assistant",
+        "content": "三角形面积为 $\\\\frac{1}{2}\\\\times底\\\\times高=\\\\frac{1}{2}\\\\times14\\times4=28$ 平方米。\\n\\n最终答案：$28$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "triangle-area",
+    "difficulty": "Level 2",
+    "source_index": 307
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "云朵烘焙坊设计一个上底 6 米、下底 9 米、高 6 米的梯形，面积是多少？"
+      },
+      {
+        "role": "assistant",
+        "content": "梯形面积为 $\\\\frac{(6+9)\\\\times6}{2}=45$ 平方米。\\n\\n最终答案：$45$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "trapezoid-area",
+    "difficulty": "Level 2",
+    "source_index": 308
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "枫叶社区有一个半径为 4 厘米的圆，求它的面积，结果保留 $\\pi$。"
+      },
+      {
+        "role": "assistant",
+        "content": "圆面积公式是 $S=\\\\pi r^2$，所以 $S=16\\\\pi$ 平方厘米。\\n\\n最终答案：$16\\pi$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "circle-area",
+    "difficulty": "Level 2",
+    "source_index": 309
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "北辰博物馆制作一个棱长为 5 分米的正方体，体积是多少立方分米？"
+      },
+      {
+        "role": "assistant",
+        "content": "正方体体积为 $a^3=5^3=125$ 立方分米。\\n\\n最终答案：$125$"
+      }
+    ],
+    "category": "几何与几何概率",
+    "source_subject": "几何",
+    "tag": "cube-volume",
+    "difficulty": "Level 2",
+    "source_index": 310
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求星河图书馆练习题中 70 除以 6 所得的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $70=6\\times11+4$，所以余数是 $4$，且小于除数。\\n\\n最终答案：$4$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "remainder",
+    "difficulty": "Level 3",
+    "source_index": 351
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在青禾农场中，把 212（3进制）转换成十进制。"
+      },
+      {
+        "role": "assistant",
+        "content": "按位权展开：$2\\times3^2+1\\times3+2=23$。\\n\\n最终答案：$23$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "base-conversion",
+    "difficulty": "Level 3",
+    "source_index": 352
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求海风书店中的两个数 14 和 22 的最大公因数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用辗转相除法：$\\gcd(14,22)=2$。复核：2 同时整除 14 和 22，且不存在更大的公因数。\\n\\n最终答案：$2$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "gcd",
+    "difficulty": "Level 3",
+    "source_index": 353
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "晨光实验室的周期题给出两个周期 7 天和 12 天，它们从今天同时开始，最少多少天后再次同时发生？"
+      },
+      {
+        "role": "assistant",
+        "content": "最小公倍数为 $\\operatorname{lcm}(7,12)=84$，因此最少 84 天后再次同时发生。\\n\\n最终答案：$84$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "lcm",
+    "difficulty": "Level 3",
+    "source_index": 354
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "远山中学要求找出不超过 24 的最大素数。"
+      },
+      {
+        "role": "assistant",
+        "content": "逐一检查可知，23 是不超过 24 的最大素数；它除了 1 和自身外没有其他正因数。\\n\\n最终答案：$23$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "prime-check",
+    "difficulty": "Level 3",
+    "source_index": 355
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求白鹭公园练习题中 85 除以 11 所得的余数。"
+      },
+      {
+        "role": "assistant",
+        "content": "由 $85=11\\times7+8$，所以余数是 $8$，且小于除数。\\n\\n最终答案：$8$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "remainder",
+    "difficulty": "Level 3",
+    "source_index": 356
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在蓝鲸水族馆中，把 101（3进制）转换成十进制。"
+      },
+      {
+        "role": "assistant",
+        "content": "按位权展开：$1\\times3^2+0\\times3+1=10$。\\n\\n最终答案：$10$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "base-conversion",
+    "difficulty": "Level 3",
+    "source_index": 357
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求云朵烘焙坊中的两个数 19 和 21 的最大公因数。"
+      },
+      {
+        "role": "assistant",
+        "content": "使用辗转相除法：$\\gcd(19,21)=1$。复核：1 同时整除 19 和 21，且不存在更大的公因数。\\n\\n最终答案：$1$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "gcd",
+    "difficulty": "Level 3",
+    "source_index": 358
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "枫叶社区的周期题给出两个周期 5 天和 6 天，它们从今天同时开始，最少多少天后再次同时发生？"
+      },
+      {
+        "role": "assistant",
+        "content": "最小公倍数为 $\\operatorname{lcm}(5,6)=30$，因此最少 30 天后再次同时发生。\\n\\n最终答案：$30$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "lcm",
+    "difficulty": "Level 3",
+    "source_index": 359
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "北辰博物馆要求找出不超过 20 的最大素数。"
+      },
+      {
+        "role": "assistant",
+        "content": "逐一检查可知，19 是不超过 20 的最大素数；它除了 1 和自身外没有其他正因数。\\n\\n最终答案：$19$"
+      }
+    ],
+    "category": "数论与模运算",
+    "source_subject": "数论与进制",
+    "tag": "prime-check",
+    "difficulty": "Level 3",
+    "source_index": 360
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求星河图书馆矩阵 $A=\\begin{pmatrix}1&2\\\\3&1\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "二阶行列式为 $\\\\det(A)=1\\times1-2\\times3=-5$。\\n\\n最终答案：$-5$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "determinant",
+    "difficulty": "Level 3",
+    "source_index": 451
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在青禾农场计算矩阵 $A+B$，其中 $A=\\begin{pmatrix} 2 & 3 \\\\ 4 & 3 \\end{pmatrix}$，$B=\\begin{pmatrix} 3 & 2 \\\\ 2 & 3 \\end{pmatrix}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "矩阵加法按对应元素相加：$A+B=\\begin{pmatrix} 5 & 5 \\\\ 6 & 6 \\end{pmatrix}$。\\n\\n最终答案：$\\begin{pmatrix} 5 & 5 \\\\ 6 & 6 \\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "matrix-addition",
+    "difficulty": "Level 3",
+    "source_index": 452
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "海风书店要求计算矩阵乘积 $AB$，其中 $A=\\begin{pmatrix} 3 & 4 \\\\ 5 & 5 \\end{pmatrix}$，$B=\\begin{pmatrix} 3 & 4 \\\\ 3 & 3 \\end{pmatrix}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "按行乘列：$AB=\\begin{pmatrix} 21 & 24 \\\\ 30 & 35 \\end{pmatrix}$。例如左上元素为 $3\\times3+4\\times3=21$。\\n\\n最终答案：$\\begin{pmatrix} 21 & 24 \\\\ 30 & 35 \\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "matrix-multiplication",
+    "difficulty": "Level 3",
+    "source_index": 453
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求晨光实验室中向量 $u=(4,1)$ 与 $v=(5,4)$ 的数量积。"
+      },
+      {
+        "role": "assistant",
+        "content": "数量积为 $u\\cdot v=4\\times5+1\\times(4)=24$。\\n\\n最终答案：$24$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "vector-dot-product",
+    "difficulty": "Level 3",
+    "source_index": 454
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "线性变换 $T(x,y)=(5x+6y,3x+4y)$ 作用于远山中学的向量 $(6,1)$，求像。"
+      },
+      {
+        "role": "assistant",
+        "content": "代入坐标：$T(6,1)=(5\\times6+6\\times1,3\\times6+4\\times1)=(36,22)$。\\n\\n最终答案：$(36,22)$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "linear-transformation",
+    "difficulty": "Level 3",
+    "source_index": 455
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求白鹭公园矩阵 $A=\\begin{pmatrix}1&7\\\\4&1\\end{pmatrix}$ 的行列式。"
+      },
+      {
+        "role": "assistant",
+        "content": "二阶行列式为 $\\\\det(A)=1\\times1-7\\times4=-27$。\\n\\n最终答案：$-27$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "determinant",
+    "difficulty": "Level 3",
+    "source_index": 456
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "在蓝鲸水族馆计算矩阵 $A+B$，其中 $A=\\begin{pmatrix} 2 & 2 \\\\ 5 & 3 \\end{pmatrix}$，$B=\\begin{pmatrix} 4 & 2 \\\\ 1 & 2 \\end{pmatrix}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "矩阵加法按对应元素相加：$A+B=\\begin{pmatrix} 6 & 4 \\\\ 6 & 5 \\end{pmatrix}$。\\n\\n最终答案：$\\begin{pmatrix} 6 & 4 \\\\ 6 & 5 \\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "matrix-addition",
+    "difficulty": "Level 3",
+    "source_index": 457
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "云朵烘焙坊要求计算矩阵乘积 $AB$，其中 $A=\\begin{pmatrix} 3 & 3 \\\\ 6 & 5 \\end{pmatrix}$，$B=\\begin{pmatrix} 4 & 3 \\\\ 3 & 4 \\end{pmatrix}$。"
+      },
+      {
+        "role": "assistant",
+        "content": "按行乘列：$AB=\\begin{pmatrix} 21 & 21 \\\\ 39 & 38 \\end{pmatrix}$。例如左上元素为 $3\\times4+3\\times3=21$。\\n\\n最终答案：$\\begin{pmatrix} 21 & 21 \\\\ 39 & 38 \\end{pmatrix}$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "matrix-multiplication",
+    "difficulty": "Level 3",
+    "source_index": 458
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "求枫叶社区中向量 $u=(4,-2)$ 与 $v=(4,4)$ 的数量积。"
+      },
+      {
+        "role": "assistant",
+        "content": "数量积为 $u\\cdot v=4\\times4+-2\\times(4)=8$。\\n\\n最终答案：$8$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "vector-dot-product",
+    "difficulty": "Level 3",
+    "source_index": 459
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "你是一个专业的数学解题助手。请分析题目，给出清晰的解题步骤，使用 Markdown 和 LaTeX 表示公式，并在最后检查计算后给出明确答案。"
+      },
+      {
+        "role": "user",
+        "content": "线性变换 $T(x,y)=(5x+5y,4x+4y)$ 作用于北辰博物馆的向量 $(6,2)$，求像。"
+      },
+      {
+        "role": "assistant",
+        "content": "代入坐标：$T(6,2)=(5\\times6+5\\times2,4\\times6+4\\times2)=(40,32)$。\\n\\n最终答案：$(40,32)$"
+      }
+    ],
+    "category": "线性代数",
+    "source_subject": "线性代数",
+    "tag": "linear-transformation",
+    "difficulty": "Level 3",
+    "source_index": 460
+  }
+]
