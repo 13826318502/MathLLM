@@ -37,55 +37,27 @@ vLLM OpenAI 兼容接口
 
 ## 项目目标与产品定位
 
-本项目的目标不是只追求数学题准确率，而是构建一个能够区分任务类型、稳定遵循
-输出规范的数学智能助手：
+本项目当前聚焦于“上下文感知的可靠对话”，而不是继续训练固定的数学五字段格式。
+模型需要结合完整对话判断：信息足够时直接回答，能够从上下文补全省略和指代，只有
+在仍缺少关键条件时才提出精确的澄清问题。
 
-- 面对数学题时，输出统一的五个字段：题目、解题步骤、标准答案、题目分类和题目难度；
-- 面对普通问题时，保持自然对话，不强行套用数学题模板；
-- 对输入进行数学题、普通问题和不确定问题的路由判断；
-- 对数学答案和结构化字段进行自动校验，便于程序解析、统计和后续应用接入。
-
-系统目标可以表示为：
+本轮行为目标可以表示为：
 
 ```text
-用户输入
-    ↓
-数学题路由器
-    ├── 数学题 ──→ 数学格式提示词 ──→ 五字段结构化回答 ──→ 格式校验
-    ├── 普通问题 ─→ 普通对话提示词 ──→ 自然语言回答
-    └── 不确定 ──→ 二次判断或请求澄清
+完整对话 + 当前输入
+          ↓
+解析指代、承接和约束
+          ↓
+信息足够 ──→ 继续回答
+信息不足 ──→ 询问缺少的关键条件
+存在歧义 ──→ 说明歧义并请求选择
 ```
 
-微调模型负责学习两种回答行为，路由器负责决定使用哪种行为。路由器可以从
-规则初筛开始，逐步升级为 TF-IDF 分类器、Embedding 分类器或大模型复核；低置信度
-输入再交给更强的模型判断，避免每条请求都增加额外延迟。路由器本身不改变基座
-模型，也不替代数学答案评测。
-
-数学回答建议在模型内部统一为可解析的 JSON 结构：
-
-```json
-{
-  "question": "完整复述题目",
-  "solution": "分步解题过程",
-  "answer": "最终答案",
-  "category": "题目分类",
-  "difficulty": "简单"
-}
-```
-
-界面或 API 可以再把 JSON 渲染为五个中文字段。训练数据应同时覆盖数学格式样本、
-普通对话样本和容易误判的边界样本。建议初始比例为数学格式数据 60%～70%、普通
-对话数据 20%～30%、边界样本约 10%。数学格式样本用于学习结构化回答，普通对话
-样本用于保持通用交互能力，边界样本用于降低“看到数字就套数学模板”的误判。
-
-后续评测不能只看数学准确率，还要分别记录：数学答案准确率、五字段格式合规率、
-普通问题正常回答率、数学题路由准确率、字段完整率和与原始基座模型相比的能力保持率。
-其中格式合规率可由程序检查 JSON 是否可解析、字段是否完整、难度是否属于“简单/中等/难”、
-答案是否为空以及分类是否在允许列表中；数学语义正确性再使用规则评测、人工抽查和
-独立 LLM Judge 结合判断。
-
-这个定位使项目最终成为一个“数学感知的结构化对话系统”：它保留基座模型的通用
-对话能力，在数学问题上增加稳定、可解析、可评测的标准输出能力。
+数学推理和普通聊天都要覆盖，避免模型看到任何简短追问都机械地要求补充信息。
+该行为数据位于 `data/behavior/clarification-round-1/`，独立基线测试集位于
+`data/eval/behavior/clarification-round-1-test.jsonl`。在进行 LoRA 训练前，先用原始
+基座模型完成基线测试；只有确认基座模型在上下文承接、必要澄清和避免无依据猜测上
+存在稳定问题，才进入微调。
 
 ## 当前状态
 
@@ -94,43 +66,38 @@ vLLM OpenAI 兼容接口
 | 正式数据整理 | 已完成当前版本 | GSM8K、Hendrycks MATH、CMID 和纠错样本已放入本地数据目录 |
 | 数据预处理 | 已完成 | 支持 JSON、JSONL、CSV，包含字段统一、ChatML 转换、清洗、去重和划分 |
 | 独立测试集 | 已生成 | `data/eval/test.json`，当前 116 条 |
-| 当前正式训练集 | 已生成暂存版 | `data/processed/round-3-staging/train.json`，1118 条 |
-| 当前正式验证集 | 已生成暂存版 | `data/processed/round-3-staging/eval.json`，124 条 |
+| 当前训练数据 | 按实验轮次管理 | 当前轮次使用 `configs/training/` 中对应配置；历史数据和配置已归档 |
+| 高难度对比集 | 已生成 | `data/candidates/base-error-directions-140-hard-eval.json`，140 条 |
 | LoRA/QLoRA 训练 | 已实现 | `scripts/train.py` 使用 Transformers + TRL + PEFT |
 | LoRA 合并 | 已实现 | `scripts/merge_lora.py` 输出独立模型 |
 | loss 记录 | 已实现 | 保存 train/eval loss、CSV、JSON 和曲线图 |
 | 基础模型评测 | 已实现 | 记录数学准确率、逐题答案、错题、平均延迟和首 token 延迟 |
 | LLM Judge | 已实现 | `eval/llm_judge.py` 对模型答案做独立语义判断 |
-| AWQ 量化 | 脚本已实现 | `scripts/quantize.py`，仍需在目标云 GPU 上实跑加载验证 |
+| AWQ 量化 | 脚本已实现 | `scripts/quantize.py`；本地 CPU 使用已经生成的 GGUF，AWQ/GPTQ 仍建议云 GPU 验证 |
 | vLLM 部署 | 已实现启动器 | `deploy/server.py` 可启动 OpenAI 兼容服务 |
 | Web 应用 | 已实现基础版本 | 独立 HTML/CSS/JavaScript 前端 + FastAPI/SSE |
 
-## 最近一次完整训练与评测记录（2026-09-04）
+## 已记录的 Round7 训练与评测
 
-Correction Round 2 在云端 RTX 4090D 上完成了训练、LoRA 合并、vLLM 推理和两组
-评测：
+Round7 以 Round6 合并模型为基座，使用 QLoRA 进行一轮纠错训练，之后完成 LoRA
+合并、vLLM 推理和三组评测：
 
 | 项目 | 结果 |
 |---|---:|
-| 训练配置 | 3 epochs、BF16、batch size 2、gradient accumulation 8 |
-| 最优 checkpoint | `outputs/correction-round-2/checkpoint-130` |
-| 最优验证 loss | `0.2099656165` |
-| 最终训练 loss | `0.2501130170` |
-| 最终验证 loss | `0.2207271457` |
-| 合并模型 | `outputs/correction-round-2-merged/` |
-| 原始测试集 | 116 条，基础准确率 `59.48%`，LLM Judge `64.04%` |
-| 错误回归集 | 42 条，基础准确率 `28.57%`，LLM Judge `25.64%` |
+| 训练数据 | 150 条新纠错题 + 65 条普通回放题，共 215 条 |
+| 训练配置 | QLoRA 4-bit、1 epoch、batch size 1、梯度累积 8、学习率 `5e-6` |
+| 最优 checkpoint | `outputs/correction-round-7/checkpoint-10` |
+| 合并模型 | `outputs/correction-round-7-merged/` |
+| 原始测试集 | 116 条，程序准确率 `66.38%`，LLM Judge `77.19%` |
+| Round7 纠错验证集 | 30 条，程序准确率 `80.00%`，LLM Judge `96.67%` |
+| 历史回归集 | 42 条，程序准确率 `38.10%`，LLM Judge `43.59%` |
 
-两组推理请求均全部成功，没有 HTTP 失败或 CUDA OOM。LLM Judge 的少量 JSON 解析
-失败样本不代表被测模型答错，应重试或人工复核。回归集准确率较低，说明当前纠错
-训练尚未充分解决原有错误，暂不应直接量化或作为最终发布版本。
+本轮训练和部署链路正常完成。原始测试集和回归集的提升有限，说明 Round7 对输出
+格式和部分纠错模板有效，但不能仅凭纠错验证集证明整体数学能力显著提升。后续需要
+在同一批高难度 140 题上严格对比原始基座量化模型和 Round7 量化模型。
 
-本轮完整报告见
-[Correction Round 2 训练与评测报告](docs/experiments/correction-round-2-evaluation-20260904.md)。
-
-Round 3 纠错训练在第 330 步安全停止；最佳 checkpoint 为 `checkpoint-110`。
-过拟合分析见
-[Correction Round 3 过拟合分析报告](docs/experiments/correction-round-3-overfitting-20260904.md)。
+完整报告见
+[Round7 训练与评测报告](docs/experiments/correction-round-7-evaluation-20260905.md)。
 
 ## 环境安装
 
@@ -156,7 +123,7 @@ python -c "import torch; print(torch.cuda.is_available()); print(torch.cuda.get_
 训练环境至少需要 PyTorch、Transformers、Datasets、Accelerate、PEFT 和 TRL。
 `vllm`、`bitsandbytes` 和量化依赖应根据云服务器的 CUDA 驱动和目标版本单独安装。
 
-## 本地一键启动和外部大模型 API
+## 本地一键启动和模型 API
 
 本地前端不需要加载基座模型。当前使用独立的 HTML/CSS/JavaScript 单页前端，启动器会打开两个窗口：
 
@@ -165,7 +132,14 @@ Web 前端：http://localhost:7860
 FastAPI 后端：http://localhost:8080
 ```
 
-后端再通过 OpenAI 兼容的 `/chat/completions` 接口调用外部大模型。
+后端通过 OpenAI 兼容的 `/chat/completions` 接口调用模型。当前默认配置已经接入
+本地 Ollama 模型 `mathllm-base-cpu`，对应的量化文件位于
+`models/cpu/Qwen2.5-7B-Instruct-Q4_K_M.gguf`。Ollama 需要先运行，并且已经通过
+`models/cpu/Modelfile` 创建该模型。
+
+启动器会在启动 FastAPI 前检查 Ollama 和目标模型是否可用；检查通过后，项目后端
+使用 `http://127.0.0.1:11434/v1` 的 OpenAI 兼容接口。也可以通过环境变量切换到
+其他兼容服务商。
 
 当前前端还提供：
 
@@ -188,7 +162,15 @@ FastAPI 后端：http://localhost:8080
 Copy-Item .env.local.example .env.local
 ```
 
-然后填写：
+本地 Ollama 配置如下：
+
+```text
+MATHLLM_API_BASE_URL=http://127.0.0.1:11434/v1
+MATHLLM_MODEL_NAME=mathllm-base-cpu
+MATHLLM_API_KEY=ollama
+```
+
+如果使用外部 OpenAI 兼容 API，再填写：
 
 ```text
 MATHLLM_API_BASE_URL=https://api.example.com/v1
@@ -311,21 +293,24 @@ python scripts/prepare_data.py \
 
 不要手动写入 `[im_start]`、`[im_end]`；这些特殊标记由 tokenizer 和训练框架处理。
 
-当前 Round 3 暂存数据为：训练集 1118 条，普通验证集 124 条，另有 20 条
-纠错验证集。`data/eval/test.json`（116 条）和
-`data/eval/regression/regression.json`（42 条）保持独立。程序检查不能替代数学证明，
-正式训练前仍应人工抽查并验算参考答案。
+各轮训练数据、验证数据和纠错验证集按轮次保存于 `data/processed/`、`data/raw/` 和
+`data/archive/`。`data/eval/test.json`（116 条）和
+`data/eval/regression/regression.json`（42 条）保持独立。高难度 140 题位于
+`data/candidates/`，只用于模型对比，不参与训练。程序检查不能替代数学证明，正式
+训练前仍应人工抽查并验算参考答案。
 
 ## LoRA/QLoRA 训练
 
-主训练程序是 `scripts/train.py`，不是 LLaMA-Factory：
+主训练程序是 `scripts/train.py`，不是 LLaMA-Factory。训练配置按轮次放在
+`configs/training/`，历史配置放在 `configs/archive/training/`：
 
 ```bash
-python scripts/train.py --config configs/training/correction-round-3-20260904/train_config.yaml
+python scripts/train.py --config configs/training/<round>/train_config.yaml
 ```
 
-本轮主要配置位于
-`configs/training/correction-round-3-20260904/train_config.yaml`：
+Round7 的历史配置位于
+`configs/archive/training/correction-round-7-20260905/train_config.yaml`。
+具体训练轮次以所选配置文件为准，不能把历史 Round3 参数当作当前默认值。
 
 ```yaml
 lora:
@@ -355,7 +340,7 @@ training:
   bf16: true
 ```
 
-训练输出默认位于 `outputs/math-lora/`，包括 LoRA adapter、checkpoint、
+训练输出默认位于对应轮次的 `outputs/<round>/`，包括 LoRA adapter、checkpoint、
 tokenizer、`trainer_state.json`、`train_results.json` 和 loss 记录。
 
 LoRA/QLoRA 训练不会直接改变基座模型。adapter 可以单独挂载在基座模型上，
@@ -369,8 +354,8 @@ LoRA/QLoRA 训练不会直接改变基座模型。adapter 可以单独挂载在�
 ```bash
 python scripts/merge_lora.py \
   --base_model ./models/Qwen2.5-7B-Instruct-modelscope \
-  --lora_path ./outputs/math-lora/checkpoint-XXX \
-  --output_path ./outputs/math-lora-merged \
+  --lora_path ./outputs/<round>/checkpoint-XXX \
+  --output_path ./outputs/<round>-merged \
   --dtype float16
 ```
 
@@ -391,7 +376,7 @@ python deploy/server.py
 
 ```bash
 python -m vllm.entrypoints.openai.api_server \
-  --model ./outputs/correction-round-3-merged \
+  --model ./outputs/<round>-merged \
   --host 0.0.0.0 \
   --port 8000 \
   --max-model-len 2048
@@ -515,7 +500,7 @@ python eval/evaluate.py \
 
 ```bash
 python scripts/loss_curve.py \
-  --trainer_state outputs/math-lora/trainer_state.json \
+  --trainer_state outputs/<round>/trainer_state.json \
   --output_dir eval/results/loss-curve
 ```
 
@@ -526,7 +511,7 @@ python scripts/loss_curve.py \
 ```text
 LoRA adapter
   → FP16/BF16 合并模型
-  → AWQ W4A16 校准量化
+  → AWQ/GPTQ 或 GGUF 量化
   → 用同一 test.json 对比量化前后效果
   → vLLM 部署
 ```
@@ -535,8 +520,8 @@ LoRA adapter
 
 ```bash
 python scripts/quantize.py \
-  --model_path ./outputs/math-lora-merged \
-  --output_path ./outputs/math-lora-quantized \
+  --model_path ./outputs/<round>-merged \
+  --output_path ./outputs/<round>-quantized \
   --calibration_data ./data/processed/train.json \
   --num_calibration_samples 256 \
   --max_seq_length 2048 \
@@ -608,7 +593,7 @@ MathLLM/
 │   ├── prepare_data.py          # 清洗、转换、去重、划分
 │   ├── train.py                 # LoRA/QLoRA 训练
 │   ├── merge_lora.py            # 合并 LoRA
-│   ├── quantize.py              # AWQ W4A16 量化
+│   ├── quantize.py              # AWQ 量化工具
 │   └── loss_curve.py            # 导出 loss 曲线
 ├── requirements.txt
 └── README.md
@@ -630,20 +615,16 @@ MathLLM/
 git pull origin main
 ```
 
-## 后续计划
+## 当前待完成事项
 
-- [ ] 完成人工 10% 数据抽检和数学答案复核；
-- [ ] 完整训练并选择最佳 checkpoint；
-- [ ] 在云 GPU 上完成 AWQ 量化和 vLLM 加载验证；
-- [ ] 对比合并模型与量化模型的准确率、显存和延迟；
-- [ ] 完成独立 Web 前端与 FastAPI/模型服务的完整联调；
-- [ ] 完善消融实验自动评测；
-- [ ] 完成 Docker 部署和最终发布文档。
+- [ ] 使用长输出上限完成高难度 140 题的原始基座量化模型评测；
+- [ ] 使用相同参数完成 Round7 量化模型评测；
+- [ ] 对两组结果执行 LLM Judge，并逐题统计修复、退化、截断和失败情况；
+- [ ] 在目标云 GPU 上验证 AWQ/GPTQ 模型加载和量化前后效果；
+- [ ] 根据双模型对照结果决定是否继续微调，而不是仅根据格式可解析率决定。
 
 ## 相关文档
 
-- [开发总指南](docs/development-guide.md)
-- [项目设计](docs/design.md)
 - [第一周：数据准备](docs/development-plan/week1-data-preparation.md)
 - [第二周：训练与部署](docs/development-plan/week2-training-and-deployment.md)
 - [第三周：应用开发](docs/development-plan/week3-application-development.md)
@@ -659,6 +640,5 @@ git pull origin main
 - [vLLM PagedAttention](docs/learning/vllm-pagedattention.md)
 - [消融实验方法](docs/learning/ablation-study.md)
 - [首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)
-- [Correction Round 2 训练与评测报告](docs/experiments/correction-round-2-evaluation-20260904.md)
+- [Round7 训练与评测报告](docs/experiments/correction-round-7-evaluation-20260905.md)
 - [LoRA/QLoRA Checkpoint 文件说明](docs/learning/checkpoint-anatomy.md)
-- [大模型知识文档](docs/learning/llm-knowledge-guide.md)
