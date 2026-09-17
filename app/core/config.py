@@ -166,7 +166,7 @@ class Settings:
                 "MATHLLM_RECENT_HISTORY_MESSAGES", 6
             ),
             max_context_tokens=_as_int("MATHLLM_MAX_CONTEXT_TOKENS", 2048),
-            max_output_tokens=_as_int("MATHLLM_MAX_OUTPUT_TOKENS", 512),
+            max_output_tokens=_as_int("MATHLLM_MAX_OUTPUT_TOKENS", 1024),
             connect_timeout=_as_float("MATHLLM_CONNECT_TIMEOUT", 10.0),
             read_timeout=_as_float("MATHLLM_READ_TIMEOUT", 180.0),
             allow_origins=origins or ("*",),

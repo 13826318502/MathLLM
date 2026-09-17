@@ -513,6 +513,10 @@ function renderTraceMarkup(trace) {
 }
 
 function updateTraceCard() {
+  // Only the solve page renders a trace card. Calling render() from here while
+  // another page is open would rebuild it and collapse any expanded run in
+  // 「运行观测」, so a run in progress must not touch other pages.
+  if (state.page !== "solve") return;
   const message = currentAssistantMessage();
   if (!message || !message.trace) return;
   const cards = document.querySelectorAll("#chat-messages .trace-card");
