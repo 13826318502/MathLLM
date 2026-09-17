@@ -35,6 +35,77 @@ vLLM OpenAI 兼容接口
 数据目录的分类、用途、训练/评测边界以及错误回归流程，详见
 [数据分类与错误回归集说明](docs/experiments/data-classification-and-regression-guide.md)。
 
+## 两种用法：完整版与纯功能版
+
+本仓库同时包含**训练流程**和**应用功能**，两者可以分开使用。
+
+| | 完整版 | 纯功能版 |
+|---|---|---|
+| 解题模型 | 本地微调的 `mathllm-round7`（Ollama / vLLM） | 任意 OpenAI 兼容接口（如 `deepseek-chat`） |
+| 需要训练 | 是（数据准备 → LoRA → 合并 → 量化） | **否** |
+| 需要 GPU | 训练与本地推理需要 | 不需要 |
+| 依赖 | `requirements.txt` 全量（torch / peft / trl / vllm） | 只需 8 个运行期依赖（见下） |
+| 可用功能 | 全部 | Agent 路由、知识库检索、SymPy 答案验证、运行观测、Web 前端 |
+
+**如果只想用数学问答功能，不需要训练任何模型**——把「解题模型」也指向任意 OpenAI 兼容接口即可。
+
+### 只保留功能模块
+
+拉取仓库后，纯功能版只需要这些：
+
+```text
+app/                  服务与 Agent 层（路由、工具、验证、观测）
+knowledge/            知识库文档，RAG 数据源
+web/                  独立前端（Agent 模式、运行观测页面）
+tests/                单元测试（136 个，全部离线）
+configure.bat         模型配置弹窗
+start_local.bat / start_local.ps1
+.env.local.example    配置模板
+```
+
+训练相关内容可以删除或忽略：`configs/`、`data/`、`eval/`、`scripts/`、`deploy/`、
+`docs/experiments/`、`docs/learning/`。
+
+### 安装与运行（纯功能版）
+
+运行期依赖只有 8 个包，**不需要 torch**：
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install fastapi uvicorn sse-starlette pydantic httpx chromadb fastembed sympy
+```
+
+建立知识库索引，然后启动：
+
+```powershell
+python -m app.services.rag_service   # 首次会下载中文 embedding 模型（约 95MB）
+start_local.bat                      # 首次运行会弹出模型配置窗口
+```
+
+在配置窗口里把**两组模型都指向同一个 OpenAI 兼容接口**即可：
+
+```text
+MATHLLM_ORCHESTRATOR_BASE_URL=https://api.deepseek.com/v1
+MATHLLM_ORCHESTRATOR_MODEL=deepseek-chat
+MATHLLM_ORCHESTRATOR_API_KEY=sk-xxx
+
+MATHLLM_SOLVER_BASE_URL=https://api.deepseek.com/v1
+MATHLLM_SOLVER_MODEL=deepseek-chat
+MATHLLM_SOLVER_API_KEY=sk-xxx
+```
+
+浏览器打开 `http://localhost:7860`，用「Agent 模式」提问，「运行观测」页面查看调用链与指标。
+
+### 验证纯功能版可用
+
+```powershell
+& ".venv\Scripts\python.exe" -m unittest discover -s tests
+```
+
+136 个单元测试**全部离线**（模型用脚本化假客户端注入，embedding 用确定性哈希替代），
+不需要任何模型或 API Key 就能跑通。
+
 ## 项目目标与产品定位
 
 本项目当前聚焦于“上下文感知的可靠对话”，而不是继续训练固定的数学五字段格式。
@@ -685,3 +756,5 @@ git pull origin main
 - [首次全量训练与评测实验报告](docs/experiments/first-full-training-evaluation-20260903.md)
 - [Round7 训练与评测报告](docs/experiments/correction-round-7-evaluation-20260905.md)
 - [LoRA/QLoRA Checkpoint 文件说明](docs/learning/checkpoint-anatomy.md)
+- [Agent 改造记录](docs/agent-development-log.md)：从结构化输出、工具层、有界 ReAct 循环、真实 RAG、
+  前端接入、答案独立验证、模型路由到调用链日志与运行指标的完整开发日志（含 35 条踩坑记录）
