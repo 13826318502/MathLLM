@@ -23,6 +23,11 @@ class ChatRequest(BaseModel):
     stream: bool = True
 
 
+class AgentRunRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=8000)
+    max_steps: int = Field(default=4, ge=1, le=8)
+
+
 class MemorySummaryRequest(BaseModel):
     messages: list[ChatMessage] = Field(..., min_length=1, max_length=20)
     existing_summary: str | None = Field(default=None, max_length=4000)

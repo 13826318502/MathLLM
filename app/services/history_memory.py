@@ -1,14 +1,13 @@
-"""Local conversation-memory helpers for the Gradio frontend.
+"""Conversation-memory helpers.
 
-The frontend keeps the complete conversation for display, but only sends a
+The client keeps the complete conversation for display, but only sends a
 bounded context to the model. Token counts are conservative approximations so
-the frontend does not need to load the full model tokenizer.
+callers do not need to load the full model tokenizer.
 """
 
 from __future__ import annotations
 
 import math
-from typing import Any
 
 
 def estimate_tokens(text: str) -> int:
@@ -66,16 +65,3 @@ def should_summarize(
         return False
     summary_tokens = estimate_tokens(summary) if summary else 0
     return summary_tokens + estimate_messages(messages) > trigger_tokens
-
-
-def normalize_history(history: list[Any] | None) -> list[dict[str, str]]:
-    """Convert supported Gradio history values to clean message dictionaries."""
-    messages: list[dict[str, str]] = []
-    for item in history or []:
-        if not isinstance(item, dict):
-            continue
-        role = str(item.get("role", "")).strip()
-        content = str(item.get("content", "")).strip()
-        if role in {"user", "assistant"} and content:
-            messages.append({"role": role, "content": content})
-    return messages

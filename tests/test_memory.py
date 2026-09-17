@@ -3,7 +3,7 @@ from __future__ import annotations
 import unittest
 
 from app.api.models import ChatMessage
-from app.frontend.memory import estimate_tokens, should_summarize, split_history
+from app.services.history_memory import estimate_tokens, should_summarize, split_history
 from app.services.chat_service import build_chat_messages
 
 

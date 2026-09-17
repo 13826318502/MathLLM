@@ -68,14 +68,18 @@ class VLLMClient:
         messages: list[dict[str, str]],
         *,
         max_tokens: int | None = None,
+        temperature: float = 0.0,
+        response_format: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
-        payload = {
+        payload: dict[str, Any] = {
             "model": self.settings.model_name,
             "messages": messages,
             "stream": False,
-            "temperature": 0.0,
+            "temperature": temperature,
             "max_tokens": max_tokens or self.settings.max_output_tokens,
         }
+        if response_format is not None:
+            payload["response_format"] = response_format
         try:
             async with httpx.AsyncClient(
                 base_url=self.settings.vllm_base_url,
@@ -93,6 +97,33 @@ class VLLMClient:
         if not isinstance(result, dict):
             raise VLLMServiceError("模型返回了无效响应")
         return result
+
+    async def complete_json(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        max_tokens: int | None = None,
+        schema: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """Request a JSON-only completion.
+
+        Defaults to JSON object mode, which guarantees syntactically valid JSON
+        but not schema conformance. When ``schema`` is provided the backend is
+        asked for schema-constrained output; vLLM honours it, while some
+        OpenAI-compatible servers silently ignore it.
+        """
+        if schema is None:
+            response_format: dict[str, Any] = {"type": "json_object"}
+        else:
+            response_format = {
+                "type": "json_schema",
+                "json_schema": {"name": "response", "schema": schema},
+            }
+        return await self.complete(
+            messages,
+            max_tokens=max_tokens,
+            response_format=response_format,
+        )
 
     async def stream_raw(
         self,

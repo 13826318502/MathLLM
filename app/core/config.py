@@ -44,6 +44,11 @@ class Settings:
     connect_timeout: float
     read_timeout: float
     allow_origins: tuple[str, ...]
+    knowledge_dir: str
+    rag_persist_dir: str
+    rag_collection: str
+    rag_embedding_model: str
+    rag_top_k: int
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -57,7 +62,7 @@ class Settings:
                 "MATHLLM_API_BASE_URL",
                 os.getenv("MATHLLM_VLLM_BASE_URL", "http://127.0.0.1:11434/v1"),
             ).rstrip("/"),
-            model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-base-cpu"),
+            model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-round7"),
             api_key=os.getenv("MATHLLM_API_KEY") or None,
             api_host=os.getenv("MATHLLM_API_HOST", "0.0.0.0"),
             api_port=_as_int("MATHLLM_API_PORT", 8080),
@@ -76,6 +81,13 @@ class Settings:
             connect_timeout=_as_float("MATHLLM_CONNECT_TIMEOUT", 10.0),
             read_timeout=_as_float("MATHLLM_READ_TIMEOUT", 180.0),
             allow_origins=origins or ("*",),
+            knowledge_dir=os.getenv("MATHLLM_KNOWLEDGE_DIR", "knowledge"),
+            rag_persist_dir=os.getenv("MATHLLM_RAG_PERSIST_DIR", "data/chroma"),
+            rag_collection=os.getenv("MATHLLM_RAG_COLLECTION", "math_knowledge"),
+            rag_embedding_model=os.getenv(
+                "MATHLLM_RAG_EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5"
+            ),
+            rag_top_k=_as_int("MATHLLM_RAG_TOP_K", 3),
         )
 
 

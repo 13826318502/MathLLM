@@ -133,8 +133,8 @@ FastAPI 后端：http://localhost:8080
 ```
 
 后端通过 OpenAI 兼容的 `/chat/completions` 接口调用模型。当前默认配置已经接入
-本地 Ollama 模型 `mathllm-base-cpu`，对应的量化文件位于
-`models/cpu/Qwen2.5-7B-Instruct-Q4_K_M.gguf`。Ollama 需要先运行，并且已经通过
+本地 Ollama 模型 `mathllm-round7`，对应的量化文件位于
+`models/cpu/correction-round-7-q4_k_m.gguf`。Ollama 需要先运行，并且已经通过
 `models/cpu/Modelfile` 创建该模型。
 
 启动器会在启动 FastAPI 前检查 Ollama 和目标模型是否可用；检查通过后，项目后端
@@ -154,7 +154,18 @@ FastAPI 后端：http://localhost:8080
 - `web/styles.css`：响应式布局、明暗主题和组件样式；
 - `web/app.js`：页面切换、Markdown 渲染、SSE 对话、收藏和学习记录。
 
-旧版 Gradio 页面 `app/frontend/gradio_app.py` 仍保留用于兼容和对比，但 Windows 一键启动器默认启动新的 Web 前端。
+除基础解题接口外，后端还提供 Agent 接口 `POST /api/agent/run`：先做结构化任务路由，
+再按需调用数学求解、知识库检索、安全计算和答案校验工具，最后返回带完整执行轨迹的答案。
+
+知识库检索基于本地 Chroma 向量库，首次使用前需要建立索引：
+
+```powershell
+python -m app.services.rag_service
+```
+
+索引会把 `knowledge/` 下的 Markdown 文档切分并写入 `data/chroma/`（已在 `.gitignore` 中）。
+embedding 使用 `BAAI/bge-small-zh-v1.5`，首次运行会下载模型；网络受限时可设置
+`HF_ENDPOINT=https://hf-mirror.com`。
 
 首次使用时可以复制：
 
@@ -166,7 +177,7 @@ Copy-Item .env.local.example .env.local
 
 ```text
 MATHLLM_API_BASE_URL=http://127.0.0.1:11434/v1
-MATHLLM_MODEL_NAME=mathllm-base-cpu
+MATHLLM_MODEL_NAME=mathllm-round7
 MATHLLM_API_KEY=ollama
 ```
 
@@ -552,20 +563,16 @@ python scripts/quantize.py \
 
 ```text
 MathLLM/
-├── app/                         # FastAPI 和 Gradio 应用
+├── app/                         # FastAPI 服务与 Agent 层
 │   ├── core/                    # 共享配置和 system prompt
 │   ├── api/                     # API 应用、路由和数据模型
-│   ├── services/                # vLLM 调用、prompt 和流式服务
-│   └── frontend/                # 页面、控制器、API 客户端和会话转换
-│       ├── gradio_app.py        # 页面组装和事件绑定
-│       ├── controller.py        # 前端事件处理
-│       ├── api_client.py        # HTTP/SSE 客户端
-│       ├── conversation.py      # 对话历史转换
-│       ├── config.py             # 前端运行配置
-│       ├── examples.py           # 学生示例题
-│       ├── favorites.py          # 浏览器本地收藏和快捷学习工具
-│       ├── ui_behavior.js        # 前端快捷键等轻量交互
-│       └── ui_theme.py            # 页面主题和 CSS
+│   ├── services/                # vLLM 调用、流式、记忆和 RAG 检索
+│   └── agent/                   # 结构化路由、工具层和有界 Agent 循环
+│       ├── schema.py            # 结构化数据契约
+│       ├── structured.py        # 结构化补全与校验重试
+│       ├── router.py            # 任务路由
+│       ├── loop.py              # 有界 ReAct 循环
+│       └── tools/               # 工具注册表与四个工具
 ├── configs/
 │   ├── training/                # 按实验轮次保存训练配置
 │   ├── deployment/              # 按模型状态保存部署配置
@@ -595,6 +602,8 @@ MathLLM/
 │   ├── merge_lora.py            # 合并 LoRA
 │   ├── quantize.py              # AWQ 量化工具
 │   └── loss_curve.py            # 导出 loss 曲线
+├── knowledge/                   # 数学知识库文档，RAG 检索数据源
+├── tests/                       # 单元测试
 ├── requirements.txt
 └── README.md
 ```
