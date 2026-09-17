@@ -3,10 +3,13 @@ from __future__ import annotations
 import json
 import unittest
 from dataclasses import replace
+from unittest.mock import patch
 
 from app.agent.loop import iter_agent_events
 from app.agent.tools import ToolContext
 from app.core.config import settings
+from app.services import rag_service
+from app.services.rag_service import RetrievedChunk
 
 
 def _completion(content: str) -> dict:
@@ -68,12 +71,20 @@ def make_ctx(client: ScriptedClient) -> ToolContext:
     return ToolContext(client=client, settings=replace(settings, trace_enabled=False))
 
 
-async def collect(client: ScriptedClient) -> list[dict]:
+async def collect(
+    client: ScriptedClient, question: str = "求解 x^2-5x+6=0"
+) -> list[dict]:
     return [
         event
         async for event in iter_agent_events(
-            client, "求解 x^2-5x+6=0", make_ctx(client), max_steps=2
+            client, question, make_ctx(client), max_steps=2
         )
+    ]
+
+
+def _knowledge_chunks() -> list[RetrievedChunk]:
+    return [
+        RetrievedChunk(content="判别式是 b^2-4ac", source="01-判别式.md", distance=0.4)
     ]
 
 
@@ -154,6 +165,47 @@ class IterAgentEventsTest(unittest.IsolatedAsyncioTestCase):
             "calculate_expression",
         ])
         self.assertEqual(events[-1]["steps"], 2)
+
+    async def test_knowledge_answer_skips_verification(self) -> None:
+        client = ScriptedClient(
+            [_route("knowledge", "search_knowledge", query="什么是判别式"), FINAL_JSON]
+        )
+        with patch.object(rag_service, "search", return_value=_knowledge_chunks()):
+            events = await collect(client, question="什么是判别式")
+        types = [event["type"] for event in events]
+        self.assertIn("verify_skipped", types)
+        self.assertNotIn("verify_start", types)
+        self.assertNotIn("verify", types)
+        self.assertIsNone(events[-1]["verification"])
+        self.assertIsNone(events[-1]["run"]["verification"])
+
+    async def test_verify_rag_flag_keeps_grounding_check(self) -> None:
+        client = ScriptedClient(
+            [
+                _route("knowledge", "search_knowledge", query="什么是判别式"),
+                FINAL_JSON,
+                json.dumps({"applicable": False, "lhs": "", "rhs": "0", "variables": []}),
+                json.dumps({"kind": "text", "values": []}),
+                json.dumps({"grounded": True, "unsupported": [], "reason": ""}),
+            ]
+        )
+        ctx = ToolContext(
+            client=client,
+            settings=replace(settings, trace_enabled=False, verify_rag=True),
+        )
+        with patch.object(rag_service, "search", return_value=_knowledge_chunks()):
+            events = [
+                event
+                async for event in iter_agent_events(
+                    client, "什么是判别式", ctx, max_steps=2
+                )
+            ]
+        types = [event["type"] for event in events]
+        self.assertIn("verify_start", types)
+        self.assertIn("verify", types)
+        self.assertNotIn("verify_skipped", types)
+        self.assertEqual(events[-1]["verification"]["status"], "verified")
+        self.assertEqual(events[-1]["verification"]["method"], "grounding")
 
     async def test_empty_question_raises(self) -> None:
         client = ScriptedClient([_route("general", "none")])

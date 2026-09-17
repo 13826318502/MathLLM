@@ -78,6 +78,10 @@ class Settings:
     rag_top_k: int
     trace_dir: str
     trace_enabled: bool
+    # Knowledge-base answers are grounded on retrieved chunks. Running another
+    # round of model calls to verify them is optional (and slow when the
+    # orchestrator is a reasoning model), so it is off by default.
+    verify_rag: bool
 
     @property
     def has_orchestrator(self) -> bool:
@@ -179,6 +183,8 @@ class Settings:
             rag_top_k=_as_int("MATHLLM_RAG_TOP_K", 3),
             trace_dir=os.getenv("MATHLLM_TRACE_DIR", "data/traces"),
             trace_enabled=os.getenv("MATHLLM_TRACE_ENABLED", "1").strip().lower()
+            not in {"0", "false", "no"},
+            verify_rag=os.getenv("MATHLLM_VERIFY_RAG", "0").strip().lower()
             not in {"0", "false", "no"},
         )
 

@@ -44,6 +44,7 @@ DEFAULT_MAX_STEPS = 4
 DEFAULT_MAX_VERIFY_RETRIES = 1
 MAX_OBSERVATION_CHARS = 4000
 EMPTY_ANSWER_FALLBACK = "抱歉，暂时无法生成回答。"
+SKIP_VERIFY_REASON = "知识库检索回答：内容来自检索片段，已跳过独立验证"
 
 ACTION_SYSTEM_PROMPT = """你是数学学习助手的执行规划器。
 根据用户问题和已经得到的工具观察结果，决定下一步动作，只输出一个 JSON 对象。
@@ -294,6 +295,24 @@ async def generate_answer(
     return "".join(parts) or EMPTY_ANSWER_FALLBACK
 
 
+def should_skip_verification(
+    decision: RouteDecision,
+    observations: list[Observation],
+    verify_rag: bool,
+) -> bool:
+    """Skip verification for knowledge-base answers.
+
+    A RAG answer is grounded on retrieved chunks and cannot be checked by
+    substitution, so verifying it only buys another round of model calls. Set
+    ``MATHLLM_VERIFY_RAG=1`` to keep the grounding check anyway.
+    """
+    if verify_rag:
+        return False
+    return decision.intent == "knowledge" or bool(
+        verify_service.documents_from_observations(observations)
+    )
+
+
 async def iter_agent_events(
     client: VLLMClient,
     question: str,
@@ -504,6 +523,10 @@ async def _iter_agent_events(
                 answer = EMPTY_ANSWER_FALLBACK
                 yield {"type": "answer_delta", "content": answer}
             answer_model = _model_label(client)
+
+        if should_skip_verification(decision, observations, ctx.settings.verify_rag):
+            yield {"type": "verify_skipped", "reason": SKIP_VERIFY_REASON}
+            break
 
         yield {"type": "verify_start", "attempt": verify_attempts}
         verification = await verify_service.verify_answer(

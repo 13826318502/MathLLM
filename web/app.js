@@ -547,18 +547,21 @@ function renderTraceMarkup(trace, content = "") {
 
   const retries = (trace.retries || []).map((item) => `<div class="trace-retry">第 ${item.attempt} 次修正：${escapeHtml(item.reason || "答案被证伪")}</div>`).join("");
   const verifying = trace.status === "running" && trace.thinking === "verify";
+  const verifySkipped = trace.verificationSkipped || "";
   const verification = trace.verification
     ? `<div class="trace-verify ${escapeHtml(trace.verification.status)}"><span class="trace-verify-dot"></span><span class="trace-verify-label">验证 · ${escapeHtml(VERIFY_LABEL[trace.verification.status] || trace.verification.status)}</span><span class="trace-step-detail">${escapeHtml(VERIFY_METHOD[trace.verification.method] || "")}</span>${modelTag(trace.verifyModel)}</div>`
     : "";
   const verifyDetail = trace.verification && trace.verification.detail
     ? `<div class="trace-verify-detail">${escapeHtml(trace.verification.detail)}</div>`
     : "";
-  const verifyNotice = `<div class="trace-notice"><span class="trace-notice-icon">⚑</span><span>已路由到验证路径：由独立模型重新检查答案是否成立，避免自证。</span></div>`;
+  const verifyNotice = verifySkipped
+    ? `<div class="trace-notice skipped"><span class="trace-notice-icon">⚑</span><span>${escapeHtml(verifySkipped)}</span></div>`
+    : `<div class="trace-notice"><span class="trace-notice-icon">⚑</span><span>已路由到验证路径：由独立模型重新检查答案是否成立，避免自证。</span></div>`;
   const verifyAnswer = (verifySection || finalSection)
     ? `<div class="trace-block-label">验证回答</div>${verifySection ? `<div class="trace-verify-answer">${markdownToHtml(verifySection)}</div>` : ""}${finalSection ? `<div class="trace-final-answer">${markdownToHtml(finalSection)}</div>` : ""}`
     : "";
-  const verifyBlock = (verification || retries || verifying || verifyAnswer)
-    ? `<div class="trace-block verify"><div class="trace-block-head"><span class="trace-block-step">2</span><span class="trace-block-title">验证路径</span><span class="trace-block-note">独立模型复核</span></div>${verifyNotice}${verifying ? `<div class="trace-thinking">正在独立验证答案…</div>` : verification}${verifyDetail}${retries}${verifyAnswer}</div>`
+  const verifyBlock = (verification || retries || verifying || verifyAnswer || verifySkipped)
+    ? `<div class="trace-block verify${verifySkipped ? " skipped" : ""}"><div class="trace-block-head"><span class="trace-block-step">2</span><span class="trace-block-title">验证路径</span><span class="trace-block-note">${verifySkipped ? "已跳过" : "独立模型复核"}</span></div>${verifyNotice}${verifying ? `<div class="trace-thinking">正在独立验证答案…</div>` : verification}${verifyDetail}${retries}${verifyAnswer}</div>`
     : "";
 
   const answerNote = trace.answerModel ? ` · 答案由 ${escapeHtml(trace.answerModel)} 生成` : "";
@@ -591,7 +594,7 @@ function updateTraceCard() {
 function handleAgentEvent(event) {
   const message = currentAssistantMessage();
   if (!message) return;
-  if (!message.trace) message.trace = { status: "running", decision: null, steps: [], thinking: "", retries: [], verification: null, routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
+  if (!message.trace) message.trace = { status: "running", decision: null, steps: [], thinking: "", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
   const trace = message.trace;
   if (event.type === "thinking") {
     trace.thinking = event.stage;
@@ -615,6 +618,9 @@ function handleAgentEvent(event) {
     message.content += event.content || "";
   } else if (event.type === "verify_start") {
     trace.thinking = "verify";
+  } else if (event.type === "verify_skipped") {
+    trace.thinking = "";
+    trace.verificationSkipped = event.reason || "已跳过独立验证";
   } else if (event.type === "verify") {
     trace.thinking = "";
     trace.verification = event.verification;
@@ -874,7 +880,7 @@ async function sendQuestion() {
   state.activeRequestController = requestController;
   const assistantMessage = { role: "assistant", content: "" };
   if (state.answerMode === "agent") {
-    assistantMessage.trace = { status: "running", decision: null, steps: [], thinking: "classify", retries: [], verification: null, routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
+    assistantMessage.trace = { status: "running", decision: null, steps: [], thinking: "classify", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
     state.memorySummary = "";
     state.memoryCursor = 0;
   }

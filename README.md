@@ -57,7 +57,7 @@ vLLM OpenAI 兼容接口
 app/                  服务与 Agent 层（路由、工具、验证、观测）
 knowledge/            知识库文档，RAG 数据源
 web/                  独立前端（Agent 模式、运行观测页面）
-tests/                单元测试（136 个，全部离线）
+tests/                单元测试（138 个，全部离线）
 README.md             本说明
 requirements.txt      运行期依赖（8 个，不含 torch）
 .gitignore
@@ -137,7 +137,7 @@ MATHLLM_SOLVER_API_KEY=sk-xxx
 & ".venv\Scripts\python.exe" -m unittest discover -s tests
 ```
 
-136 个单元测试**全部离线**（模型用脚本化假客户端注入，embedding 用确定性哈希替代），
+138 个单元测试**全部离线**（模型用脚本化假客户端注入，embedding 用确定性哈希替代），
 不需要任何模型或 API Key 就能跑通。
 
 ## 项目目标与产品定位
@@ -276,8 +276,12 @@ FastAPI 后端：http://localhost:8080
 | `GET /api/traces?limit=20` | 最近若干次运行的调用链明细 |
 
 Agent 的工作方式是：先做结构化任务路由，再按需调用数学求解、知识库检索、安全计算和
-答案校验工具，最后**独立验证答案**——方程与计算题由 SymPy 代入检验，知识题由检索片段
-核对来源；被证伪时带反例自动重算一次。
+答案校验工具，最后对答案做**独立验证**——方程与计算题由 SymPy 代入检验，被证伪时带
+反例自动重算一次。
+
+知识库检索得到的回答**默认跳过独立验证**：它本身就是从检索片段组织出来的，再跑一遍
+来源核对只会多花 2–3 次模型调用（推理模型上很容易卡住）。需要打开时设
+`MATHLLM_VERIFY_RAG=1`，恢复用检索片段做「来源核对」。
 
 每次运行都会落盘一条 JSONL 到 `data/traces/runs.jsonl`（已 gitignore），包含路由决策、
 工具调用、验证结论、耗时、token 用量与错误，可按 `run_id` 回放。
@@ -739,7 +743,7 @@ MathLLM/
 │   ├── quantize.py              # AWQ 量化工具
 │   └── loss_curve.py            # 导出 loss 曲线
 ├── knowledge/                   # 数学知识库文档，RAG 检索数据源
-├── tests/                       # 单元测试（136 个，全部离线）
+├── tests/                       # 单元测试（138 个，全部离线）
 ├── start_local.bat              # Windows 启动入口
 ├── start_local.ps1              # 启动前后端，首次运行弹出配置窗口
 ├── configure.bat                # 只打开模型配置弹窗

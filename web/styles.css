@@ -199,8 +199,11 @@ body.dark .run-badge.fail { color: #f4a0b0; background: #3a1f28; }
 .trace-block .trace-thinking { margin-top: 0; }
 .trace-notice { display: flex; align-items: flex-start; gap: 6px; padding: 6px 8px; border-radius: 9px; color: #0d8a7f; background: #e6f6f4; font-size: .69rem; line-height: 1.55; }
 .trace-notice-icon { flex: 0 0 auto; }
+.trace-notice.skipped { color: var(--muted); background: var(--surface-soft); }
 .trace-block.verify { border-color: #c9ece8; }
 .trace-block.verify .trace-block-step { background: linear-gradient(135deg, #14b8a6, #0d8a7f); }
+.trace-block.verify.skipped { border-color: var(--line); }
+.trace-block.verify.skipped .trace-block-step { background: linear-gradient(135deg, #9aa3b8, #7c8698); }
 .trace-block.verify .trace-verify { margin-top: 0; }
 .trace-block.verify .trace-retry { margin-top: 0; }
 .trace-block-label { color: var(--subtle); font-size: .68rem; font-weight: 600; letter-spacing: .03em; }
@@ -221,6 +224,7 @@ body.dark .trace-card { border-color: #3a3f6e; }
 body.dark .trace-block { border-color: #2f3459; background: #1a1e3a; }
 body.dark .trace-block.verify { border-color: #1f4b46; }
 body.dark .trace-notice { color: #5fd0c2; background: #16342f; }
+body.dark .trace-notice.skipped { color: var(--muted); background: #1c2338; }
 body.dark .trace-answer code, body.dark .trace-verify-answer code { color: #c6c7ff; }
 body.dark .trace-final-answer { border-color: #3a3f6e; background: #23284a; }
 body.dark .trace-badge.tool { color: #5fd0c2; background: #16342f; }

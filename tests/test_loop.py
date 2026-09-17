@@ -155,6 +155,8 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.stopped_reason, "final")
         self.assertFalse(result.observations[0].success)
         self.assertIn("知识库", result.observations[0].summary)
+        # Knowledge answers skip independent verification by default.
+        self.assertIsNone(result.verification)
 
     async def test_unparsable_action_falls_back_to_final(self) -> None:
         client = ScriptedClient([_route("general", "none", query="你好"), "不是 JSON"])
