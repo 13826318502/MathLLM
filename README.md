@@ -44,27 +44,61 @@ vLLM OpenAI 兼容接口
 | 解题模型 | 本地微调的 `mathllm-round7`（Ollama / vLLM） | 任意 OpenAI 兼容接口（如 `deepseek-chat`） |
 | 需要训练 | 是（数据准备 → LoRA → 合并 → 量化） | **否** |
 | 需要 GPU | 训练与本地推理需要 | 不需要 |
-| 依赖 | `requirements.txt` 全量（torch / peft / trl / vllm） | 只需 8 个运行期依赖（见下） |
+| 依赖 | `requirements.txt` + 训练依赖（torch / peft / trl / vllm，需另装） | 只需 8 个运行期依赖（见下） |
 | 可用功能 | 全部 | Agent 路由、知识库检索、SymPy 答案验证、运行观测、Web 前端 |
 
 **如果只想用数学问答功能，不需要训练任何模型**——把「解题模型」也指向任意 OpenAI 兼容接口即可。
 
-### 只保留功能模块
+### 只保留功能模块（删掉模型微调相关内容）
 
-拉取仓库后，纯功能版只需要这些：
+纯功能版**必须保留**的文件：
 
 ```text
 app/                  服务与 Agent 层（路由、工具、验证、观测）
 knowledge/            知识库文档，RAG 数据源
 web/                  独立前端（Agent 模式、运行观测页面）
 tests/                单元测试（136 个，全部离线）
+README.md             本说明
+requirements.txt      运行期依赖（8 个，不含 torch）
+.gitignore
 configure.bat         模型配置弹窗
-start_local.bat / start_local.ps1
+start_local.bat       启动入口
+start_local.ps1       启动脚本
 .env.local.example    配置模板
 ```
 
-训练相关内容可以删除或忽略：`configs/`、`data/`、`eval/`、`scripts/`、`deploy/`、
-`docs/experiments/`、`docs/learning/`。
+**只删除「模型微调」相关的目录和文件，其他一律不要删。** 可安全删除的清单：
+
+| 路径 | 为什么可以删 |
+|---|---|
+| `configs/` | LoRA/QLoRA 训练与消融配置 |
+| `scripts/` | 数据准备、训练、LoRA 合并、量化脚本 |
+| `eval/` | 微调模型的评测脚本与评测结果 |
+| `data/raw/`、`data/processed/`、`data/eval/`、`data/candidates/`、`data/behavior/`、`data/archive/` | 训练与评测数据集 |
+| `docs/` | 训练/评测报告、微调与量化学习笔记、开发计划等文档 |
+
+在仓库根目录执行（PowerShell）：
+
+```powershell
+Remove-Item -Recurse -Force configs, scripts, eval, docs
+Remove-Item -Recurse -Force data/raw, data/processed, data/eval, data/candidates, data/behavior, data/archive
+```
+
+**不要删**——删了功能版会跑不起来或需要重建：
+
+| 路径 | 原因 |
+|---|---|
+| `data/chroma/` | 知识库向量索引，RAG 检索依赖它；删了需重新执行 `python -m app.services.rag_service` |
+| `data/traces/` | 运行轨迹落盘目录，运行时自动生成 |
+| `deploy/` | vLLM 部署启动器；功能版用不到，但不属于微调，建议保留 |
+
+> 想删掉微调内容又保持 git 工作区干净，可以用 sparse-checkout：仓库内容不变，
+> 只是本地不检出这些文件，`git status` 依然干净，随时可恢复。
+>
+> ```powershell
+> git sparse-checkout set --no-cone "/*" "!/configs/" "!/scripts/" "!/eval/" "!/data/" "!/docs/"
+> git sparse-checkout disable   # 需要恢复时执行
+> ```
 
 ### 安装与运行（纯功能版）
 
