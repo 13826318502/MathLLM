@@ -10,8 +10,9 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import agent, chat, health, memory, solve
+from app.api.routes import agent, chat, health, memory, metrics, solve
 from app.core.config import settings
+from app.services.model_gateway import ModelGateway
 from app.services.vllm_client import VLLMClient
 
 
@@ -22,7 +23,16 @@ def create_app() -> FastAPI:
         description="数学题目问答助手的 FastAPI 服务",
     )
     application.state.settings = settings
-    application.state.vllm_client = VLLMClient(settings)
+    # The local model serves the legacy single-shot endpoints and does the
+    # actual math solving. Orchestration goes through the gateway, which prefers
+    # the cloud endpoint and can fall back to the local one.
+    solver_client = VLLMClient(settings.solver)
+    application.state.vllm_client = solver_client
+    application.state.orchestrator = ModelGateway(
+        VLLMClient(settings.orchestrator),
+        solver_client,
+        settings.orchestrator_fallback,
+    )
     application.add_middleware(
         CORSMiddleware,
         allow_origins=list(settings.allow_origins),
@@ -35,6 +45,7 @@ def create_app() -> FastAPI:
     application.include_router(chat.router, prefix="/api", tags=["chat"])
     application.include_router(memory.router, prefix="/api", tags=["memory"])
     application.include_router(agent.router, prefix="/api", tags=["agent"])
+    application.include_router(metrics.router, prefix="/api", tags=["observability"])
     return application
 
 

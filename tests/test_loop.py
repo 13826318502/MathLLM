@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import unittest
+from dataclasses import replace
 from unittest.mock import patch
 
 from app.agent.loop import run_agent
@@ -35,6 +36,7 @@ class ScriptedClient:
         self.answer = answer
         self.json_calls = 0
         self.complete_calls = 0
+        self.stream_calls = 0
 
     async def complete_json(
         self,
@@ -51,9 +53,14 @@ class ScriptedClient:
         self.complete_calls += 1
         return _completion(self.answer)
 
+    async def stream_raw(self, messages: list[dict[str, str]]):
+        self.stream_calls += 1
+        yield {"choices": [{"delta": {"content": self.answer}}]}
+
 
 def make_ctx(client: ScriptedClient) -> ToolContext:
-    return ToolContext(client=client, settings=settings)
+    # Tracing is covered by test_trace_service; keep these runs off disk.
+    return ToolContext(client=client, settings=replace(settings, trace_enabled=False))
 
 
 def call_tool_json(tool: str, arguments: dict) -> str:
@@ -75,8 +82,18 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(result.observations), 1)
         self.assertEqual(result.observations[0].tool, "solve_math_problem")
         self.assertTrue(result.observations[0].success)
+        # The math answer is the solver's own output, streamed while written:
+        # no second generation and no blocking call.
         self.assertEqual(result.answer, "最终答案")
-        self.assertEqual(client.complete_calls, 2)
+        self.assertEqual(client.complete_calls, 0)
+        self.assertEqual(client.stream_calls, 1)
+
+    async def test_non_math_answer_uses_orchestrator_stream(self) -> None:
+        client = ScriptedClient([_route("general", "none", query="你好"), FINAL_JSON])
+        result = await run_agent(client, "你好", make_ctx(client))
+        self.assertEqual(result.answer, "最终答案")
+        self.assertEqual(client.stream_calls, 1)
+        self.assertEqual(client.complete_calls, 0)
 
     async def test_second_tool_call(self) -> None:
         client = ScriptedClient(
@@ -103,7 +120,7 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.stopped_reason, "duplicate")
         self.assertEqual(result.steps, 1)
         self.assertEqual(len(result.observations), 1)
-        self.assertEqual(client.complete_calls, 2)
+        self.assertEqual(client.stream_calls, 1)
 
     async def test_max_steps_stops(self) -> None:
         client = ScriptedClient(

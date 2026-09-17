@@ -75,7 +75,10 @@ vLLM OpenAI 兼容接口
 | LLM Judge | 已实现 | `eval/llm_judge.py` 对模型答案做独立语义判断 |
 | AWQ 量化 | 脚本已实现 | `scripts/quantize.py`；本地 CPU 使用已经生成的 GGUF，AWQ/GPTQ 仍建议云 GPU 验证 |
 | vLLM 部署 | 已实现启动器 | `deploy/server.py` 可启动 OpenAI 兼容服务 |
-| Web 应用 | 已实现基础版本 | 独立 HTML/CSS/JavaScript 前端 + FastAPI/SSE |
+| Web 应用 | 已实现 | 独立 HTML/CSS/JavaScript 前端 + FastAPI/SSE，含 Agent 模式与运行观测页面 |
+| Agent 层 | 已实现 | 结构化路由 + 工具层 + 有界 ReAct 循环 + 本地 RAG + SymPy 答案验证 |
+| 模型分工 | 已实现 | 编排走云端（可留空关闭）、数学求解走本地，云端不可用自动回退 |
+| 可观测性 | 已实现 | 每次运行落盘 JSONL（`data/traces/`），`/api/metrics` 聚合运行指标 |
 
 ## 已记录的 Round7 训练与评测
 
@@ -146,16 +149,59 @@ FastAPI 后端：http://localhost:8080
 - Markdown 和 LaTeX 公式渲染；
 - 浏览器本地收藏题目，支持加载、移除和清空；
 - “只给我提示”“讲简单一点”“检查我的答案”三个快捷学习入口；
-- `Ctrl+Enter` 快捷提交题目。
+- `Ctrl+Enter` 快捷提交题目；
+- **Agent 模式**：实时显示路由结果、每步工具调用与耗时、验证结论，答案边写边流式显示，可随时暂停；
+- **运行观测**页面：整体指标（失败率、路由分布、验证分布、P50/P95 延迟、token、回退率）与逐次运行的可展开调用链。
 
 前端代码位于 `web/`：
 
 - `web/index.html`：页面骨架和侧边栏导航；
 - `web/styles.css`：响应式布局、明暗主题和组件样式；
-- `web/app.js`：页面切换、Markdown 渲染、SSE 对话、收藏和学习记录。
+- `web/app.js`：页面切换、Markdown 渲染、SSE 对话、Agent 轨迹卡、运行观测页面、收藏和学习记录。
 
-除基础解题接口外，后端还提供 Agent 接口 `POST /api/agent/run`：先做结构化任务路由，
-再按需调用数学求解、知识库检索、安全计算和答案校验工具，最后返回带完整执行轨迹的答案。
+### Agent 接口
+
+除基础解题接口外，后端还提供：
+
+| 接口 | 说明 |
+|---|---|
+| `POST /api/agent/run` | 非流式，返回完整执行轨迹 |
+| `POST /api/agent/stream` | SSE 流式，实时推送路由、工具调用、答案分片与验证结论 |
+| `GET /api/metrics?days=7` | 运行指标（失败率、路由分布、验证分布、P50/P95 延迟、token、回退率） |
+| `GET /api/traces?limit=20` | 最近若干次运行的调用链明细 |
+
+Agent 的工作方式是：先做结构化任务路由，再按需调用数学求解、知识库检索、安全计算和
+答案校验工具，最后**独立验证答案**——方程与计算题由 SymPy 代入检验，知识题由检索片段
+核对来源；被证伪时带反例自动重算一次。
+
+每次运行都会落盘一条 JSONL 到 `data/traces/runs.jsonl`（已 gitignore），包含路由决策、
+工具调用、验证结论、耗时、token 用量与错误，可按 `run_id` 回放。
+
+### 模型分工
+
+编排（路由 / 规划 / 验证）走云端大模型，数学求解走本地微调模型：
+
+```text
+MATHLLM_ORCHESTRATOR_BASE_URL=https://api.deepseek.com/v1
+MATHLLM_ORCHESTRATOR_MODEL=deepseek-chat
+MATHLLM_ORCHESTRATOR_API_KEY=            # 留空 = 关闭云端编排，全部走本地
+MATHLLM_ORCHESTRATOR_FALLBACK=local      # 云端不可用时回退本地
+
+MATHLLM_SOLVER_BASE_URL=http://127.0.0.1:11434/v1
+MATHLLM_SOLVER_MODEL=mathllm-round7
+MATHLLM_SOLVER_API_KEY=ollama
+```
+
+旧的 `MATHLLM_API_BASE_URL` / `MATHLLM_MODEL_NAME` / `MATHLLM_API_KEY` 仍作为解题模型的
+回退名读取。不配编排端点时，行为与只有一个本地模型时完全一致。
+
+### 图形化配置
+
+双击 `configure.bat` 打开配置弹窗（`start_local.bat -Configure` 也可）：填写两组模型、
+点「测试连接」验证、点「保存并启动」。**API Key 留空即关闭云端编排**。弹窗只更新
+`.env.local` 里模型相关的键，端口、RAG 等设置原样保留。
+
+### 知识库
 
 知识库检索基于本地 Chroma 向量库，首次使用前需要建立索引：
 
@@ -167,35 +213,18 @@ python -m app.services.rag_service
 embedding 使用 `BAAI/bge-small-zh-v1.5`，首次运行会下载模型；网络受限时可设置
 `HF_ENDPOINT=https://hf-mirror.com`。
 
-首次使用时可以复制：
+首次使用时可以复制模板，也可以直接用弹窗配置：
 
 ```powershell
 Copy-Item .env.local.example .env.local
 ```
 
-本地 Ollama 配置如下：
-
-```text
-MATHLLM_API_BASE_URL=http://127.0.0.1:11434/v1
-MATHLLM_MODEL_NAME=mathllm-round7
-MATHLLM_API_KEY=ollama
-```
-
-如果使用外部 OpenAI 兼容 API，再填写：
-
-```text
-MATHLLM_API_BASE_URL=https://api.example.com/v1
-MATHLLM_MODEL_NAME=your-model-name
-MATHLLM_API_KEY=your-api-key
-```
-
-也可以不创建 `.env.local`，直接双击 `start_local.bat`，启动器会要求输入 API 地址、模型名和 API Key；API Key 输入时不会显示，并且不会写入项目文件。
-
 启动器文件：
 
-- `start_local.bat`：Windows 双击入口；
-- `start_local.ps1`：启动前后端的 PowerShell 脚本；
-- `.env.local.example`：外部 API 配置模板。
+- `start_local.bat`：Windows 双击入口（首次运行会自动弹出配置窗口）；
+- `start_local.ps1`：启动前后端的 PowerShell 脚本，支持 `-Configure`；
+- `configure.bat`：只打开模型配置弹窗，不启动服务；
+- `.env.local.example`：配置模板。
 
 `.env.local` 已加入 `.gitignore`，不要把真实 API Key 提交到 GitHub。
 
@@ -565,13 +594,15 @@ python scripts/quantize.py \
 MathLLM/
 ├── app/                         # FastAPI 服务与 Agent 层
 │   ├── core/                    # 共享配置和 system prompt
-│   ├── api/                     # API 应用、路由和数据模型
-│   ├── services/                # vLLM 调用、流式、记忆和 RAG 检索
+│   ├── api/                     # API 应用、路由和数据模型（含 metrics 观测接口）
+│   ├── services/                # vLLM 调用、模型网关、流式、记忆、RAG、验证、trace、指标
+│   ├── tools/                   # 独立小工具（模型配置弹窗）
+│   ├── config_editor.py         # .env.local 模型配置读写
 │   └── agent/                   # 结构化路由、工具层和有界 Agent 循环
-│       ├── schema.py            # 结构化数据契约
+│       ├── schema.py            # 结构化数据契约（含 trace 与 token 统计）
 │       ├── structured.py        # 结构化补全与校验重试
 │       ├── router.py            # 任务路由
-│       ├── loop.py              # 有界 ReAct 循环
+│       ├── loop.py              # 有界 ReAct 循环 + 验证与重试 + trace 落盘
 │       └── tools/               # 工具注册表与四个工具
 ├── configs/
 │   ├── training/                # 按实验轮次保存训练配置
@@ -588,7 +619,7 @@ MathLLM/
 ├── web/                         # 独立 HTML/CSS/JavaScript 前端
 │   ├── index.html               # 页面骨架和侧边栏
 │   ├── styles.css               # 响应式布局和主题样式
-│   └── app.js                   # 页面逻辑、SSE 对话和本地学习数据
+│   └── app.js                   # 页面逻辑、SSE 对话、Agent 轨迹卡、运行观测页面
 ├── eval/
 │   ├── evaluate.py              # 基础数学和延迟评测
 │   ├── llm_judge.py             # 独立大模型语义评测
@@ -603,7 +634,10 @@ MathLLM/
 │   ├── quantize.py              # AWQ 量化工具
 │   └── loss_curve.py            # 导出 loss 曲线
 ├── knowledge/                   # 数学知识库文档，RAG 检索数据源
-├── tests/                       # 单元测试
+├── tests/                       # 单元测试（136 个，全部离线）
+├── start_local.bat              # Windows 启动入口
+├── start_local.ps1              # 启动前后端，首次运行弹出配置窗口
+├── configure.bat                # 只打开模型配置弹窗
 ├── requirements.txt
 └── README.md
 ```

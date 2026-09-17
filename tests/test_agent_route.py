@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import json
 import unittest
+from dataclasses import replace
 
 from fastapi.testclient import TestClient
 
-from app.api.dependencies import get_vllm_client
+from app.api.dependencies import get_orchestrator, get_settings, get_vllm_client
 from app.api.main import app
+from app.core.config import settings
 
 
 def _completion(content: str) -> dict:
@@ -37,11 +39,21 @@ class FakeClient:
     async def complete(self, messages, **kwargs) -> dict:
         return _completion("方程的解为 x=2 或 x=3。")
 
+    async def stream_raw(self, messages):
+        yield {"choices": [{"delta": {"content": "方程的解为 x=2 或 x=3。"}}]}
+
+    async def list_models(self) -> list[str]:
+        return getattr(self, "models", [])
+
 
 class AgentRouteTest(unittest.TestCase):
     def setUp(self) -> None:
         self.client = FakeClient()
         app.dependency_overrides[get_vllm_client] = lambda: self.client
+        app.dependency_overrides[get_orchestrator] = lambda: self.client
+        app.dependency_overrides[get_settings] = lambda: replace(
+            settings, trace_enabled=False
+        )
         self.http = TestClient(app)
 
     def tearDown(self) -> None:
@@ -63,6 +75,13 @@ class AgentRouteTest(unittest.TestCase):
     def test_empty_question_rejected(self) -> None:
         response = self.http.post("/api/agent/run", json={"question": ""})
         self.assertEqual(response.status_code, 422)
+
+    def test_health_uses_solver_client(self) -> None:
+        """Guards the client refactor: a missing attribute here returns 500."""
+        self.client.models = ["mathllm-round7:latest"]
+        response = self.http.get("/api/health")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["available_models"], ["mathllm-round7:latest"])
 
 
 if __name__ == "__main__":

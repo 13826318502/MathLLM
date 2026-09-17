@@ -21,6 +21,21 @@ def extract_stream_content(payload: dict[str, Any]) -> str:
     return content if isinstance(content, str) else ""
 
 
+def extract_usage(payload: dict[str, Any]) -> tuple[int, int, int] | None:
+    """Return (prompt, completion, total) tokens when the server reports them."""
+    usage = payload.get("usage")
+    if not isinstance(usage, dict):
+        return None
+    prompt = usage.get("prompt_tokens")
+    completion = usage.get("completion_tokens")
+    if not isinstance(prompt, int) or not isinstance(completion, int):
+        return None
+    total = usage.get("total_tokens")
+    if not isinstance(total, int):
+        total = prompt + completion
+    return prompt, completion, total
+
+
 def extract_completion_content(payload: dict[str, Any]) -> str:
     choices = payload.get("choices")
     if not isinstance(choices, list) or not choices:

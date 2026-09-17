@@ -1,3 +1,5 @@
+param([switch]$Configure)
+
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -38,22 +40,42 @@ function Import-LocalEnvironment {
 
 Import-LocalEnvironment -Path $envFile
 
-if ($env:MATHLLM_API_BASE_URL -eq "http://127.0.0.1:11434/v1" -or
-    $env:MATHLLM_API_BASE_URL -eq "http://localhost:11434/v1") {
+# Open the configuration dialog on first run, or when explicitly asked to.
+if ($Configure -or -not (Test-Path -LiteralPath $envFile)) {
+    Write-Host "Opening the model configuration dialog..." -ForegroundColor Cyan
+    & $pythonPath -m app.tools.config_ui --env-file $envFile
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Configuration saved without starting, or cancelled." -ForegroundColor Yellow
+        Read-Host "Press Enter to exit"
+        exit 0
+    }
+    Import-LocalEnvironment -Path $envFile
+}
+
+# Solver endpoint: new names first, legacy names as fallback.
+$solverBaseUrl = $env:MATHLLM_SOLVER_BASE_URL
+if (-not $solverBaseUrl) { $solverBaseUrl = $env:MATHLLM_API_BASE_URL }
+$solverModelName = $env:MATHLLM_SOLVER_MODEL
+if (-not $solverModelName) { $solverModelName = $env:MATHLLM_MODEL_NAME }
+$solverApiKey = $env:MATHLLM_SOLVER_API_KEY
+if (-not $solverApiKey) { $solverApiKey = $env:MATHLLM_API_KEY }
+
+if ($solverBaseUrl -eq "http://127.0.0.1:11434/v1" -or
+    $solverBaseUrl -eq "http://localhost:11434/v1") {
     try {
         $ollamaTags = Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 5
         $installedModels = @($ollamaTags.models | ForEach-Object { $_.name })
-        $modelReady = $installedModels -contains $env:MATHLLM_MODEL_NAME -or
-            $installedModels -contains "$($env:MATHLLM_MODEL_NAME):latest" -or
-            ($installedModels | Where-Object { $_ -like "$($env:MATHLLM_MODEL_NAME):*" }).Count -gt 0
+        $modelReady = $installedModels -contains $solverModelName -or
+            $installedModels -contains "$($solverModelName):latest" -or
+            ($installedModels | Where-Object { $_ -like "$($solverModelName):*" }).Count -gt 0
         if (-not $modelReady) {
-            Write-Host "Ollama is running, but model '$env:MATHLLM_MODEL_NAME' is not installed." -ForegroundColor Red
+            Write-Host "Ollama is running, but model '$solverModelName' is not installed." -ForegroundColor Red
             Write-Host "Available models: $($installedModels -join ', ')" -ForegroundColor Yellow
-            Write-Host "Install it with: ollama create $env:MATHLLM_MODEL_NAME -f models/cpu/Modelfile" -ForegroundColor Yellow
+            Write-Host "Install it with: ollama create $solverModelName -f models/cpu/Modelfile" -ForegroundColor Yellow
             Read-Host "Press Enter to exit"
             exit 1
         }
-        Write-Host "Ollama model ready: $env:MATHLLM_MODEL_NAME" -ForegroundColor Green
+        Write-Host "Ollama model ready: $solverModelName" -ForegroundColor Green
     }
     catch {
         Write-Host "Cannot reach Ollama at http://127.0.0.1:11434." -ForegroundColor Red
@@ -63,17 +85,19 @@ if ($env:MATHLLM_API_BASE_URL -eq "http://127.0.0.1:11434/v1" -or
     }
 }
 
-if (-not $env:MATHLLM_API_BASE_URL) {
-    $env:MATHLLM_API_BASE_URL = Read-Host "Enter API base URL (for example https://api.openai.com/v1)"
+if (-not $solverBaseUrl) {
+    $solverBaseUrl = Read-Host "Enter the solver API base URL (for example https://api.openai.com/v1)"
+    $env:MATHLLM_SOLVER_BASE_URL = $solverBaseUrl
 }
-if (-not $env:MATHLLM_MODEL_NAME) {
-    $env:MATHLLM_MODEL_NAME = Read-Host "Enter model name (for example deepseek-chat)"
+if (-not $solverModelName) {
+    $solverModelName = Read-Host "Enter the solver model name (for example deepseek-chat)"
+    $env:MATHLLM_SOLVER_MODEL = $solverModelName
 }
-if (-not $env:MATHLLM_API_KEY) {
-    $secureKey = Read-Host "Enter API Key (input hidden)" -AsSecureString
+if (-not $solverApiKey) {
+    $secureKey = Read-Host "Enter the solver API Key (input hidden)" -AsSecureString
     $pointer = [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureKey)
     try {
-        $env:MATHLLM_API_KEY = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
+        $env:MATHLLM_SOLVER_API_KEY = [Runtime.InteropServices.Marshal]::PtrToStringBSTR($pointer)
     }
     finally {
         [Runtime.InteropServices.Marshal]::ZeroFreeBSTR($pointer)
@@ -89,6 +113,14 @@ if (-not $env:MATHLLM_API_PORT) {
 if (-not $env:MATHLLM_ALLOW_ORIGINS) {
     $env:MATHLLM_ALLOW_ORIGINS = "http://127.0.0.1:7860,http://localhost:7860"
 }
+
+if ($env:MATHLLM_ORCHESTRATOR_BASE_URL -and $env:MATHLLM_ORCHESTRATOR_MODEL) {
+    Write-Host "Orchestrator: $env:MATHLLM_ORCHESTRATOR_MODEL @ $env:MATHLLM_ORCHESTRATOR_BASE_URL" -ForegroundColor Cyan
+}
+else {
+    Write-Host "Orchestrator: not configured, everything runs on the local solver." -ForegroundColor Yellow
+}
+Write-Host "Solver: $solverModelName @ $solverBaseUrl" -ForegroundColor Cyan
 
 Write-Host "Starting FastAPI (http://localhost:$env:MATHLLM_API_PORT)..." -ForegroundColor Cyan
 Start-Process -FilePath $pythonPath -WorkingDirectory $projectRoot -ArgumentList @("-m", "app.api.main")

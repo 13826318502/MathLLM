@@ -8,7 +8,9 @@ from typing import Any
 
 import httpx
 
-from app.core.config import Settings
+from app.agent.schema import TokenUsage
+from app.core.config import ModelConfig
+from app.services.stream_service import extract_usage
 
 
 class VLLMServiceError(RuntimeError):
@@ -16,21 +18,30 @@ class VLLMServiceError(RuntimeError):
 
 
 class VLLMClient:
-    def __init__(self, settings: Settings):
-        self.settings = settings
+    def __init__(self, config: ModelConfig):
+        self.config = config
+        self.usage = TokenUsage()
+
+    def _record_usage(self, payload: Any) -> None:
+        if not isinstance(payload, dict):
+            return
+        parsed = extract_usage(payload)
+        if parsed is None:
+            return
+        self.usage.add(*parsed)
 
     def _timeout(self) -> httpx.Timeout:
         return httpx.Timeout(
-            connect=self.settings.connect_timeout,
-            read=self.settings.read_timeout,
+            connect=self.config.connect_timeout,
+            read=self.config.read_timeout,
             write=30.0,
             pool=10.0,
         )
 
     def _headers(self) -> dict[str, str]:
-        if not self.settings.api_key:
+        if not self.config.api_key:
             return {}
-        return {"Authorization": f"Bearer {self.settings.api_key}"}
+        return {"Authorization": f"Bearer {self.config.api_key}"}
 
     async def _raise_for_status(self, response: httpx.Response) -> None:
         if response.status_code < 400:
@@ -47,7 +58,7 @@ class VLLMClient:
     async def list_models(self) -> list[str]:
         try:
             async with httpx.AsyncClient(
-                base_url=self.settings.vllm_base_url,
+                base_url=self.config.base_url,
                 timeout=self._timeout(),
             ) as client:
                 response = await client.get("/models", headers=self._headers())
@@ -72,17 +83,17 @@ class VLLMClient:
         response_format: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
-            "model": self.settings.model_name,
+            "model": self.config.model,
             "messages": messages,
             "stream": False,
             "temperature": temperature,
-            "max_tokens": max_tokens or self.settings.max_output_tokens,
+            "max_tokens": max_tokens or self.config.max_output_tokens,
         }
         if response_format is not None:
             payload["response_format"] = response_format
         try:
             async with httpx.AsyncClient(
-                base_url=self.settings.vllm_base_url,
+                base_url=self.config.base_url,
                 timeout=self._timeout(),
             ) as client:
                 response = await client.post(
@@ -96,6 +107,7 @@ class VLLMClient:
             raise VLLMServiceError("无法获取模型回答") from exc
         if not isinstance(result, dict):
             raise VLLMServiceError("模型返回了无效响应")
+        self._record_usage(result)
         return result
 
     async def complete_json(
@@ -130,15 +142,18 @@ class VLLMClient:
         messages: list[dict[str, str]],
     ) -> AsyncIterator[dict[str, Any]]:
         payload = {
-            "model": self.settings.model_name,
+            "model": self.config.model,
             "messages": messages,
             "stream": True,
             "temperature": 0.0,
-            "max_tokens": self.settings.max_output_tokens,
+            "max_tokens": self.config.max_output_tokens,
+            # Servers that understand this report token usage on the last chunk.
+            # Servers that do not simply ignore the unknown field.
+            "stream_options": {"include_usage": True},
         }
         try:
             async with httpx.AsyncClient(
-                base_url=self.settings.vllm_base_url,
+                base_url=self.config.base_url,
                 timeout=self._timeout(),
             ) as client:
                 async with client.stream(
@@ -161,6 +176,7 @@ class VLLMClient:
                         except json.JSONDecodeError:
                             continue
                         if isinstance(event, dict):
+                            self._record_usage(event)
                             yield event
         except VLLMServiceError:
             raise

@@ -11,6 +11,7 @@ const PAGE_META = {
   "favorite-detail": ["学习工作区 / 我的收藏 / 题目详情", "收藏题目详情"],
   history: ["学习工作区 / 学习记录", "看看自己最近解决了什么"],
   toolkit: ["学习工作区 / 学习工具", "用适合自己的方式理解数学"],
+  observability: ["系统 / 运行观测", "看看 Agent 每次运行到底发生了什么"],
   settings: ["系统 / 设置", "调整你的本地学习空间"],
 };
 
@@ -70,6 +71,7 @@ const state = {
   memorySummary: "",
   memoryCursor: 0,
   activeRequestController: null,
+  observability: { loading: false, days: 7, metrics: null, traces: [], error: "" },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -210,6 +212,7 @@ function setPage(page) {
   location.hash = state.page;
   render();
   $("#sidebar").classList.remove("open");
+  if (state.page === "observability") loadObservability();
 }
 function showFavoriteDetail(index) {
   state.favoriteDetailIndex = Number(index);
@@ -230,8 +233,9 @@ function renderMessages() {
   return state.messages.map((message, index) => {
     const assistant = message.role === "assistant";
     const content = markdownToHtml(message.content);
+    const trace = assistant && message.trace ? `<div class="trace-card">${renderTraceMarkup(message.trace)}</div>` : "";
     const actions = assistant && message.content ? `<div class="message-actions"><button data-copy-index="${index}">复制答案</button><button data-favorite-index="${index}">收藏上一道题</button></div>` : "";
-    return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div class="message-content"><div class="message-bubble">${content}</div>${actions}</div></div>`;
+    return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div class="message-content">${trace}<div class="message-bubble">${content}</div>${actions}</div></div>`;
   }).join("");
 }
 
@@ -249,14 +253,16 @@ function solvePage() {
     ["✅", "检查我的答案", "找出思路漏洞", "请检查我写出的答案或思路，指出错误并给出改进建议。"],
   ];
   const mode = state.answerMode;
-  const memoryStatus = mode === "follow_up"
-    ? `<div class="memory-status ${state.memorySummary ? "active" : ""}"><span class="memory-status-dot"></span>${state.memorySummary ? "已启用压缩摘要，较早对话已整理" : "连续追问会保留最近对话，过长时自动压缩旧内容"}</div>`
-    : `<div class="memory-status"><span class="memory-status-dot"></span>单题模式不会发送之前的对话，响应更快</div>`;
+  const memoryStatus = mode === "agent"
+    ? `<div class="memory-status ${state.loading ? "active" : ""}"><span class="memory-status-dot"></span>先判断问题类型，再决定查知识库、调用解题模型或直接回答</div>`
+    : mode === "follow_up"
+      ? `<div class="memory-status ${state.memorySummary ? "active" : ""}"><span class="memory-status-dot"></span>${state.memorySummary ? "已启用压缩摘要，较早对话已整理" : "连续追问会保留最近对话，过长时自动压缩旧内容"}</div>`
+      : `<div class="memory-status"><span class="memory-status-dot"></span>单题模式不会发送之前的对话，响应更快</div>`;
   const generationButton = state.loading
     ? `<button class="btn danger" id="stop-generation" type="button">暂停输出</button>`
     : `<button class="btn primary" id="send-question">开始解题  →</button>`;
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
-    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button>${generationButton}</div></div></div></div></div>
+    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button><button class="mode-button ${mode === "agent" ? "active" : ""}" data-answer-mode="agent" type="button"><strong>Agent 模式</strong><span>自动选工具并展示轨迹</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button>${generationButton}</div></div></div></div></div>
       <div class="side-stack"><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div><div class="card side-card"><h3>快捷学习工具</h3>${quick.map(([icon, title, desc, instruction]) => `<button class="quick-tool" data-instruction="${escapeHtml(instruction)}"><span class="tool-icon">${icon}</span><span><strong>${title}</strong><span>${desc}</span></span></button>`).join("")}</div></div></div>`;
 }
 
@@ -291,6 +297,132 @@ function toolkitPage() {
   return `<div class="page-title-row"><div><h2>学习工具</h2><p>把同一个模型变成适合不同学习阶段的助手。</p></div></div><div class="tool-grid">${tools.map(([title, desc, instruction]) => `<div class="card tool-panel"><h3>${title}</h3><div class="tool-description">${markdownToHtml(desc)}</div><button class="btn primary" data-tool-instruction="${escapeHtml(instruction)}">使用这个模式</button></div>`).join("")}</div><div class="section-heading"><h3>常见公式速查</h3><p>先理解，再记忆</p></div><div class="tool-grid"><div class="card tool-panel"><h3>一元二次方程</h3><div class="tool-description">${markdownToHtml("当 $a \\\\ne 0$ 时，方程 $ax^2+bx+c=0$ 的根为：")}</div><div class="formula">${markdownToHtml("$x = \\\\frac{-b \\\\pm \\\\sqrt{b^2 - 4ac}}{2a}$")}</div></div><div class="card tool-panel"><h3>等差数列</h3><div class="tool-description">${markdownToHtml("首项为 $a_1$，公差为 $d$ 的数列：")}</div><div class="formula">${markdownToHtml("$a_n = a_1 + (n - 1)d$")}</div></div></div>`;
 }
 
+function formatPercent(value) {
+  return value === null || value === undefined ? "—" : `${(value * 100).toFixed(1)}%`;
+}
+
+function formatSeconds(milliseconds) {
+  if (!milliseconds) return "—";
+  return milliseconds >= 10000
+    ? `${(milliseconds / 1000).toFixed(1)}s`
+    : `${(milliseconds / 1000).toFixed(2)}s`;
+}
+
+function distributionBars(data) {
+  const entries = Object.entries(data || {});
+  if (!entries.length) return `<div class="obs-empty">暂无数据</div>`;
+  const total = entries.reduce((sum, [, count]) => sum + count, 0) || 1;
+  return entries.map(([name, count]) => `
+    <div class="obs-bar-row">
+      <span class="obs-bar-name" title="${escapeHtml(name)}">${escapeHtml(name)}</span>
+      <span class="obs-bar-track"><span class="obs-bar-fill" style="width:${Math.round((count / total) * 100)}%"></span></span>
+      <span class="obs-bar-count">${count}</span>
+    </div>`).join("");
+}
+
+function metricCard(label, value, note) {
+  return `<div class="card stat-card"><div class="stat-label">${escapeHtml(label)}</div><div class="stat-value">${escapeHtml(value)}</div><div class="stat-note">${escapeHtml(note || "")}</div></div>`;
+}
+
+function observabilityMetrics(metrics) {
+  const latency = metrics.latency_ms || {};
+  const tokens = metrics.tokens || {};
+  const stops = Object.entries(metrics.stopped_reasons || {}).map(([name, count]) => `${name} ${count}`).join(" · ");
+  return `
+    <div class="stat-grid">
+      ${metricCard("运行总数", String(metrics.runs ?? 0), "当前窗口")}
+      ${metricCard("失败率", formatPercent(metrics.failure_rate), stops || "无失败")}
+      ${metricCard("完成率", formatPercent(metrics.completion_rate), "有非空答案")}
+      ${metricCard("回退率", formatPercent(metrics.fallback_rate), `回退过 ${metrics.runs_with_fallback ?? 0} 次`)}
+      ${metricCard("延迟 P50", formatSeconds(latency.p50), `P95 ${formatSeconds(latency.p95)} · 最大 ${formatSeconds(latency.max)}`)}
+      ${metricCard("Token 总量", String(tokens.total ?? 0), `每次均 ${tokens.avg_per_run ?? 0}`)}
+    </div>
+    <div class="obs-grid">
+      <div class="card card-pad">
+        <h3 class="obs-title">路由分布（decision.tool）</h3>
+        ${distributionBars(metrics.routes)}
+        <h3 class="obs-title">意图分布</h3>
+        ${distributionBars(metrics.intents)}
+        <h3 class="obs-title">工具实际调用</h3>
+        ${distributionBars(metrics.tool_calls)}
+      </div>
+      <div class="card card-pad">
+        <h3 class="obs-title">验证结论</h3>
+        ${distributionBars(metrics.verification)}
+        <h3 class="obs-title">答案模型</h3>
+        ${distributionBars(metrics.models)}
+        <div class="obs-note">幻觉率代理 ${formatPercent(metrics.hallucination_rate)}（证伪 ${metrics.refuted ?? 0} · 来源未支持 ${metrics.ungrounded ?? 0}）</div>
+      </div>
+    </div>`;
+}
+
+function observabilityRun(trace) {
+  const ok = !trace.error && trace.stopped_reason === "final";
+  const verify = trace.verification;
+  const usage = trace.usage || {};
+  const time = String(trace.started_at || "").replace("T", " ").slice(5, 16);
+  const tools = (trace.observations || []).map((observation) => `
+    <div class="trace-step ${observation.success ? "ok" : "fail"}">
+      <span class="trace-step-dot"></span>
+      <span class="trace-step-name">${escapeHtml(observation.tool)}</span>
+      <span class="trace-step-detail">${observation.success ? "成功" : "失败"} · ${(observation.duration_ms / 1000).toFixed(1)}s</span>
+    </div>`).join("");
+  return `<details class="card run-card">
+    <summary class="run-summary">
+      <span class="run-time">${escapeHtml(time)}</span>
+      <span class="run-question" title="${escapeHtml(trace.question)}">${escapeHtml(trace.question)}</span>
+      <span class="run-badge ${ok ? "ok" : "fail"}">${escapeHtml(trace.stopped_reason || "")}</span>
+      <span class="run-meta">${formatSeconds(trace.duration_ms)} · ${usage.total_tokens ?? 0} tok</span>
+    </summary>
+    <div class="run-body">
+      <div class="run-row"><span>run_id</span><code>${escapeHtml(trace.run_id)}</code></div>
+      <div class="run-row"><span>路由</span><b>${trace.decision ? `${escapeHtml(trace.decision.intent)} → ${escapeHtml(trace.decision.tool)}` : "—"}</b></div>
+      <div class="run-row"><span>验证</span><b>${verify ? `${escapeHtml(VERIFY_LABEL[verify.status] || verify.status)} · ${escapeHtml(VERIFY_METHOD[verify.method] || verify.method)}` : "未验证"}</b></div>
+      <div class="run-row"><span>答案模型</span><b>${escapeHtml(trace.answer_model || "—")}</b></div>
+      <div class="run-row"><span>模型调用</span><b>${usage.calls ?? 0} 次 · 回退 ${trace.fallbacks ?? 0} 次</b></div>
+      ${trace.error ? `<div class="run-row fail"><span>错误</span><b>${escapeHtml(trace.error)}</b></div>` : ""}
+      ${tools ? `<div class="trace-steps">${tools}</div>` : ""}
+      ${verify && verify.detail ? `<div class="obs-note">${escapeHtml(verify.detail)}</div>` : ""}
+      <div class="run-answer">${escapeHtml((trace.answer || "").slice(0, 400)) || "（无答案）"}</div>
+    </div>
+  </details>`;
+}
+
+function observabilityPage() {
+  const view = state.observability;
+  const options = [[1, "最近 1 天"], [7, "最近 7 天"], [30, "最近 30 天"], [0, "全部"]];
+  const header = `<div class="page-title-row"><div><h2>运行观测</h2><p>每次 Agent 运行的调用链与整体指标，数据来自后端 <code>/api/metrics</code> 与 <code>/api/traces</code>。</p></div><div class="page-actions"><select id="obs-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="obs-refresh">刷新</button></div></div>`;
+  if (view.loading) return `${header}<div class="card empty-state"><strong>正在读取运行记录…</strong><p>需要后端已启动。</p></div>`;
+  if (view.error) return `${header}<div class="card empty-state"><strong>读取失败</strong><p>${escapeHtml(view.error)}</p><button class="btn primary" id="obs-refresh">重试</button></div>`;
+  if (!view.metrics) return `${header}<div class="card empty-state"><strong>还没有数据</strong><p>点右上角「刷新」读取运行记录。</p></div>`;
+  const runs = view.traces.length
+    ? view.traces.slice().reverse().map(observabilityRun).join("")
+    : `<div class="card empty-state"><strong>窗口内没有运行记录</strong><p>在「开始解题」里用 Agent 模式提一个问题，这里就会出现一次运行。</p></div>`;
+  return `${header}${observabilityMetrics(view.metrics)}<div class="section-heading"><h3>逐次运行</h3><p>按任务展开查看调用链，最新的在最上面</p></div>${runs}`;
+}
+
+async function loadObservability() {
+  const view = state.observability;
+  view.loading = true;
+  view.error = "";
+  render();
+  try {
+    const [metricsResponse, tracesResponse] = await Promise.all([
+      fetch(`${apiBase()}/metrics?days=${view.days}`),
+      fetch(`${apiBase()}/traces?limit=50`),
+    ]);
+    if (!metricsResponse.ok) throw new Error(`指标接口失败（HTTP ${metricsResponse.status}）`);
+    if (!tracesResponse.ok) throw new Error(`明细接口失败（HTTP ${tracesResponse.status}）`);
+    view.metrics = await metricsResponse.json();
+    view.traces = await tracesResponse.json();
+  } catch (error) {
+    view.error = error.message || String(error);
+  } finally {
+    view.loading = false;
+    if (state.page === "observability") render();
+  }
+}
+
 function settingsPage() {
   const dark = document.body.classList.contains("dark");
   return `<div class="page-title-row"><div><h2>设置</h2><p>这些设置只保存在当前浏览器，不会上传到服务器。</p></div></div><div class="card card-pad settings-form"><div class="field"><label for="api-base-input">FastAPI 服务地址</label><input id="api-base-input" value="${escapeHtml(apiBase())}" placeholder="http://127.0.0.1:8080/api"/><small>默认由本地启动器提供。不要在这里填写 API Key，密钥只应放在后端环境变量中。</small></div><div class="setting-row"><div><strong>深色模式</strong><p>适合晚上学习，切换后会立即生效。</p></div><button class="switch ${dark ? "on" : ""}" id="settings-theme-toggle" aria-label="切换深色模式"></button></div><div class="setting-row"><div><strong>本地数据</strong><p>收藏和学习记录只保存在浏览器 localStorage。</p></div><button class="btn danger" id="clear-local-data">清除本地数据</button></div><div class="page-actions"><button class="btn primary" id="save-settings">保存设置</button></div></div>`;
@@ -298,7 +430,7 @@ function settingsPage() {
 
 function render() {
   setActiveNav(); updateCounts();
-  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : settingsPage();
+  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : state.page === "observability" ? observabilityPage() : settingsPage();
   renderMarkdownSurfaces();
   renderFavoriteQuestionPreviews();
   renderFavoriteToolbar();
@@ -329,6 +461,120 @@ function updateStreamingAnswer() {
     renderMath(bubble);
     scrollChatToLatest();
   });
+}
+
+function currentAssistantMessage() {
+  return state.messages.length ? state.messages[state.messages.length - 1] : null;
+}
+
+const TRACE_THINKING = {
+  classify: "正在分析问题类型…",
+  decide: "正在判断下一步…",
+  answer: "正在生成答案…",
+  verify: "正在独立验证答案…",
+};
+
+const VERIFY_LABEL = { verified: "已验证", refuted: "已证伪", unknown: "无法验证" };
+const VERIFY_METHOD = {
+  substitution: "代入检验",
+  expression: "独立求值",
+  grounding: "来源核对",
+  llm_judge: "模型评审",
+  none: "",
+};
+
+function modelTag(model) {
+  return model ? `<span class="trace-model">${escapeHtml(model)}</span>` : "";
+}
+
+function renderTraceMarkup(trace) {
+  if (!trace) return "";
+  const route = trace.decision
+    ? `<div class="trace-route"><span class="trace-label">路由</span><span class="trace-badge">${escapeHtml(trace.decision.intent)}</span><span class="trace-arrow">→</span><span class="trace-badge tool">${escapeHtml(trace.decision.tool)}</span>${modelTag(trace.routeModel)}</div>`
+    : `<div class="trace-route"><span class="trace-label">路由</span><span class="trace-muted">正在分析问题类型…</span></div>`;
+  const steps = (trace.steps || []).map((step) => {
+    const stateClass = step.status === "running" ? "running" : step.success ? "ok" : "fail";
+    const detail = step.status === "running"
+      ? "调用中…"
+      : `${step.success ? "成功" : "失败"} · ${(step.duration_ms / 1000).toFixed(1)}s`;
+    return `<div class="trace-step ${stateClass}"><span class="trace-step-dot"></span><span class="trace-step-name">${escapeHtml(step.tool)}</span>${modelTag(step.model)}<span class="trace-step-detail">${escapeHtml(detail)}</span></div>`;
+  }).join("");
+  const retries = (trace.retries || []).map((item) => `<div class="trace-retry">第 ${item.attempt} 次修正：${escapeHtml(item.reason || "答案被证伪")}</div>`).join("");
+  const verification = trace.verification
+    ? `<div class="trace-verify ${escapeHtml(trace.verification.status)}"><span class="trace-verify-dot"></span><span class="trace-verify-label">验证 · ${escapeHtml(VERIFY_LABEL[trace.verification.status] || trace.verification.status)}</span><span class="trace-step-detail">${escapeHtml(VERIFY_METHOD[trace.verification.method] || "")}</span>${modelTag(trace.verifyModel)}</div>`
+    : "";
+  const thinking = trace.status === "running" && trace.thinking
+    ? `<div class="trace-thinking">${escapeHtml(TRACE_THINKING[trace.thinking] || "处理中…")}</div>`
+    : "";
+  const answerNote = trace.answerModel ? ` · 答案由 ${escapeHtml(trace.answerModel)} 生成` : "";
+  const footer = trace.stoppedReason ? `<div class="trace-footer">结束原因：${escapeHtml(trace.stoppedReason)}${answerNote}</div>` : "";
+  const status = trace.status === "running" ? "运行中" : "已完成";
+  return `<div class="trace-head"><span class="trace-title">Agent 执行轨迹</span><span class="trace-status">${status}</span></div>${route}${steps ? `<div class="trace-steps">${steps}</div>` : ""}${retries}${verification}${thinking}${footer}`;
+}
+
+function updateTraceCard() {
+  const message = currentAssistantMessage();
+  if (!message || !message.trace) return;
+  const cards = document.querySelectorAll("#chat-messages .trace-card");
+  const card = cards[cards.length - 1];
+  if (!card) { render(); return; }
+  card.innerHTML = renderTraceMarkup(message.trace);
+  scrollChatToLatest();
+}
+
+function handleAgentEvent(event) {
+  const message = currentAssistantMessage();
+  if (!message) return;
+  if (!message.trace) message.trace = { status: "running", decision: null, steps: [], thinking: "", retries: [], verification: null, routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
+  const trace = message.trace;
+  if (event.type === "thinking") {
+    trace.thinking = event.stage;
+  } else if (event.type === "route") {
+    trace.decision = event.decision;
+    trace.routeModel = event.model || "";
+    trace.thinking = "";
+  } else if (event.type === "tool_start") {
+    trace.thinking = "";
+    trace.steps.push({ step: event.step, tool: event.tool, model: event.model || "", status: "running", success: null, duration_ms: 0 });
+  } else if (event.type === "tool_end") {
+    const step = trace.steps.find((item) => item.step === event.step && item.tool === event.tool);
+    if (step) {
+      step.status = "done"; step.success = event.success; step.duration_ms = event.duration_ms;
+      if (event.model) step.model = event.model;
+    } else {
+      trace.steps.push({ step: event.step, tool: event.tool, model: event.model || "", status: "done", success: event.success, duration_ms: event.duration_ms });
+    }
+  } else if (event.type === "answer_delta") {
+    trace.thinking = "";
+    message.content += event.content || "";
+    updateStreamingAnswer();
+  } else if (event.type === "verify_start") {
+    trace.thinking = "verify";
+  } else if (event.type === "verify") {
+    trace.thinking = "";
+    trace.verification = event.verification;
+    trace.verifyModel = event.model || "";
+  } else if (event.type === "retry") {
+    trace.thinking = "";
+    trace.retries.push({ attempt: event.attempt, reason: event.reason });
+  } else if (event.type === "answer_reset") {
+    trace.thinking = "answer";
+    message.content = "";
+    updateStreamingAnswer();
+  } else if (event.type === "done") {
+    trace.status = "done";
+    trace.thinking = "";
+    trace.stoppedReason = event.stopped_reason || "";
+    trace.answerModel = event.answer_model || "";
+    if (event.verification) trace.verification = event.verification;
+    if (event.run && typeof event.run.answer === "string" && event.run.answer) {
+      message.content = event.run.answer;
+      updateStreamingAnswer();
+    }
+  } else if (event.type === "error") {
+    throw new Error(event.message || "Agent 请求失败");
+  }
+  updateTraceCard();
 }
 
 function renderFavoriteToolbar() {
@@ -563,11 +809,20 @@ async function sendQuestion() {
   const input = $("#question-input"); const question = input.value.trim(); if (!question || state.loading) return;
   const requestController = new AbortController();
   state.activeRequestController = requestController;
-  state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, { role: "assistant", content: "" }); render();
+  const assistantMessage = { role: "assistant", content: "" };
+  if (state.answerMode === "agent") {
+    assistantMessage.trace = { status: "running", decision: null, steps: [], thinking: "classify", retries: [], verification: null, routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
+    state.memorySummary = "";
+    state.memoryCursor = 0;
+  }
+  state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, assistantMessage); render();
   try {
     let endpoint = "/chat";
     let body = { messages: state.messages.slice(0, -1), stream: true };
-    if (state.answerMode === "solve") {
+    if (state.answerMode === "agent") {
+      endpoint = "/agent/stream";
+      body = { question, max_steps: 4 };
+    } else if (state.answerMode === "solve") {
       endpoint = "/solve";
       body = { question, stream: true };
       state.memorySummary = "";
@@ -606,22 +861,27 @@ async function sendQuestion() {
         const payloadText = line.slice(5).trim(); if (!payloadText || payloadText === "[DONE]") continue;
         let payload; try { payload = JSON.parse(payloadText); } catch { continue; }
         if (payload.error) throw new Error(payload.error);
+        if (payload.type) { handleAgentEvent(payload); continue; }
         if (payload.content && state.messages.length) { state.messages[state.messages.length - 1].content += payload.content; updateStreamingAnswer(); }
       }
     }
     if (state.messages.length) addHistory(question, state.messages[state.messages.length - 1].content);
   } catch (error) {
+    const last = state.messages[state.messages.length - 1];
+    if (last?.trace) {
+      last.trace.status = "done";
+      last.trace.steps.forEach((step) => { if (step.status === "running") { step.status = "done"; step.success = false; } });
+    }
     if (error.name === "AbortError") {
-      const answer = state.messages[state.messages.length - 1];
-      if (answer) {
-        answer.content = answer.content.trim()
-          ? `${answer.content}\n\n*（输出已暂停）*`
+      if (last) {
+        last.content = last.content.trim()
+          ? `${last.content}\n\n*（输出已暂停）*`
           : "*（输出已暂停，尚未生成回答）*";
-        addHistory(question, answer.content);
+        addHistory(question, last.content);
       }
       toast("已暂停模型输出。");
     } else {
-      if (state.messages.length) state.messages[state.messages.length - 1].content = `**暂时无法完成请求**\n\n${error.message}`;
+      if (last) last.content = `**暂时无法完成请求**\n\n${error.message}`;
       toast("请求失败，请检查后端和模型服务状态。");
     }
   } finally {
@@ -646,12 +906,18 @@ async function checkHealth() {
 function bindPageEvents() {
   document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => setPage(button.dataset.page));
   document.querySelectorAll("[data-answer-mode]").forEach((button) => button.onclick = () => {
-    state.answerMode = button.dataset.answerMode === "follow_up" ? "follow_up" : "solve";
-    if (state.answerMode === "solve") {
+    const mode = button.dataset.answerMode;
+    state.answerMode = mode === "follow_up" ? "follow_up" : mode === "agent" ? "agent" : "solve";
+    if (state.answerMode !== "follow_up") {
       state.memorySummary = "";
       state.memoryCursor = 0;
     }
     render();
+  });
+  document.querySelectorAll("#obs-refresh").forEach((button) => button.addEventListener("click", loadObservability));
+  $("#obs-days")?.addEventListener("change", (event) => {
+    state.observability.days = Number(event.target.value) || 0;
+    loadObservability();
   });
   $("#stop-generation")?.addEventListener("click", stopGeneration);
   $("#chat-messages")?.addEventListener("scroll", (event) => {
@@ -718,6 +984,8 @@ window.addEventListener("hashchange", () => {
   state.page = detail ? "favorite-detail" : (PAGE_META[hash] ? hash : "solve");
   if (detail) state.favoriteDetailIndex = Number(detail[1]);
   render();
+  if (state.page === "observability") loadObservability();
 });
 if (localStorage.getItem(STORAGE.theme) === "dark") document.body.classList.add("dark");
 render(); checkHealth();
+if (state.page === "observability") loadObservability();

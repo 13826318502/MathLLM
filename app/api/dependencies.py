@@ -13,4 +13,10 @@ def get_settings(request: Request) -> Settings:
 
 
 def get_vllm_client(request: Request) -> VLLMClient:
+    """The local solving model (also used by the legacy single-shot routes)."""
     return request.app.state.vllm_client
+
+
+def get_orchestrator(request: Request):
+    """The orchestration endpoint: cloud when configured, local otherwise."""
+    return request.app.state.orchestrator

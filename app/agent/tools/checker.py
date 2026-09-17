@@ -1,4 +1,4 @@
-"""check_math_answer: ask the model for a structured verdict on an answer."""
+"""check_math_answer: rule-based verification first, LLM judge as fallback."""
 
 from __future__ import annotations
 
@@ -7,6 +7,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from app.agent.schema import ToolResult, Verdict
 from app.agent.structured import complete_structured
 from app.agent.tools.base import ToolContext, ToolSpec
+from app.services import verify_service
 
 CHECKER_SYSTEM_PROMPT = """你是数学答案校验器。
 判断给定的解答是否正确，只输出一个 JSON 对象，不要输出其他内容。
@@ -31,7 +32,7 @@ class CheckInput(BaseModel):
     answer: str = Field(..., min_length=1, max_length=8000)
 
 
-async def _check(args: CheckInput, ctx: ToolContext) -> ToolResult:
+async def _judge(args: CheckInput, ctx: ToolContext) -> ToolResult:
     messages = [
         {"role": "system", "content": CHECKER_SYSTEM_PROMPT},
         {
@@ -42,7 +43,35 @@ async def _check(args: CheckInput, ctx: ToolContext) -> ToolResult:
     verdict = await complete_structured(ctx.client, messages, Verdict, max_tokens=256)
     if verdict is None:
         return ToolResult(success=False, error="无法得到有效的校验结论")
-    return ToolResult(success=True, data=verdict.model_dump())
+    data = verdict.model_dump()
+    data["method"] = "llm_judge"
+    return ToolResult(success=True, data=data)
+
+
+async def _check(args: CheckInput, ctx: ToolContext) -> ToolResult:
+    verification = await verify_service.verify_answer(
+        ctx.client, args.question, args.answer, []
+    )
+    if verification.status == "verified":
+        return ToolResult(
+            success=True,
+            data={
+                "verdict": "correct",
+                "reason": verification.detail,
+                "method": verification.method,
+            },
+        )
+    if verification.status == "refuted":
+        return ToolResult(
+            success=True,
+            data={
+                "verdict": "incorrect",
+                "reason": verification.detail,
+                "method": verification.method,
+                "counterexample": verification.counterexample,
+            },
+        )
+    return await _judge(args, ctx)
 
 
 SPEC = ToolSpec(
@@ -50,5 +79,5 @@ SPEC = ToolSpec(
     description="检查一个数学解答是否正确，返回 correct/incorrect/uncertain 及理由。",
     input_model=CheckInput,
     handler=_check,
-    timeout=60.0,
+    timeout=120.0,
 )
