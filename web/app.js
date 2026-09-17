@@ -232,10 +232,12 @@ function renderMessages() {
   if (!state.messages.length) return `<div class="empty-chat"><div><div class="empty-icon">∑</div><h3>从一道题开始吧</h3><p>输入题目后，我会尽量把思路、公式和每一步原因讲清楚。</p></div></div>`;
   return state.messages.map((message, index) => {
     const assistant = message.role === "assistant";
+    const hasTrace = Boolean(assistant && message.trace);
     const content = markdownToHtml(message.content);
-    const trace = assistant && message.trace ? `<div class="trace-card">${renderTraceMarkup(message.trace)}</div>` : "";
+    const trace = hasTrace ? `<div class="trace-card">${renderTraceMarkup(message.trace, message.content)}</div>` : "";
+    const bubble = hasTrace ? "" : `<div class="message-bubble">${content}</div>`;
     const actions = assistant && message.content ? `<div class="message-actions"><button data-copy-index="${index}">复制答案</button><button data-favorite-index="${index}">收藏上一道题</button></div>` : "";
-    return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div class="message-content">${trace}<div class="message-bubble">${content}</div>${actions}</div></div>`;
+    return `<div class="message-row ${assistant ? "assistant" : "user"}"><div class="message-avatar">${assistant ? "∑" : "我"}</div><div class="message-content">${trace}${bubble}${actions}</div></div>`;
   }).join("");
 }
 
@@ -487,8 +489,45 @@ function modelTag(model) {
   return model ? `<span class="trace-model">${escapeHtml(model)}</span>` : "";
 }
 
-function renderTraceMarkup(trace) {
+const VERIFY_SECTION_WORDS = ["检查与验证", "验证与检验", "检验", "验证"];
+const FINAL_SECTION_WORDS = ["最终答案", "结论", "答案"];
+
+function isSectionLine(line, keywords) {
+  const trimmed = String(line || "").trim();
+  if (!trimmed) return false;
+  if (/^#{1,6}\s+/.test(trimmed)) {
+    const plain = trimmed.replace(/^#{1,6}\s+/, "").replace(/[*_`]/g, "").trim();
+    return keywords.some((word) => plain.startsWith(word));
+  }
+  const plain = trimmed.replace(/[*_`]/g, "").trim().replace(/[：:]$/, "").trim();
+  return keywords.some((word) => plain === word);
+}
+
+function splitAnswer(content) {
+  const lines = String(content || "").replace(/\r\n/g, "\n").split("\n");
+  const marks = [];
+  const verifyIndex = lines.findIndex((line) => isSectionLine(line, VERIFY_SECTION_WORDS));
+  const finalIndex = lines.findIndex((line) => isSectionLine(line, FINAL_SECTION_WORDS));
+  if (verifyIndex >= 0) marks.push({ kind: "verify", index: verifyIndex });
+  if (finalIndex >= 0) marks.push({ kind: "final", index: finalIndex });
+  if (!marks.length) return { solution: lines.join("\n").trim(), verifySection: "", finalSection: "" };
+  marks.sort((left, right) => left.index - right.index);
+  const solution = lines.slice(0, marks[0].index).join("\n").trim();
+  let verifySection = "";
+  let finalSection = "";
+  marks.forEach((mark, position) => {
+    const end = position + 1 < marks.length ? marks[position + 1].index : lines.length;
+    const chunk = lines.slice(mark.index, end).join("\n").trim();
+    if (!chunk) return;
+    if (mark.kind === "verify") verifySection = verifySection ? `${verifySection}\n${chunk}` : chunk;
+    else finalSection = finalSection ? `${finalSection}\n${chunk}` : chunk;
+  });
+  return { solution, verifySection, finalSection };
+}
+
+function renderTraceMarkup(trace, content = "") {
   if (!trace) return "";
+  const { solution, verifySection, finalSection } = splitAnswer(content);
   const route = trace.decision
     ? `<div class="trace-route"><span class="trace-label">路由</span><span class="trace-badge">${escapeHtml(trace.decision.intent)}</span><span class="trace-arrow">→</span><span class="trace-badge tool">${escapeHtml(trace.decision.tool)}</span>${modelTag(trace.routeModel)}</div>`
     : `<div class="trace-route"><span class="trace-label">路由</span><span class="trace-muted">正在分析问题类型…</span></div>`;
@@ -499,31 +538,54 @@ function renderTraceMarkup(trace) {
       : `${step.success ? "成功" : "失败"} · ${(step.duration_ms / 1000).toFixed(1)}s`;
     return `<div class="trace-step ${stateClass}"><span class="trace-step-dot"></span><span class="trace-step-name">${escapeHtml(step.tool)}</span>${modelTag(step.model)}<span class="trace-step-detail">${escapeHtml(detail)}</span></div>`;
   }).join("");
+  const thinkingText = trace.status === "running" && trace.thinking ? (TRACE_THINKING[trace.thinking] || "处理中…") : "";
+  const solveThinking = thinkingText && trace.thinking !== "verify" ? `<div class="trace-thinking">${escapeHtml(thinkingText)}</div>` : "";
+  const solveAnswer = solution
+    ? `<div class="trace-block-label">解题回答</div><div class="trace-answer">${markdownToHtml(solution)}</div>`
+    : "";
+  const solveBlock = `<div class="trace-block solve"><div class="trace-block-head"><span class="trace-block-step">1</span><span class="trace-block-title">解题路径</span><span class="trace-block-note">路由到解题工具，执行求解过程</span></div>${route}${steps ? `<div class="trace-steps">${steps}</div>` : ""}${solveThinking}${solveAnswer}</div>`;
+
   const retries = (trace.retries || []).map((item) => `<div class="trace-retry">第 ${item.attempt} 次修正：${escapeHtml(item.reason || "答案被证伪")}</div>`).join("");
+  const verifying = trace.status === "running" && trace.thinking === "verify";
   const verification = trace.verification
     ? `<div class="trace-verify ${escapeHtml(trace.verification.status)}"><span class="trace-verify-dot"></span><span class="trace-verify-label">验证 · ${escapeHtml(VERIFY_LABEL[trace.verification.status] || trace.verification.status)}</span><span class="trace-step-detail">${escapeHtml(VERIFY_METHOD[trace.verification.method] || "")}</span>${modelTag(trace.verifyModel)}</div>`
     : "";
-  const thinking = trace.status === "running" && trace.thinking
-    ? `<div class="trace-thinking">${escapeHtml(TRACE_THINKING[trace.thinking] || "处理中…")}</div>`
+  const verifyDetail = trace.verification && trace.verification.detail
+    ? `<div class="trace-verify-detail">${escapeHtml(trace.verification.detail)}</div>`
     : "";
+  const verifyNotice = `<div class="trace-notice"><span class="trace-notice-icon">⚑</span><span>已路由到验证路径：由独立模型重新检查答案是否成立，避免自证。</span></div>`;
+  const verifyAnswer = (verifySection || finalSection)
+    ? `<div class="trace-block-label">验证回答</div>${verifySection ? `<div class="trace-verify-answer">${markdownToHtml(verifySection)}</div>` : ""}${finalSection ? `<div class="trace-final-answer">${markdownToHtml(finalSection)}</div>` : ""}`
+    : "";
+  const verifyBlock = (verification || retries || verifying || verifyAnswer)
+    ? `<div class="trace-block verify"><div class="trace-block-head"><span class="trace-block-step">2</span><span class="trace-block-title">验证路径</span><span class="trace-block-note">独立模型复核</span></div>${verifyNotice}${verifying ? `<div class="trace-thinking">正在独立验证答案…</div>` : verification}${verifyDetail}${retries}${verifyAnswer}</div>`
+    : "";
+
   const answerNote = trace.answerModel ? ` · 答案由 ${escapeHtml(trace.answerModel)} 生成` : "";
   const footer = trace.stoppedReason ? `<div class="trace-footer">结束原因：${escapeHtml(trace.stoppedReason)}${answerNote}</div>` : "";
   const status = trace.status === "running" ? "运行中" : "已完成";
-  return `<div class="trace-head"><span class="trace-title">Agent 执行轨迹</span><span class="trace-status">${status}</span></div>${route}${steps ? `<div class="trace-steps">${steps}</div>` : ""}${retries}${verification}${thinking}${footer}`;
+  return `<div class="trace-head"><span class="trace-title">Agent 执行轨迹</span><span class="trace-status">${status}</span></div>${solveBlock}${verifyBlock}${footer}`;
 }
 
+let traceCardUpdatePending = false;
 function updateTraceCard() {
   // Only the solve page renders a trace card. Calling render() from here while
   // another page is open would rebuild it and collapse any expanded run in
   // 「运行观测」, so a run in progress must not touch other pages.
   if (state.page !== "solve") return;
-  const message = currentAssistantMessage();
-  if (!message || !message.trace) return;
-  const cards = document.querySelectorAll("#chat-messages .trace-card");
-  const card = cards[cards.length - 1];
-  if (!card) { render(); return; }
-  card.innerHTML = renderTraceMarkup(message.trace);
-  scrollChatToLatest();
+  if (traceCardUpdatePending) return;
+  traceCardUpdatePending = true;
+  requestAnimationFrame(() => {
+    traceCardUpdatePending = false;
+    const message = currentAssistantMessage();
+    if (!message || !message.trace) return;
+    const cards = document.querySelectorAll("#chat-messages .trace-card");
+    const card = cards[cards.length - 1];
+    if (!card) { render(); return; }
+    card.innerHTML = renderTraceMarkup(message.trace, message.content);
+    renderMath(card);
+    scrollChatToLatest();
+  });
 }
 
 function handleAgentEvent(event) {
@@ -551,7 +613,6 @@ function handleAgentEvent(event) {
   } else if (event.type === "answer_delta") {
     trace.thinking = "";
     message.content += event.content || "";
-    updateStreamingAnswer();
   } else if (event.type === "verify_start") {
     trace.thinking = "verify";
   } else if (event.type === "verify") {
@@ -564,7 +625,6 @@ function handleAgentEvent(event) {
   } else if (event.type === "answer_reset") {
     trace.thinking = "answer";
     message.content = "";
-    updateStreamingAnswer();
   } else if (event.type === "done") {
     trace.status = "done";
     trace.thinking = "";
@@ -573,7 +633,6 @@ function handleAgentEvent(event) {
     if (event.verification) trace.verification = event.verification;
     if (event.run && typeof event.run.answer === "string" && event.run.answer) {
       message.content = event.run.answer;
-      updateStreamingAnswer();
     }
   } else if (event.type === "error") {
     throw new Error(event.message || "Agent 请求失败");

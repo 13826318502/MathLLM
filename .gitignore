@@ -50,3 +50,7 @@ venv/
 *.swp
 
 node_modules/
+
+# Local agent tooling / test caches
+.openchamber/
+.pytest_cache/

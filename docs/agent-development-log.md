@@ -2,7 +2,7 @@
 
 > 项目：MathLLM-数学解答系统
 > 时间范围：从「结构化输出地基」到「云端编排 + 本地解题」与「调用链可观测」
-> 状态：P0 / P1 / P2 / P3 / Agent 前端接入 / P5 / 模型路由 / P7 块1-2（调用链日志 + 运行指标）完成，
+> 状态：P0 / P1 / P2 / P3 / Agent 前端接入 / P5 / 模型路由 / P7 块1-2（调用链日志 + 运行指标）/ 轨迹卡分块（路径 → 回答）完成，
 > 136 个单元测试通过，全部经真机（本地 Ollama + Chroma + SymPy + 浏览器）验证
 
 ---
@@ -1477,4 +1477,178 @@ data: {"type":"done","steps":1,"stopped_reason":"final","verification":{…},"an
 - [ ] README 增加「纯功能版」说明：不训练模型、把解题模型指向任意 OpenAI 兼容接口也能用
 - [ ] 把本记录放进仓库 `docs/`，作为开发日志随代码一起维护
 
-已完成：P0 结构化输出 → P1 工具层 → P2 有界 ReAct 循环 → P3 真实 RAG → Agent 前端接入 → P5 答案独立验证 → 模型路由（云端编排 + 本地解题）→ P7 块1 调用链日志 → **P7 块2 运行指标（含「运行观测」页面）**
+已完成：P0 结构化输出 → P1 工具层 → P2 有界 ReAct 循环 → P3 真实 RAG → Agent 前端接入 → P5 答案独立验证 → 模型路由（云端编排 + 本地解题）→ P7 块1 调用链日志 → **P7 块2 运行指标（含「运行观测」页面）** → **轨迹卡分块（路径 → 回答）**
+
+---
+
+## 十七、前端改造：Agent 执行轨迹按路径分块（路径 → 回答）
+
+### 动机
+
+轨迹卡和答案原本是两块分离的内容：上面一张轨迹卡（路由 → 工具 → 验证），下面一个独立的答案气泡。看轨迹时不知道答案是哪一步产生的，看答案时又要回头找它属于哪条路径。
+
+目标是**把「路径选择」和「该路径的回答」绑在一起**：每选一条路径，紧跟着就是这条路径产出的内容。
+
+改造前：
+
+```
+Agent 执行轨迹
+  路由  math → solve_math_problem  deepseek-flash
+  solve_math_problem  mathllm-round7  成功 · 82.5s
+  验证 · 已验证  代入检验  deepseek-flash
+  结束原因：final · 答案由 mathllm-round7 生成
+
+（下面单独一个答案气泡：解题步骤 + 检查与验证 + 最终答案）
+```
+
+改造后：
+
+```
+① 解题路径
+   路由  math → solve_math_problem  deepseek-flash
+   ● solve_math_problem  mathllm-round7  成功 · 82.5s
+   ── 解题回答 ──
+   ### 题目类型与已知条件 …
+   ### 解题步骤 …
+
+② 验证路径
+   ⚑ 已路由到验证路径：由独立模型重新检查答案是否成立，避免自证。
+   ● 验证 · 已验证  代入检验  deepseek-flash
+   2 个答案全部满足等式                      ← verification.detail
+   ── 验证回答 ──
+   ### 检查与验证 …
+   ### 最终答案  x = 2 或 x = 3（高亮）
+结束原因：final · 答案由 mathllm-round7 生成
+[复制答案] [收藏上一道题]
+```
+
+### 先厘清「谁产生了什么」
+
+改造前先确认了内容归属，避免把「模型自查」当成「系统验证」：
+
+| 内容 | 产生者 | 来源 |
+|---|---|---|
+| 解题回答（题目类型 / 步骤） | 本地解题模型 `mathllm-round7` | `solve_math_problem` 工具流式输出 |
+| 「检查与验证」段 | 本地解题模型（**自查**，不作为验证结论） | 同上，答案正文的一部分 |
+| 验证结论（已验证 / 已证伪 / 无法验证） | **SymPy 独立计算** | `verify_service.check_by_substitution()` |
+| 验证里的题目翻译 / 答案抽取 | 编排模型 `deepseek-flash`（失败回退本地） | `translate_question()` / `extract_answer()` |
+| `2 个答案全部满足等式` | SymPy 代入结果 | `VerificationResult.detail` |
+
+所以「验证回答」= 后端独立验证结论 + 模型自查段 + 最终答案，而不是把模型自查当成验证。
+
+### 验证路径块逐行对照（界面上每条内容来自谁）
+
+| 界面元素 | 产出者 | 代码位置 |
+|---|---|---|
+| ⚑ 已路由到验证路径：… | 前端固定文案 | `app.js` 的 `verifyNotice` |
+| ● 验证 · 已验证 · 代入检验 | 状态/方法由 SymPy 判定，`代入检验` 是 `method=substitution` 的中文标签 | `verify_service.check_by_substitution()` / `app.js` 的 `VERIFY_METHOD` |
+| `deepseek-flash` 标签 | 验证期间**最后一次**网关调用实际用的模型 | `loop.py` 的 `_model_label(client)`（读 `ModelGateway.last_model`） |
+| 2 个答案全部满足等式 | SymPy 代入结果 | `VerificationResult.detail` |
+| 验证回答 →「检查与验证 / 当 x=2 时…」 | 本地模型 `mathllm-round7` 的答案自查段 | `splitAnswer()` 从 `message.content` 切出 |
+| 验证回答 →「最终答案 x=2 或 x=3」 | 同上，本地模型的答案正文 | 同上 |
+
+一句话：**回答正文是本地模型写的，判定结论是 SymPy 算的，deepseek 只参与翻译与抽取。**
+
+### deepseek 在验证里具体做什么（两个机械调用）
+
+`verify_answer()` 只让编排模型做两件搬运工作，**都不下判断**：
+
+1. `translate_question()` — 题目翻译（只给题目，不给解答）
+   - 输入：`解方程 x^2-5x+6=0`
+   - 输出（`SympyForm`）：
+     ```json
+     {"applicable": true, "lhs": "x**2 - 5*x + 6", "rhs": "0", "variables": ["x"]}
+     ```
+   - prompt 明确「绝对不要参考或使用任何解答过程」（`verify_service.py:41` / `:329`）
+2. `extract_answer()` — 答案抽取（给题目 + 完整解答）
+   - 输出（`ExtractedAnswer`）：
+     ```json
+     {"kind": "solution_set", "values": ["2", "3"]}
+     ```
+   - 只抠最终答案的值，不带 `x=` 前缀、不自己重算（`verify_service.py:79`）
+
+之后才是裁判环节：
+
+```python
+check_by_substitution(lhs="x**2 - 5*x + 6", rhs="0",
+                      values=["2", "3"], variables=["x"])
+# x=2 → 0，x=3 → 0  → verified
+# detail: "2 个答案全部满足等式"
+```
+
+模型输出里**没有任何判定**；`已验证` 完全来自 SymPy 代入。
+
+#### 为什么要拆成两次调用
+
+最初把「抽取答案」和「翻译题目」合成一次调用（省一次模型调用）时，模型会直接拿解答里的因式分解 `(x-2)(x-3)` 当检验等式——等于「拿答案验答案」，验证失去意义。拆开后翻译只看题目，物理上无法使用解答的推导（第九节 P5 已记录该踩坑）。
+
+#### 两层兜底
+
+- **表达式白名单**：`lhs` / `rhs` 先过 `_is_safe_expression()`（字符白名单 + 禁止 `__` + 禁止游离小数点）再 `sympify`，防止模型输出被当代码执行。
+- **退化翻译检测**：译成「变量 = 常数」（`lhs` 是单个 Symbol）时判 `unknown` 而非 `refuted`（`verify_service.py:194`），避免翻译波动把正确答案判错。
+
+知识类问题没有可代入等式，才走 `check_grounding()`：模型此时才真正参与判断，但被约束在检索片段内，且「资料未支持」只记 `unknown`、不判错。
+
+> 补充：若云端返回空内容（推理模型常见），网关会回退本地，`deepseek-flash` 这个标签会随之变成实际使用的本地模型名（第九节「回退策略」）。
+
+### 实现（纯前端）
+
+`web/app.js`
+
+| 函数 | 改动 |
+|---|---|
+| `isSectionLine(line, keywords)` / `splitAnswer(content)` | 新增。按标题把答案切成 `solution` / `verifySection` / `finalSection` 三段 |
+| `renderTraceMarkup(trace, content)` | 改签名。块① = 路由 + 步骤 + 「解题回答」；块② = 提醒 + 验证行 + `verification.detail` + 重试 + 「验证回答」（自查段 + 高亮的最终答案） |
+| `renderMessages()` | Agent 消息不再渲染独立 `.message-bubble`，答案进轨迹卡；动作按钮留在卡片底部 |
+| `updateTraceCard()` | 加 rAF 节流 + `renderMath(card)`，并接收 `message.content` |
+| `handleAgentEvent()` | `answer_delta` / `answer_reset` / `done` 不再直接写气泡，统一由末尾的 `updateTraceCard()` 重渲染 |
+| `updateStreamingAnswer()` | 保留给非 Agent 模式（`/solve`、`/chat`） |
+
+`web/styles.css`：新增 `.trace-block-label` / `.trace-answer` / `.trace-verify-answer` / `.trace-verify-detail` / `.trace-final-answer` 及深色模式。
+
+`web/index.html`：缓存版本号 `20260918-08` → `20260918-09`。
+
+### 标题切分的回退策略
+
+模型输出的标题格式没有被 prompt 强制，所以切分必须能「优雅退化」：
+
+- 识别规则：Markdown 标题（`#{1,6}`）以关键词开头，或整行就是关键词（可带 `：` / `**`）
+  - 验证段关键词：`检查与验证` / `验证与检验` / `检验` / `验证`
+  - 最终答案关键词：`最终答案` / `结论` / `答案`
+- 只找到验证段 → 其后全部算验证回答
+- 只找到最终答案 → 只切最终答案
+- **一个都没找到 → 整段归到解题路径**（退化成「只穿插、不拆正文」，绝不丢内容）
+
+刻意不用裸关键词「检查」，避免把「### 检查定义域」误判成验证段。
+
+### 流式处理
+
+答案边生成边切分：标题还没出现时，整段显示在「解题回答」下；标题出现后，后续内容自动归到「验证回答」。因为 `handleAgentEvent` 每个事件末尾都会重渲染轨迹卡，所以不需要额外的状态机。
+
+### 验证
+
+- `node --check web/app.js` 通过；三个前端文件均为无 BOM 的合法 UTF-8。
+- 静态预览页复用**真实的** `renderTraceMarkup`（按函数名切片 eval，不是复制一份），覆盖四种状态：
+
+  | 场景 | 结果 |
+  |---|---|
+  | 运行中（解答流式增长，验证块未出现） | 只有块①，`正在生成答案…` + 解题回答 |
+  | 已完成 | 块① 解题回答；块② 独立结论 + 自查段 + 最终答案高亮 |
+  | 证伪后修正 | 验证行下多一行「第 1 次修正…」，其余正常 |
+  | 无标题回退 | 整段归解题回答，验证块只显示独立结论 |
+
+- 真实页面 `index.html` 打开无脚本报错（仅后端未启动的 CORS 提示）。
+
+### 踩坑
+
+1. **PowerShell 改文件编码第二次把 `index.html` 写坏**：为改缓存版本号用了 `Set-Content`，PowerShell 5.1 默认按 GBK 写回，UTF-8 的图标字符 `⌁` 把后面的 `<` 字节吃掉，页面把 `</span>` 当文本显示、布局整体崩坏。这次改用 Edit 工具（内部 UTF-8）改版本号。第十五节第 13 条已记录过同类问题，**改静态文件时不要用 `Set-Content`**。
+2. **静态预览不能整文件加载 `app.js`**：`app.js` 末尾有 `render()` 等顶层副作用，直接 eval 会因缺少 DOM 报错。改为按函数名切片、只 eval 需要的函数（含依赖 `escapeHtml` / `markdownToHtml` 等），保证预览用的是真实实现。
+3. **浏览器面板跑不了真实页面**：面板里 `defer` 脚本在面板 DOM 就绪前执行，导致 `#mobile-menu` 为 null。这是面板环境问题，改用静态预览 + 文本快照完成验证。
+
+### 权衡
+
+| 得到 | 付出 |
+|---|---|
+| 每条路径后面紧跟它的产出，阅读顺序与执行顺序一致 | 依赖模型输出的标题格式；格式变了会退化成不拆分 |
+| 验证结论（SymPy）与模型自查段并排展示，归属清晰 | 轨迹卡内容变长，卡片更高 |
+| 流式期间也按路径分块，边写边归位 | 每次事件重渲染整张卡（已用 rAF 节流） |

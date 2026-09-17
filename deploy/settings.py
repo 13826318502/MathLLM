@@ -29,10 +29,8 @@ class DeploymentSettings:
     def from_env(cls) -> "DeploymentSettings":
         quantization = os.getenv("MATHLLM_QUANTIZATION", "").strip() or None
         return cls(
-            model_path=os.getenv(
-                "MATHLLM_MODEL_PATH", "./outputs/correction-round-5-merged"
-            ),
-            served_model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-round5"),
+            model_path=os.getenv("MATHLLM_MODEL_PATH", "./model"),
+            served_model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-model"),
             host=os.getenv("MATHLLM_VLLM_HOST", "0.0.0.0"),
             port=_int("MATHLLM_VLLM_PORT", 8000),
             max_model_len=_int("MATHLLM_MAX_MODEL_LEN", 2048),

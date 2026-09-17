@@ -1,6 +1,5 @@
 FROM vllm/vllm-openai:latest
 
-COPY configs/ /app/configs/
 COPY deploy/ /app/deploy/
 
 WORKDIR /app
