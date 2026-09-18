@@ -335,7 +335,7 @@ function observabilityMetrics(metrics) {
       ${metricCard("运行总数", String(metrics.runs ?? 0), "当前窗口")}
       ${metricCard("失败率", formatPercent(metrics.failure_rate), stops || "无失败")}
       ${metricCard("完成率", formatPercent(metrics.completion_rate), "有非空答案")}
-      ${metricCard("回退率", formatPercent(metrics.fallback_rate), `回退过 ${metrics.runs_with_fallback ?? 0} 次`)}
+      ${metricCard("回退率", formatPercent(metrics.fallback_rate), `${metrics.runs_with_fallback ?? 0}/${metrics.runs ?? 0} 次运行发生过回退`)}
       ${metricCard("延迟 P50", formatSeconds(latency.p50), `P95 ${formatSeconds(latency.p95)} · 最大 ${formatSeconds(latency.max)}`)}
       ${metricCard("Token 总量", String(tokens.total ?? 0), `每次均 ${tokens.avg_per_run ?? 0}`)}
     </div>
@@ -661,7 +661,8 @@ function renderFavoriteToolbar() {
   favorites.forEach((favorite, index) => {
     const option = document.createElement("option");
     option.value = String(index);
-    option.textContent = (index + 1) + ". " + favorite.question.slice(0, 24) + (favorite.question.length > 24 ? "…" : "");
+    const preview = plainTextPreview(favorite.question);
+    option.textContent = (index + 1) + ". " + preview.slice(0, 24) + (preview.length > 24 ? "…" : "");
     select.appendChild(option);
   });
   select.value = String(selectedIndex);
@@ -761,11 +762,24 @@ function renderMarkdownSurfaces() {
   });
 }
 
+function plainTextPreview(source) {
+  return String(source || "")
+    .replace(/```[\s\S]*?```/g, " ")
+    .replace(/\$\$([\s\S]*?)\$\$/g, " $1 ")
+    .replace(/\\\[([\s\S]*?)\\\]/g, " $1 ")
+    .replace(/\$([^$\n]+?)\$/g, " $1 ")
+    .replace(/\\\(([^\n]*?)\\\)/g, " $1 ")
+    .replace(/^\s*#{1,6}\s+/gm, "")
+    .replace(/[*_`>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function renderFavoriteQuestionPreviews() {
   document.querySelectorAll(".favorite-card .list-main strong").forEach((node) => {
     const preview = document.createElement("div");
     preview.className = "favorite-question-preview";
-    preview.innerHTML = markdownToHtml(node.getAttribute("title") || node.textContent);
+    preview.textContent = plainTextPreview(node.getAttribute("title") || node.textContent);
     node.replaceWith(preview);
   });
 }

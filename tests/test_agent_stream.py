@@ -45,6 +45,10 @@ class ScriptedClient:
         self.json_calls = 0
         self.complete_calls = 0
         self.stream_calls = 0
+        self.reset_count = 0
+
+    def reset_counters(self) -> None:
+        self.reset_count += 1
 
     async def complete_json(
         self,
@@ -115,6 +119,8 @@ class IterAgentEventsTest(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(events[5]["success"])
         self.assertEqual(events[7]["type"], "verify_start")
         self.assertEqual(events[9]["stopped_reason"], "final")
+        # Per-run counters are reset once at the start of the run.
+        self.assertEqual(client.reset_count, 1)
 
     async def test_math_answer_passes_through_solver(self) -> None:
         client = ScriptedClient(

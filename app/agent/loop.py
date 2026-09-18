@@ -313,6 +313,13 @@ def should_skip_verification(
     )
 
 
+def _reset_client_counters(client: Any) -> None:
+    """Ask the shared client to zero its per-run counters, when it supports it."""
+    reset = getattr(client, "reset_counters", None)
+    if callable(reset):
+        reset()
+
+
 async def iter_agent_events(
     client: VLLMClient,
     question: str,
@@ -328,6 +335,7 @@ async def iter_agent_events(
     """
     started_at = datetime.now(timezone.utc)
     started_perf = time.perf_counter()
+    _reset_client_counters(client)
     run: AgentRun | None = None
     error: str | None = None
     try:

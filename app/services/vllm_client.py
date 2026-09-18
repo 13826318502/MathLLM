@@ -22,6 +22,10 @@ class VLLMClient:
         self.config = config
         self.usage = TokenUsage()
 
+    def reset_usage(self) -> None:
+        """Clear accumulated token usage so one agent run reports only its own."""
+        self.usage = TokenUsage()
+
     def _record_usage(self, payload: Any) -> None:
         if not isinstance(payload, dict):
             return

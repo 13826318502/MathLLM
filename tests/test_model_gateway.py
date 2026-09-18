@@ -50,6 +50,9 @@ class FakeClient:
         if usage:
             self.usage.add(usage[0], usage[1], sum(usage))
 
+    def reset_usage(self) -> None:
+        self.usage = TokenUsage()
+
     def _check(self) -> None:
         if self._error is not None:
             raise self._error
@@ -144,6 +147,20 @@ class StreamFallbackTest(unittest.IsolatedAsyncioTestCase):
         gateway = _gateway(orchestrator, solver)
         self.assertEqual(await self._collect(gateway), ["from", "-local"])
         self.assertTrue(gateway.fell_back)
+
+
+class CounterResetTest(unittest.IsolatedAsyncioTestCase):
+    async def test_reset_clears_fallbacks_and_usage(self) -> None:
+        orchestrator = FakeClient("cloud", error=VLLMServiceError("down"))
+        solver = FakeClient("local", role="solver", content="from-local", usage=(1, 1))
+        gateway = _gateway(orchestrator, solver)
+        await gateway.complete_json([{"role": "user", "content": "hi"}])
+        self.assertEqual(gateway.fallbacks, 1)
+        self.assertEqual(gateway.usage.total_tokens, 2)
+        gateway.reset_counters()
+        self.assertEqual(gateway.fallbacks, 0)
+        self.assertEqual(gateway.usage.calls, 0)
+        self.assertEqual(gateway.usage.total_tokens, 0)
 
 
 class UsageTest(unittest.TestCase):

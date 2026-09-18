@@ -50,6 +50,22 @@ class ModelGateway:
             total.merge(self.solver.usage)
         return total
 
+    def reset_counters(self) -> None:
+        """Clear per-run counters so a run reports its own usage and fallbacks.
+
+        ``fallbacks`` and the clients' token usage live on the shared gateway,
+        so without this reset every later run inherits the previous runs' counts
+        and the metrics over-report.
+        """
+        self.fallbacks = 0
+        clients = [self.orchestrator]
+        if self.solver is not self.orchestrator:
+            clients.append(self.solver)
+        for client in clients:
+            reset = getattr(client, "reset_usage", None)
+            if callable(reset):
+                reset()
+
     def _record(self, client: VLLMClient, fell_back: bool) -> None:
         self.last_role = client.config.role
         self.last_model = client.config.model
