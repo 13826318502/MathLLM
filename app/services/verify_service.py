@@ -302,9 +302,7 @@ async def check_grounding(
             "content": f"资料：\n{sources}\n\n待核对回答：\n{answer}",
         },
     ]
-    verdict = await complete_structured(
-        client, messages, GroundingVerdict, max_tokens=256
-    )
+    verdict = await complete_structured(client, messages, GroundingVerdict)
     if verdict is None:
         return VerificationResult(
             status="unknown", method="grounding", detail="无法得到来源核对结论"
@@ -332,7 +330,7 @@ async def translate_question(
         {"role": "system", "content": TRANSLATOR_SYSTEM_PROMPT},
         {"role": "user", "content": f"题目：\n{question}"},
     ]
-    return await complete_structured(client, messages, SympyForm, max_tokens=384)
+    return await complete_structured(client, messages, SympyForm)
 
 
 async def extract_answer(
@@ -347,9 +345,7 @@ async def extract_answer(
             "content": f"题目：\n{question}\n\n解答：\n{answer}",
         },
     ]
-    return await complete_structured(
-        client, messages, ExtractedAnswer, max_tokens=256
-    )
+    return await complete_structured(client, messages, ExtractedAnswer)
 
 
 async def verify_answer(

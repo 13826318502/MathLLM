@@ -40,7 +40,7 @@ async def _judge(args: CheckInput, ctx: ToolContext) -> ToolResult:
             "content": f"题目：\n{args.question}\n\n待检查的解答：\n{args.answer}",
         },
     ]
-    verdict = await complete_structured(ctx.client, messages, Verdict, max_tokens=256)
+    verdict = await complete_structured(ctx.client, messages, Verdict)
     if verdict is None:
         return ToolResult(success=False, error="无法得到有效的校验结论")
     data = verdict.model_dump()

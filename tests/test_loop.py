@@ -5,7 +5,7 @@ import unittest
 from dataclasses import replace
 from unittest.mock import patch
 
-from app.agent.loop import run_agent
+from app.agent.loop import iter_agent_events, run_agent
 from app.agent.tools import ToolContext
 from app.core.config import settings
 from app.services import rag_service
@@ -31,12 +31,23 @@ def _route(intent: str, tool: str, query: str = "x^2-5x+6=0") -> str:
 class ScriptedClient:
     """Returns queued JSON replies for complete_json and one answer for complete."""
 
-    def __init__(self, json_responses: list[str], answer: str = "最终答案") -> None:
+    def __init__(
+        self,
+        json_responses: list[str],
+        answer: str = "最终答案",
+        switches: list[dict[str, str]] | None = None,
+    ) -> None:
         self._json = json_responses
         self.answer = answer
         self.json_calls = 0
         self.complete_calls = 0
         self.stream_calls = 0
+        self._switches: list[dict[str, str]] = list(switches or [])
+
+    def take_switches(self) -> list[dict[str, str]]:
+        switches = self._switches
+        self._switches = []
+        return switches
 
     async def complete_json(
         self,
@@ -169,6 +180,30 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         client = ScriptedClient([_route("general", "none")])
         with self.assertRaises(ValueError):
             await run_agent(client, "   ", make_ctx(client))
+
+    async def test_model_switch_is_emitted_as_event(self) -> None:
+        switch = {
+            "from_model": "cloud",
+            "from_role": "orchestrator",
+            "to_model": "local",
+            "to_role": "solver",
+            "reason": "编排模型没有返回内容",
+        }
+        client = ScriptedClient(
+            [_route("general", "none", query="你好"), FINAL_JSON],
+            switches=[switch],
+        )
+        events = [
+            event
+            async for event in iter_agent_events(client, "你好", make_ctx(client))
+        ]
+        switches = [event for event in events if event.get("type") == "model_switch"]
+        self.assertEqual(len(switches), 1)
+        self.assertEqual(switches[0]["stage"], "classify")
+        self.assertEqual(switches[0]["to_model"], "local")
+        # The route event still follows, now labelled with the local model.
+        route = next(event for event in events if event.get("type") == "route")
+        self.assertEqual(route["decision"]["intent"], "general")
 
 
 if __name__ == "__main__":

@@ -18,6 +18,12 @@ from app.services.stream_service import (
 from app.services.vllm_client import VLLMClient, VLLMServiceError
 
 
+# A reasoning model can spend the whole output budget thinking and emit no
+# content. Retrying the orchestrator once is far cheaper than falling back to a
+# local CPU model, so every orchestration call gets two attempts.
+ORCHESTRATOR_ATTEMPTS = 2
+
+
 class ModelGateway:
     """Try the orchestrator; on failure optionally retry on the solver.
 
@@ -40,6 +46,7 @@ class ModelGateway:
         self.last_model = orchestrator.config.model
         self.fell_back = False
         self.fallbacks = 0
+        self.switches: list[dict[str, str]] = []
 
     @property
     def usage(self) -> TokenUsage:
@@ -58,6 +65,7 @@ class ModelGateway:
         and the metrics over-report.
         """
         self.fallbacks = 0
+        self.switches = []
         clients = [self.orchestrator]
         if self.solver is not self.orchestrator:
             clients.append(self.solver)
@@ -73,6 +81,24 @@ class ModelGateway:
         if fell_back:
             self.fallbacks += 1
 
+    def _record_switch(self, reason: str) -> None:
+        """Remember that a call moved from the orchestrator to the solver."""
+        self.switches.append(
+            {
+                "from_model": self.orchestrator.config.model,
+                "from_role": self.orchestrator.config.role,
+                "to_model": self.solver.config.model,
+                "to_role": self.solver.config.role,
+                "reason": reason,
+            }
+        )
+
+    def take_switches(self) -> list[dict[str, str]]:
+        """Return switches recorded since the last call, then clear them."""
+        switches = self.switches
+        self.switches = []
+        return switches
+
     def _can_fall_back(self) -> bool:
         return self.fallback == "local" and self.solver is not self.orchestrator
 
@@ -82,14 +108,34 @@ class ModelGateway:
         return no content at all; that is a failure, not an answer."""
         return not extract_completion_content(result or {}).strip()
 
+    async def _orchestrate(
+        self, method: str, messages: list[dict[str, str]], **kwargs: Any
+    ) -> dict:
+        """Call the orchestrator, retrying once when it produces nothing.
+
+        A reasoning model can burn the whole output budget on reasoning and emit
+        no content. Retrying is much cheaper than falling back to a slow local
+        model, so the first empty reply is retried instead of immediately
+        switching endpoints.
+        """
+        last_error: VLLMServiceError | None = None
+        for _ in range(ORCHESTRATOR_ATTEMPTS):
+            try:
+                result = await getattr(self.orchestrator, method)(messages, **kwargs)
+                if not self._empty(result):
+                    return result
+                last_error = VLLMServiceError("编排模型没有返回内容")
+            except VLLMServiceError as exc:
+                last_error = exc
+        raise last_error or VLLMServiceError("编排模型调用失败")
+
     async def complete(self, messages: list[dict[str, str]], **kwargs: Any) -> dict:
         try:
-            result = await self.orchestrator.complete(messages, **kwargs)
-            if self._empty(result):
-                raise VLLMServiceError("编排模型没有返回内容")
-        except VLLMServiceError:
+            result = await self._orchestrate("complete", messages, **kwargs)
+        except VLLMServiceError as exc:
             if not self._can_fall_back():
                 raise
+            self._record_switch(str(exc))
             result = await self.solver.complete(messages, **kwargs)
             self._record(self.solver, True)
             return result
@@ -100,12 +146,11 @@ class ModelGateway:
         self, messages: list[dict[str, str]], **kwargs: Any
     ) -> dict:
         try:
-            result = await self.orchestrator.complete_json(messages, **kwargs)
-            if self._empty(result):
-                raise VLLMServiceError("编排模型没有返回内容")
-        except VLLMServiceError:
+            result = await self._orchestrate("complete_json", messages, **kwargs)
+        except VLLMServiceError as exc:
             if not self._can_fall_back():
                 raise
+            self._record_switch(str(exc))
             result = await self.solver.complete_json(messages, **kwargs)
             self._record(self.solver, True)
             return result
@@ -115,22 +160,32 @@ class ModelGateway:
     async def stream_raw(
         self, messages: list[dict[str, str]]
     ) -> AsyncIterator[dict[str, Any]]:
-        produced = False
-        try:
-            async for event in self.orchestrator.stream_raw(messages):
-                if extract_stream_content(event):
-                    produced = True
-                yield event
-        except VLLMServiceError:
-            # Never restart on another model after usable output: that would
-            # duplicate what the user already saw.
-            if produced or not self._can_fall_back():
-                raise
-        if produced or not self._can_fall_back():
+        last_error: VLLMServiceError | None = None
+        for _ in range(ORCHESTRATOR_ATTEMPTS):
+            produced = False
+            last_error = None
+            try:
+                async for event in self.orchestrator.stream_raw(messages):
+                    if extract_stream_content(event):
+                        produced = True
+                    yield event
+            except VLLMServiceError as exc:
+                # Never restart on another model after usable output: that would
+                # duplicate what the user already saw.
+                if produced:
+                    raise
+                last_error = exc
+            if produced:
+                self._record(self.orchestrator, False)
+                return
+        if not self._can_fall_back():
+            if last_error is not None:
+                raise last_error
             self._record(self.orchestrator, False)
             return
         # A reasoning model can spend the whole budget thinking and stream no
         # content at all; that is a failure, so retry on the local solver.
+        self._record_switch(str(last_error) if last_error else "编排模型没有返回内容")
         async for event in self.solver.stream_raw(messages):
             yield event
         self._record(self.solver, True)

@@ -477,6 +477,7 @@ const TRACE_THINKING = {
 };
 
 const VERIFY_LABEL = { verified: "已验证", refuted: "已证伪", unknown: "无法验证" };
+const SWITCH_STAGE = { classify: "路由", decide: "规划", answer: "回答", verify: "验证" };
 const VERIFY_METHOD = {
   substitution: "代入检验",
   expression: "独立求值",
@@ -545,6 +546,15 @@ function renderTraceMarkup(trace, content = "") {
     : "";
   const solveBlock = `<div class="trace-block solve"><div class="trace-block-head"><span class="trace-block-step">1</span><span class="trace-block-title">解题路径</span><span class="trace-block-note">路由到解题工具，执行求解过程</span></div>${route}${steps ? `<div class="trace-steps">${steps}</div>` : ""}${solveThinking}${solveAnswer}</div>`;
 
+  const switches = (trace.switches || []).map((item) => {
+    const stage = SWITCH_STAGE[item.stage] || item.stage || "编排";
+    const reason = item.reason ? ` · ${escapeHtml(item.reason)}` : "";
+    return `<div class="trace-switch"><span class="trace-switch-icon">⇄</span><span>${escapeHtml(stage)}阶段切换：<b>${escapeHtml(item.from || "云端模型")}</b> → <b>${escapeHtml(item.to || "本地模型")}</b>${reason}</span></div>`;
+  }).join("");
+  const switchBlock = switches
+    ? `<div class="trace-block switches"><div class="trace-block-head"><span class="trace-block-step">⇄</span><span class="trace-block-title">模型切换</span><span class="trace-block-note">编排模型回退到本地模型</span></div>${switches}</div>`
+    : "";
+
   const retries = (trace.retries || []).map((item) => `<div class="trace-retry">第 ${item.attempt} 次修正：${escapeHtml(item.reason || "答案被证伪")}</div>`).join("");
   const verifying = trace.status === "running" && trace.thinking === "verify";
   const verifySkipped = trace.verificationSkipped || "";
@@ -567,7 +577,7 @@ function renderTraceMarkup(trace, content = "") {
   const answerNote = trace.answerModel ? ` · 答案由 ${escapeHtml(trace.answerModel)} 生成` : "";
   const footer = trace.stoppedReason ? `<div class="trace-footer">结束原因：${escapeHtml(trace.stoppedReason)}${answerNote}</div>` : "";
   const status = trace.status === "running" ? "运行中" : "已完成";
-  return `<div class="trace-head"><span class="trace-title">Agent 执行轨迹</span><span class="trace-status">${status}</span></div>${solveBlock}${verifyBlock}${footer}`;
+  return `<div class="trace-head"><span class="trace-title">Agent 执行轨迹</span><span class="trace-status">${status}</span></div>${solveBlock}${switchBlock}${verifyBlock}${footer}`;
 }
 
 let traceCardUpdatePending = false;
@@ -594,7 +604,7 @@ function updateTraceCard() {
 function handleAgentEvent(event) {
   const message = currentAssistantMessage();
   if (!message) return;
-  if (!message.trace) message.trace = { status: "running", decision: null, steps: [], thinking: "", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
+  if (!message.trace) message.trace = { status: "running", decision: null, steps: [], switches: [], thinking: "", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
   const trace = message.trace;
   if (event.type === "thinking") {
     trace.thinking = event.stage;
@@ -616,6 +626,8 @@ function handleAgentEvent(event) {
   } else if (event.type === "answer_delta") {
     trace.thinking = "";
     message.content += event.content || "";
+  } else if (event.type === "model_switch") {
+    trace.switches.push({ stage: event.stage, from: event.from_model, to: event.to_model, reason: event.reason || "" });
   } else if (event.type === "verify_start") {
     trace.thinking = "verify";
   } else if (event.type === "verify_skipped") {
@@ -894,7 +906,7 @@ async function sendQuestion() {
   state.activeRequestController = requestController;
   const assistantMessage = { role: "assistant", content: "" };
   if (state.answerMode === "agent") {
-    assistantMessage.trace = { status: "running", decision: null, steps: [], thinking: "classify", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
+    assistantMessage.trace = { status: "running", decision: null, steps: [], switches: [], thinking: "classify", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
     state.memorySummary = "";
     state.memoryCursor = 0;
   }

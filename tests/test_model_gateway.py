@@ -47,6 +47,7 @@ class FakeClient:
         self._content = content
         self._chunks = chunks
         self._error = error
+        self.calls = 0
         if usage:
             self.usage.add(usage[0], usage[1], sum(usage))
 
@@ -58,17 +59,33 @@ class FakeClient:
             raise self._error
 
     async def complete(self, messages, **kwargs) -> dict:
+        self.calls += 1
         self._check()
         return _completion(self._content)
 
     async def complete_json(self, messages, **kwargs) -> dict:
+        self.calls += 1
         self._check()
         return _completion(self._content)
 
     async def stream_raw(self, messages):
+        self.calls += 1
         self._check()
         for chunk in self._chunks:
             yield {"choices": [{"delta": {"content": chunk}}]}
+
+
+class SequenceClient(FakeClient):
+    """Returns a queued list of contents, one per call (last one repeats)."""
+
+    def __init__(self, model: str, contents: list[str], **kwargs) -> None:
+        super().__init__(model, content=contents[0], **kwargs)
+        self._contents = contents
+
+    async def complete_json(self, messages, **kwargs) -> dict:
+        index = min(self.calls, len(self._contents) - 1)
+        self.calls += 1
+        return _completion(self._contents[index])
 
 
 def _gateway(orchestrator: FakeClient, solver: FakeClient, fallback: str = "local"):
@@ -113,6 +130,41 @@ class FallbackTest(unittest.IsolatedAsyncioTestCase):
         gateway = _gateway(shared, shared)
         with self.assertRaises(VLLMServiceError):
             await gateway.complete_json([{"role": "user", "content": "hi"}])
+
+
+class RetryAndSwitchTest(unittest.IsolatedAsyncioTestCase):
+    async def test_retries_empty_orchestrator_before_falling_back(self) -> None:
+        orchestrator = SequenceClient("cloud", ["", "ok"])
+        solver = FakeClient("local", role="solver", content="from-local")
+        gateway = _gateway(orchestrator, solver)
+        result = await gateway.complete_json([{"role": "user", "content": "hi"}])
+        self.assertEqual(result["choices"][0]["message"]["content"], "ok")
+        self.assertEqual(orchestrator.calls, 2)
+        self.assertFalse(gateway.fell_back)
+        self.assertEqual(gateway.take_switches(), [])
+
+    async def test_records_switch_after_exhausting_retries(self) -> None:
+        orchestrator = SequenceClient("cloud", ["", ""])
+        solver = FakeClient("local", role="solver", content="from-local")
+        gateway = _gateway(orchestrator, solver)
+        result = await gateway.complete_json([{"role": "user", "content": "hi"}])
+        self.assertEqual(result["choices"][0]["message"]["content"], "from-local")
+        self.assertTrue(gateway.fell_back)
+        switches = gateway.take_switches()
+        self.assertEqual(len(switches), 1)
+        self.assertEqual(switches[0]["from_model"], "cloud")
+        self.assertEqual(switches[0]["from_role"], "orchestrator")
+        self.assertEqual(switches[0]["to_model"], "local")
+        self.assertEqual(switches[0]["to_role"], "solver")
+        self.assertEqual(gateway.take_switches(), [])
+
+    async def test_reset_clears_recorded_switches(self) -> None:
+        orchestrator = SequenceClient("cloud", [""])
+        gateway = _gateway(orchestrator, FakeClient("local", role="solver"))
+        await gateway.complete_json([{"role": "user", "content": "hi"}])
+        self.assertTrue(gateway.take_switches())
+        gateway.reset_counters()
+        self.assertEqual(gateway.take_switches(), [])
 
 
 class StreamFallbackTest(unittest.IsolatedAsyncioTestCase):

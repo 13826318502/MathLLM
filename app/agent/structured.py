@@ -16,6 +16,11 @@ from app.services.vllm_client import VLLMClient
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
+# Reasoning models spend output tokens on thinking before writing the JSON, so a
+# 256-token budget can be exhausted with nothing emitted. 1024 leaves room for
+# the reasoning plus the small structured reply.
+DEFAULT_STRUCTURED_MAX_TOKENS = 1024
+
 
 def extract_json_object(text: str) -> str:
     """Return the JSON object substring, stripping code fences and prose."""
@@ -38,7 +43,7 @@ async def complete_structured(
     messages: list[dict[str, str]],
     model_cls: type[ModelT],
     *,
-    max_tokens: int = 512,
+    max_tokens: int = DEFAULT_STRUCTURED_MAX_TOKENS,
     max_retries: int = 2,
 ) -> ModelT | None:
     """Return a validated model instance, or None when every attempt fails.

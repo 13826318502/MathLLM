@@ -180,6 +180,30 @@ def _model_label(client: Any) -> dict[str, str]:
     }
 
 
+def _drain_model_switches(client: Any, stage: str) -> list[dict[str, Any]]:
+    """Turn any recorded orchestrator->solver switches into stream events.
+
+    One stage can make several orchestration calls, so identical switches are
+    collapsed to keep the trace readable.
+    """
+    take = getattr(client, "take_switches", None)
+    if not callable(take):
+        return []
+    events: list[dict[str, Any]] = []
+    seen: set[tuple[str, str, str]] = set()
+    for switch in take():
+        key = (
+            str(switch.get("from_model", "")),
+            str(switch.get("to_model", "")),
+            str(switch.get("reason", "")),
+        )
+        if key in seen:
+            continue
+        seen.add(key)
+        events.append({"type": "model_switch", "stage": stage, **switch})
+    return events
+
+
 def _tool_model(tool: str, ctx: ToolContext) -> dict[str, str]:
     if tool == "solve_math_problem":
         return _model_label(ctx.solver)
@@ -260,7 +284,6 @@ async def decide_next_action(
         client,
         messages,
         AgentAction,
-        max_tokens=256,
     )
     if action is None:
         return AgentAction(action="final", reason="动作解析失败，直接结束")
@@ -392,6 +415,8 @@ async def _iter_agent_events(
 
     yield {"type": "thinking", "stage": "classify"}
     decision = await classify(client, question)
+    for event in _drain_model_switches(client, "classify"):
+        yield event
     yield {"type": "route", "decision": decision.model_dump(), **_model_label(client)}
 
     observations: list[Observation] = []
@@ -442,6 +467,8 @@ async def _iter_agent_events(
             break
         yield {"type": "thinking", "stage": "decide"}
         action = await decide_next_action(client, question, decision, observations)
+        for event in _drain_model_switches(client, "decide"):
+            yield event
         if action.action == "final":
             break
         tool = action.tool or ""
@@ -531,6 +558,8 @@ async def _iter_agent_events(
                 answer = EMPTY_ANSWER_FALLBACK
                 yield {"type": "answer_delta", "content": answer}
             answer_model = _model_label(client)
+            for event in _drain_model_switches(client, "answer"):
+                yield event
 
         if should_skip_verification(decision, observations, ctx.settings.verify_rag):
             yield {"type": "verify_skipped", "reason": SKIP_VERIFY_REASON}
@@ -540,6 +569,8 @@ async def _iter_agent_events(
         verification = await verify_service.verify_answer(
             client, question, answer, observations
         )
+        for event in _drain_model_switches(client, "verify"):
+            yield event
         yield {
             "type": "verify",
             "verification": verification.model_dump(),
