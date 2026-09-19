@@ -115,6 +115,29 @@ class RagServiceTest(unittest.TestCase):
         index_knowledge(self.settings, embedder=self.embedder)
         self.assertEqual(search(self.settings, "   ", embedder=self.embedder), [])
 
+    def test_has_index_false_before_build(self) -> None:
+        self.assertFalse(rag_service.has_index(self.settings))
+        self.assertEqual(rag_service.index_size(self.settings), 0)
+
+    def test_ensure_index_builds_when_missing(self) -> None:
+        count = rag_service.ensure_index(self.settings, embedder=self.embedder)
+        self.assertGreater(count, 0)
+        self.assertTrue(rag_service.has_index(self.settings))
+        self.assertEqual(rag_service.index_size(self.settings), count)
+
+    def test_ensure_index_keeps_existing_store(self) -> None:
+        first = rag_service.ensure_index(self.settings, embedder=self.embedder)
+
+        class ExplodingEmbedder:
+            def embed_documents(self, texts: list[str]) -> list[list[float]]:
+                raise AssertionError("existing index must not be rebuilt")
+
+            def embed_query(self, text: str) -> list[float]:
+                raise AssertionError("existing index must not be rebuilt")
+
+        second = rag_service.ensure_index(self.settings, embedder=ExplodingEmbedder())
+        self.assertEqual(second, first)
+
 
 class KnowledgeToolTest(unittest.IsolatedAsyncioTestCase):
     def _ctx(self) -> ToolContext:

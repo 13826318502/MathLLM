@@ -122,6 +122,14 @@ else {
 }
 Write-Host "Solver: $solverModelName @ $solverBaseUrl" -ForegroundColor Cyan
 
+# Knowledge base: build the Chroma vector index on first run so that
+# knowledge-base questions work without a manual indexing step.
+Write-Host "Checking knowledge base index..." -ForegroundColor Cyan
+& $pythonPath -m app.services.rag_service --ensure
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Knowledge base index is unavailable; knowledge-base questions will fail until it is built." -ForegroundColor Yellow
+}
+
 Write-Host "Starting FastAPI (http://localhost:$env:MATHLLM_API_PORT)..." -ForegroundColor Cyan
 Start-Process -FilePath $pythonPath -WorkingDirectory $projectRoot -ArgumentList @("-m", "app.api.main")
 

@@ -14,6 +14,7 @@ Build the index with:
 from __future__ import annotations
 
 import math
+import threading
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol, Sequence
@@ -27,6 +28,7 @@ _TEXT_SUFFIXES = {".md", ".txt"}
 
 _CLIENTS: dict[str, Any] = {}
 _EMBEDDERS: dict[str, "Embedder"] = {}
+_INDEX_LOCK = threading.Lock()
 
 
 class KnowledgeBaseError(RuntimeError):
@@ -143,8 +145,12 @@ def _client(persist_dir: str) -> Any:
     client = _CLIENTS.get(persist_dir)
     if client is None:
         import chromadb
+        from chromadb.config import Settings as ChromaSettings
 
-        client = chromadb.PersistentClient(path=persist_dir)
+        client = chromadb.PersistentClient(
+            path=persist_dir,
+            settings=ChromaSettings(anonymized_telemetry=False),
+        )
         _CLIENTS[persist_dir] = client
     return client
 
@@ -179,6 +185,38 @@ def index_knowledge(settings: Settings, *, embedder: Embedder | None = None) -> 
             embeddings=_normalize(embedder.embed_documents(documents)),
         )
     return len(documents)
+
+
+def index_size(settings: Settings) -> int:
+    """Return the number of chunks in the existing store, or 0 when absent."""
+    if not Path(settings.rag_persist_dir).exists():
+        return 0
+    try:
+        collection = _client(settings.rag_persist_dir).get_collection(
+            settings.rag_collection
+        )
+        return int(collection.count())
+    except Exception:
+        return 0
+
+
+def has_index(settings: Settings) -> bool:
+    """Return True when a non-empty vector store is already built."""
+    return index_size(settings) > 0
+
+
+def ensure_index(settings: Settings, *, embedder: Embedder | None = None) -> int:
+    """Build the vector store when missing and return the chunk count.
+
+    Safe to call concurrently: the first caller builds, later callers reuse
+    the result. An existing non-empty index is never rebuilt.
+    """
+    if has_index(settings):
+        return index_size(settings)
+    with _INDEX_LOCK:
+        if has_index(settings):
+            return index_size(settings)
+        return index_knowledge(settings, embedder=embedder)
 
 
 def search(
@@ -226,6 +264,33 @@ def search(
 
 
 if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="MathLLM 知识库向量索引工具")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument(
+        "--check",
+        action="store_true",
+        help="只检查向量库是否存在，存在退出码 0，不存在退出码 1",
+    )
+    group.add_argument(
+        "--ensure",
+        action="store_true",
+        help="仅在向量库缺失时建立索引",
+    )
+    args = parser.parse_args()
+
+    if args.check:
+        if has_index(settings):
+            print(f"向量库已建立：{index_size(settings)} 个片段")
+            raise SystemExit(0)
+        print("向量库尚未建立")
+        raise SystemExit(1)
+
+    if args.ensure and has_index(settings):
+        print(f"向量库已存在，跳过索引：{index_size(settings)} 个片段")
+        raise SystemExit(0)
+
     count = index_knowledge(settings)
     print(
         f"已索引 {count} 个片段 -> "

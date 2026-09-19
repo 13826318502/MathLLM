@@ -49,3 +49,5 @@ class HealthResponse(BaseModel):
     model: str
     available_models: list[str] = Field(default_factory=list)
     detail: str | None = None
+    rag: str = "unknown"
+    rag_chunks: int = 0
