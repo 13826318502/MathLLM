@@ -23,6 +23,7 @@ from app.agent.schema import (
     AgentAction,
     AgentRun,
     Observation,
+    RagGrounding,
     RouteDecision,
     TokenUsage,
     ToolResult,
@@ -36,7 +37,7 @@ from app.agent.tools import (
     run_tool_streaming,
     tool_catalog,
 )
-from app.services import trace_service, verify_service
+from app.services import rag_attribution_service, trace_service, verify_service
 from app.services.stream_service import extract_stream_content
 from app.services.vllm_client import VLLMClient
 
@@ -501,6 +502,7 @@ async def _iter_agent_events(
     answer = ""
     answer_model: dict[str, str] = {"model": "", "role": ""}
     verification: VerificationResult | None = None
+    rag_grounding: RagGrounding | None = None
     verify_attempts = 0
     feedback: str | None = None
 
@@ -562,6 +564,27 @@ async def _iter_agent_events(
                 yield event
 
         if should_skip_verification(decision, observations, ctx.settings.verify_rag):
+            # Knowledge answers are not substitution-checkable, but they are
+            # still attributed back to the retrieved chunks: one grounding call
+            # marks whether the answer is supported by them.
+            documents = verify_service.documents_from_observations(observations)
+            if ctx.settings.rag_grounding and documents:
+                yield {"type": "rag_grounding_start"}
+                verdict = await verify_service.judge_grounding(
+                    client, answer, documents
+                )
+                for event in _drain_model_switches(client, "rag_grounding"):
+                    yield event
+                if verdict is not None:
+                    rag_grounding = RagGrounding(
+                        grounded=verdict.grounded,
+                        unsupported=list(verdict.unsupported),
+                        reason=verdict.reason,
+                    )
+                yield {
+                    "type": "rag_grounding",
+                    "grounding": rag_grounding.model_dump() if rag_grounding else None,
+                }
             yield {"type": "verify_skipped", "reason": SKIP_VERIFY_REASON}
             break
 
@@ -576,6 +599,11 @@ async def _iter_agent_events(
             "verification": verification.model_dump(),
             **_model_label(client),
         }
+        if verification.method == "grounding":
+            rag_grounding = RagGrounding(
+                grounded=verification.status == "verified",
+                reason=verification.detail,
+            )
 
         if verification.status != "refuted" or verify_attempts >= max_verify_retries:
             break
@@ -588,6 +616,10 @@ async def _iter_agent_events(
         }
         yield {"type": "answer_reset"}
 
+    rag = rag_attribution_service.build_attribution(decision, observations, answer)
+    if rag_grounding is not None:
+        rag.grounding = rag_grounding
+
     run = AgentRun(
         question=question,
         decision=decision,
@@ -596,6 +628,7 @@ async def _iter_agent_events(
         stopped_reason=stopped_reason,
         answer=answer,
         verification=verification,
+        rag=rag,
         verify_attempts=verify_attempts,
         answer_model=answer_model.get("model", ""),
     )

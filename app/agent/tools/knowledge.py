@@ -38,8 +38,13 @@ async def _search(args: SearchInput, ctx: ToolContext) -> ToolResult:
         success=True,
         data={
             "documents": [
-                {"content": chunk.content, "source": chunk.source}
-                for chunk in chunks
+                {
+                    "content": chunk.content,
+                    "source": chunk.source,
+                    "distance": chunk.distance,
+                    "rank": rank,
+                }
+                for rank, chunk in enumerate(chunks, start=1)
             ]
         },
     )

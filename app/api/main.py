@@ -10,7 +10,15 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import agent, chat, health, memory, metrics, solve
+from app.api.routes import (
+    agent,
+    chat,
+    health,
+    memory,
+    metrics,
+    rag_attribution,
+    solve,
+)
 from app.core.config import settings
 from app.services.model_gateway import ModelGateway
 from app.services.vllm_client import VLLMClient
@@ -46,6 +54,9 @@ def create_app() -> FastAPI:
     application.include_router(memory.router, prefix="/api", tags=["memory"])
     application.include_router(agent.router, prefix="/api", tags=["agent"])
     application.include_router(metrics.router, prefix="/api", tags=["observability"])
+    application.include_router(
+        rag_attribution.router, prefix="/api", tags=["observability"]
+    )
     return application
 
 

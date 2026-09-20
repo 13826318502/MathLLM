@@ -80,6 +80,38 @@ class VerificationResult(BaseModel):
     counterexample: str | None = None
 
 
+class RetrievedSource(BaseModel):
+    """One knowledge chunk retrieved for an answer, with its ranking."""
+
+    source: str
+    rank: int = 0
+    distance: float | None = None
+    snippet: str = ""
+
+
+class RagGrounding(BaseModel):
+    """Whether an answer's claims are supported by the retrieved chunks."""
+
+    grounded: bool
+    unsupported: list[str] = Field(default_factory=list)
+    reason: str = ""
+
+
+class RagAttribution(BaseModel):
+    """Per-answer knowledge-base attribution, derived from a run trace.
+
+    Records whether the run consulted the knowledge base, which chunks were
+    retrieved, which of those the answer actually cited, and whether the answer
+    is grounded in them.
+    """
+
+    used_knowledge: bool = False
+    query: str | None = None
+    retrieved: list[RetrievedSource] = Field(default_factory=list)
+    cited_sources: list[str] = Field(default_factory=list)
+    grounding: RagGrounding | None = None
+
+
 class AgentAction(BaseModel):
     """The next action the model chooses inside the agent loop."""
 
@@ -134,6 +166,7 @@ class RunTrace(BaseModel):
     decision: RouteDecision | None = None
     observations: list[Observation] = Field(default_factory=list)
     verification: VerificationResult | None = None
+    rag: RagAttribution | None = None
     answer: str = ""
     answer_model: str = ""
     stopped_reason: str = ""
@@ -152,5 +185,6 @@ class AgentRun(BaseModel):
     stopped_reason: Literal["final", "max_steps", "duplicate", "unknown_tool"]
     answer: str
     verification: VerificationResult | None = None
+    rag: RagAttribution | None = None
     verify_attempts: int = 0
     answer_model: str = ""

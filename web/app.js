@@ -12,6 +12,7 @@ const PAGE_META = {
   history: ["学习工作区 / 学习记录", "看看自己最近解决了什么"],
   toolkit: ["学习工作区 / 学习工具", "用适合自己的方式理解数学"],
   observability: ["系统 / 运行观测", "看看 Agent 每次运行到底发生了什么"],
+  "rag-attribution": ["系统 / 知识库归因", "看看每次回答有没有依据知识库"],
   settings: ["系统 / 设置", "调整你的本地学习空间"],
 };
 
@@ -72,6 +73,7 @@ const state = {
   memoryCursor: 0,
   activeRequestController: null,
   observability: { loading: false, days: 7, metrics: null, traces: [], error: "" },
+  ragAttribution: { loading: false, days: 7, summary: null, runs: [], error: "" },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -213,6 +215,7 @@ function setPage(page) {
   render();
   $("#sidebar").classList.remove("open");
   if (state.page === "observability") loadObservability();
+  if (state.page === "rag-attribution") loadRagAttribution();
 }
 function showFavoriteDetail(index) {
   state.favoriteDetailIndex = Number(index);
@@ -425,6 +428,125 @@ async function loadObservability() {
   }
 }
 
+const RAG_GROUNDING_LABEL = { verified: "已接地", unknown: "未接地", none: "未检查" };
+
+function ragGroundingBadge(status) {
+  const cls = status === "verified" ? "ok" : status === "unknown" ? "fail" : "";
+  return `<span class="run-badge ${cls}">${escapeHtml(RAG_GROUNDING_LABEL[status] || status || "未检查")}</span>`;
+}
+
+function ragAttributionRun(item) {
+  const time = String(item.started_at || "").replace("T", " ").slice(5, 16);
+  const sources = (item.sources || []).length ? item.sources.join("、") : "（未检索到片段）";
+  const cited = (item.cited_sources || []).length ? item.cited_sources.join("、") : "（未显式引用）";
+  const unsupported = item.unsupported || [];
+  return `<details class="card run-card" data-rag-card="${escapeHtml(item.run_id)}">
+    <summary class="run-summary">
+      <span class="run-time">${escapeHtml(time)}</span>
+      <span class="run-question" title="${escapeHtml(item.question)}">${escapeHtml(item.question)}</span>
+      <span class="run-badge ${item.used_knowledge ? "ok" : ""}">${item.used_knowledge ? "知识库" : "未用知识库"}</span>
+      ${item.used_knowledge ? ragGroundingBadge(item.grounding) : ""}
+      <span class="run-meta">${item.retrieved_count ?? 0} 片段 · ${formatSeconds(item.duration_ms)}</span>
+    </summary>
+    <div class="run-body">
+      <div class="run-row"><span>run_id</span><code>${escapeHtml(item.run_id)}</code></div>
+      <div class="run-row"><span>路由</span><b>${escapeHtml(item.intent || "—")} → ${escapeHtml(item.tool || "—")}</b></div>
+      <div class="run-row"><span>检索查询</span><b>${escapeHtml(item.query || "—")}</b></div>
+      <div class="run-row"><span>命中来源</span><b>${escapeHtml(sources)}</b></div>
+      <div class="run-row"><span>回答引用</span><b>${escapeHtml(cited)}</b></div>
+      ${unsupported.length ? `<div class="run-row fail"><span>未支持的结论</span><b>${escapeHtml(unsupported.join("；"))}</b></div>` : ""}
+      <div class="rag-detail" id="rag-detail-${escapeHtml(item.run_id)}"></div>
+      <div class="page-actions">
+        <button class="btn" data-rag-detail="${escapeHtml(item.run_id)}">加载详情</button>
+        ${item.used_knowledge ? `<button class="btn primary" data-rag-check="${escapeHtml(item.run_id)}">重新核对</button>` : ""}
+      </div>
+    </div>
+  </details>`;
+}
+
+function ragAttributionPage() {
+  const view = state.ragAttribution;
+  const options = [[1, "最近 1 天"], [7, "最近 7 天"], [30, "最近 30 天"], [0, "全部"]];
+  const header = `<div class="page-title-row"><div><h2>知识库归因</h2><p>每次回答是否依据知识库、检索到了什么、是否被检索资料支持。数据来自 <code>/api/rag/attribution</code>。</p></div><div class="page-actions"><select id="rag-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="rag-refresh">刷新</button></div></div>`;
+  if (view.loading) return `${header}<div class="card empty-state"><strong>正在读取归因数据…</strong><p>需要后端已启动。</p></div>`;
+  if (view.error) return `${header}<div class="card empty-state"><strong>读取失败</strong><p>${escapeHtml(view.error)}</p><button class="btn primary" id="rag-refresh">重试</button></div>`;
+  if (!view.summary) return `${header}<div class="card empty-state"><strong>还没有数据</strong><p>点右上角「刷新」读取运行记录。</p></div>`;
+  const summary = view.summary;
+  const cards = `<div class="stat-grid">
+    ${metricCard("运行总数", String(summary.runs ?? 0), "当前窗口")}
+    ${metricCard("走知识库", formatPercent(summary.knowledge_rate), `${summary.knowledge_runs ?? 0} 次运行`)}
+    ${metricCard("平均检索片段", String(summary.avg_retrieved ?? 0), "每次知识库回答")}
+    ${metricCard("接地通过率", formatPercent(summary.grounded_rate), `已接地 ${summary.grounding?.verified ?? 0} · 未接地 ${summary.grounding?.unknown ?? 0}`)}
+    ${metricCard("未接地回答", String(summary.ungrounded_runs ?? 0), "资料未支持的结论")}
+  </div>`;
+  const runs = view.runs.length
+    ? view.runs.map(ragAttributionRun).join("")
+    : `<div class="card empty-state"><strong>窗口内没有运行记录</strong><p>在「开始解题」里用 Agent 模式提一个知识类问题，这里就会出现一次归因。</p></div>`;
+  return `${header}${cards}<div class="section-heading"><h3>逐次回答</h3><p>展开查看检索片段、引用与接地结论，最新的在最上面</p></div>${runs}`;
+}
+
+async function loadRagAttribution() {
+  const view = state.ragAttribution;
+  view.loading = true;
+  view.error = "";
+  render();
+  try {
+    const response = await fetch(`${apiBase()}/rag/attribution?days=${view.days}&limit=50`);
+    if (!response.ok) throw new Error(`归因接口失败（HTTP ${response.status}）`);
+    const payload = await response.json();
+    view.summary = payload.summary;
+    view.runs = payload.runs || [];
+  } catch (error) {
+    view.error = error.message || String(error);
+  } finally {
+    view.loading = false;
+    if (state.page === "rag-attribution") render();
+  }
+}
+
+function ragDetailMarkup(trace) {
+  const rag = trace.rag || {};
+  const chunks = (rag.retrieved || []).map((item) => `
+    <div class="rag-chunk">
+      <div class="rag-chunk-head"><span class="rag-rank">#${item.rank}</span><code>${escapeHtml(item.source)}</code><span class="rag-distance">距离 ${item.distance === null || item.distance === undefined ? "—" : Number(item.distance).toFixed(3)}</span></div>
+      <div class="rag-chunk-body">${escapeHtml(item.snippet || "")}</div>
+    </div>`).join("") || `<div class="obs-empty">未检索到知识库片段</div>`;
+  const grounding = rag.grounding;
+  const groundingLine = grounding
+    ? `${grounding.grounded ? "已接地" : "未接地"}：${escapeHtml(grounding.reason || "")}`
+    : "未做接地检查";
+  return `
+    <div class="rag-detail-block"><strong>检索片段</strong>${chunks}</div>
+    <div class="rag-detail-block"><strong>接地结论</strong><div class="obs-note">${groundingLine}</div></div>
+    <div class="rag-detail-block"><strong>模型回答</strong><div class="run-answer">${escapeHtml((trace.answer || "").slice(0, 1200)) || "（无答案）"}</div></div>`;
+}
+
+async function loadRagDetail(runId) {
+  const target = document.getElementById(`rag-detail-${runId}`);
+  if (!target) return;
+  target.innerHTML = `<div class="obs-empty">正在加载详情…</div>`;
+  try {
+    const response = await fetch(`${apiBase()}/rag/attribution/${encodeURIComponent(runId)}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    target.innerHTML = ragDetailMarkup(await response.json());
+    renderMath();
+  } catch (error) {
+    target.innerHTML = `<div class="obs-note">加载失败：${escapeHtml(error.message || String(error))}</div>`;
+  }
+}
+
+async function checkRagGrounding(runId) {
+  try {
+    const response = await fetch(`${apiBase()}/rag/attribution/${encodeURIComponent(runId)}/check`, { method: "POST" });
+    const payload = await response.json();
+    if (!response.ok) throw new Error(payload.detail || `HTTP ${response.status}`);
+    toast(payload.grounded ? "已接地：回答有检索资料支持。" : "未接地：存在资料未支持的结论。");
+    await loadRagAttribution();
+  } catch (error) {
+    toast(`核对失败：${error.message || error}`);
+  }
+}
+
 function settingsPage() {
   const dark = document.body.classList.contains("dark");
   return `<div class="page-title-row"><div><h2>设置</h2><p>这些设置只保存在当前浏览器，不会上传到服务器。</p></div></div><div class="card card-pad settings-form"><div class="field"><label for="api-base-input">FastAPI 服务地址</label><input id="api-base-input" value="${escapeHtml(apiBase())}" placeholder="http://127.0.0.1:8080/api"/><small>默认由本地启动器提供。不要在这里填写 API Key，密钥只应放在后端环境变量中。</small></div><div class="setting-row"><div><strong>深色模式</strong><p>适合晚上学习，切换后会立即生效。</p></div><button class="switch ${dark ? "on" : ""}" id="settings-theme-toggle" aria-label="切换深色模式"></button></div><div class="setting-row"><div><strong>本地数据</strong><p>收藏和学习记录只保存在浏览器 localStorage。</p></div><button class="btn danger" id="clear-local-data">清除本地数据</button></div><div class="page-actions"><button class="btn primary" id="save-settings">保存设置</button></div></div>`;
@@ -432,7 +554,7 @@ function settingsPage() {
 
 function render() {
   setActiveNav(); updateCounts();
-  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : state.page === "observability" ? observabilityPage() : settingsPage();
+  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : state.page === "observability" ? observabilityPage() : state.page === "rag-attribution" ? ragAttributionPage() : settingsPage();
   renderMarkdownSurfaces();
   renderFavoriteQuestionPreviews();
   renderFavoriteToolbar();
@@ -1014,6 +1136,13 @@ function bindPageEvents() {
     state.observability.days = Number(event.target.value) || 0;
     loadObservability();
   });
+  document.querySelectorAll("#rag-refresh").forEach((button) => button.addEventListener("click", loadRagAttribution));
+  $("#rag-days")?.addEventListener("change", (event) => {
+    state.ragAttribution.days = Number(event.target.value) || 0;
+    loadRagAttribution();
+  });
+  document.querySelectorAll("[data-rag-detail]").forEach((button) => button.addEventListener("click", () => loadRagDetail(button.dataset.ragDetail)));
+  document.querySelectorAll("[data-rag-check]").forEach((button) => button.addEventListener("click", () => checkRagGrounding(button.dataset.ragCheck)));
   $("#stop-generation")?.addEventListener("click", stopGeneration);
   $("#chat-messages")?.addEventListener("scroll", (event) => {
     const chat = event.currentTarget;
@@ -1080,7 +1209,9 @@ window.addEventListener("hashchange", () => {
   if (detail) state.favoriteDetailIndex = Number(detail[1]);
   render();
   if (state.page === "observability") loadObservability();
+  if (state.page === "rag-attribution") loadRagAttribution();
 });
 if (localStorage.getItem(STORAGE.theme) === "dark") document.body.classList.add("dark");
 render(); checkHealth();
 if (state.page === "observability") loadObservability();
+if (state.page === "rag-attribution") loadRagAttribution();

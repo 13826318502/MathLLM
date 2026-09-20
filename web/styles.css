@@ -179,6 +179,15 @@ button { cursor: pointer; }
 .run-answer { margin-top: 10px; padding: 10px; border-radius: 10px; color: var(--muted); background: var(--surface-soft); font-size: .74rem; line-height: 1.6; white-space: pre-wrap; }
 body.dark .run-badge.ok { color: #5fd0c2; background: #16342f; }
 body.dark .run-badge.fail { color: #f4a0b0; background: #3a1f28; }
+.rag-detail { margin-top: 10px; }
+.rag-detail-block { margin-top: 10px; }
+.rag-detail-block > strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: .76rem; }
+.rag-chunk { margin-bottom: 8px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+.rag-chunk-head { display: flex; align-items: center; gap: 8px; margin-bottom: 5px; font-size: .72rem; }
+.rag-rank { flex: 0 0 auto; color: var(--accent, #6366e8); font-weight: 700; }
+.rag-chunk-head code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rag-distance { flex: 0 0 auto; color: var(--subtle); font-variant-numeric: tabular-nums; }
+.rag-chunk-body { color: var(--muted); font-size: .74rem; line-height: 1.6; white-space: pre-wrap; }
 .trace-model { padding: 1px 6px; border-radius: 6px; color: var(--muted); background: rgba(120,128,160,.13); font-size: .68rem; }
 .trace-retry { margin-top: 6px; color: #b4762a; }
 .trace-verify { display: flex; align-items: center; gap: 7px; margin-top: 7px; }

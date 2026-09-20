@@ -65,6 +65,7 @@ def build_trace(
         decision=run.decision,
         observations=run.observations,
         verification=run.verification,
+        rag=run.rag,
         answer=redact(run.answer)[:MAX_ANSWER_CHARS],
         answer_model=run.answer_model,
         stopped_reason=run.stopped_reason,

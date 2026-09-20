@@ -82,6 +82,10 @@ class Settings:
     # round of model calls to verify them is optional (and slow when the
     # orchestrator is a reasoning model), so it is off by default.
     verify_rag: bool
+    # Independent of answer verification, every knowledge answer is attributed
+    # back to the retrieved chunks. When enabled, a single grounding call marks
+    # whether the answer is supported by those chunks.
+    rag_grounding: bool
 
     @property
     def has_orchestrator(self) -> bool:
@@ -185,6 +189,8 @@ class Settings:
             trace_enabled=os.getenv("MATHLLM_TRACE_ENABLED", "1").strip().lower()
             not in {"0", "false", "no"},
             verify_rag=os.getenv("MATHLLM_VERIFY_RAG", "0").strip().lower()
+            not in {"0", "false", "no"},
+            rag_grounding=os.getenv("MATHLLM_RAG_GROUNDING", "1").strip().lower()
             not in {"0", "false", "no"},
         )
 

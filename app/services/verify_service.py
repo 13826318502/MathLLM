@@ -288,12 +288,16 @@ def documents_from_observations(observations) -> list[str]:
     return documents
 
 
-async def check_grounding(
+async def judge_grounding(
     client: VLLMClient,
     answer: str,
     documents: list[str],
-) -> VerificationResult:
-    """Ask a constrained judge whether the answer is supported by the sources."""
+) -> GroundingVerdict | None:
+    """Ask the constrained judge whether the answer is supported by the sources.
+
+    Returns the structured verdict so callers can keep the ``unsupported`` list,
+    or ``None`` when the model could not produce a usable verdict.
+    """
     sources = "\n\n".join(f"[资料 {index + 1}]\n{text}" for index, text in enumerate(documents))
     messages = [
         {"role": "system", "content": GROUNDING_SYSTEM_PROMPT},
@@ -302,7 +306,16 @@ async def check_grounding(
             "content": f"资料：\n{sources}\n\n待核对回答：\n{answer}",
         },
     ]
-    verdict = await complete_structured(client, messages, GroundingVerdict)
+    return await complete_structured(client, messages, GroundingVerdict)
+
+
+async def check_grounding(
+    client: VLLMClient,
+    answer: str,
+    documents: list[str],
+) -> VerificationResult:
+    """Ask a constrained judge whether the answer is supported by the sources."""
+    verdict = await judge_grounding(client, answer, documents)
     if verdict is None:
         return VerificationResult(
             status="unknown", method="grounding", detail="无法得到来源核对结论"
