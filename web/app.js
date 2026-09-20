@@ -429,6 +429,15 @@ async function loadObservability() {
 }
 
 const RAG_GROUNDING_LABEL = { verified: "已接地", unknown: "未接地", none: "未检查" };
+const RAG_RETRIEVAL_LABEL = { ok: "检索成功", empty: "无命中", failed: "检索失败", none: "未检索" };
+
+function ragRetrievalBadge(item) {
+  const status = item.retrieval || "none";
+  if (status === "none") return "";
+  const cls = status === "ok" ? "ok" : status === "failed" ? "fail" : "";
+  const title = item.retrieval_error ? ` title="${escapeHtml(item.retrieval_error)}"` : "";
+  return `<span class="run-badge ${cls}"${title}>${escapeHtml(RAG_RETRIEVAL_LABEL[status] || status)}</span>`;
+}
 
 function ragGroundingBadge(status) {
   const cls = status === "verified" ? "ok" : status === "unknown" ? "fail" : "";
@@ -446,6 +455,7 @@ function ragAttributionRun(item) {
       <span class="run-time">${escapeHtml(time)}</span>
       <span class="run-question" title="${escapeHtml(item.question)}">${escapeHtml(item.question)}</span>
       <span class="run-badge ok">知识库</span>
+      ${ragRetrievalBadge(item)}
       ${ragGroundingBadge(item.grounding)}
       <span class="run-meta">${item.retrieved_count ?? 0} 片段 · 引用 ${citedList.length} · ${formatSeconds(item.duration_ms)}</span>
     </summary>
@@ -476,6 +486,7 @@ function ragAttributionPage() {
   const cards = `<div class="stat-grid">
     ${metricCard("走知识库", formatPercent(summary.knowledge_rate), `全部 ${summary.runs ?? 0} 次运行中 ${summary.knowledge_runs ?? 0} 次`)}
     ${metricCard("平均检索片段", String(summary.avg_retrieved ?? 0), "每次知识库回答")}
+    ${metricCard("检索失败", String(summary.retrieval_failures ?? 0), `无命中 ${summary.retrieval?.empty ?? 0} 次`)}
     ${metricCard("接地准确率", formatPercent(summary.grounded_rate), `已接地 ${summary.grounding?.verified ?? 0} · 未接地 ${summary.grounding?.unknown ?? 0}`)}
     ${metricCard("未接地回答", String(summary.ungrounded_runs ?? 0), "资料未支持的结论")}
     ${metricCard("未检查", String(summary.grounding?.none ?? 0), "未做接地判定")}
@@ -514,9 +525,14 @@ function ragDetailMarkup(trace) {
   const summary = state.ragAttribution.summary;
   const runRate = grounding ? (grounding.grounded ? "100%" : "0%") : "—";
   const windowRate = summary ? formatPercent(summary.grounded_rate) : "—";
+  const searchObservations = (trace.observations || []).filter((item) => item.tool === "search_knowledge");
+  const failedObservation = searchObservations.find((item) => !item.success);
+  const retrievalStatus = failedObservation ? "failed" : retrieved.length ? "ok" : (rag.used_knowledge ? "empty" : "none");
+  const retrievalText = RAG_RETRIEVAL_LABEL[retrievalStatus] || "—";
   const stats = `<div class="rag-stat-row">
     <div class="rag-stat"><span>相关片段</span><strong>${retrieved.length} 个</strong></div>
     <div class="rag-stat"><span>引用来源</span><strong>${cited.length} 个</strong></div>
+    <div class="rag-stat"><span>检索状态</span><strong>${escapeHtml(retrievalText)}</strong>${failedObservation ? `<em>${escapeHtml(failedObservation.error || "")}</em>` : ""}</div>
     <div class="rag-stat"><span>接地准确率</span><strong>${runRate}</strong><em>窗口 ${windowRate}</em></div>
   </div>`;
   const chunks = retrieved.map((item) => `

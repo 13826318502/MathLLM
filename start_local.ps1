@@ -130,6 +130,14 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Knowledge base index is unavailable; knowledge-base questions will fail until it is built." -ForegroundColor Yellow
 }
 
+# Preload the embedding model so the first knowledge question does not pay the
+# cold-start cost, which can exceed the 30s tool timeout on a first download.
+Write-Host "Preloading the embedding model (first run may download ~90MB)..." -ForegroundColor Cyan
+& $pythonPath -m app.services.rag_service --warm
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Embedding model preload failed; knowledge-base questions may time out." -ForegroundColor Yellow
+}
+
 Write-Host "Starting FastAPI (http://localhost:$env:MATHLLM_API_PORT)..." -ForegroundColor Cyan
 Start-Process -FilePath $pythonPath -WorkingDirectory $projectRoot -ArgumentList @("-m", "app.api.main")
 

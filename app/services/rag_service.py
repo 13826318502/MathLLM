@@ -35,6 +35,14 @@ class KnowledgeBaseError(RuntimeError):
     """Raised when the knowledge base is missing or cannot be read."""
 
 
+class KnowledgeIndexMissing(KnowledgeBaseError):
+    """The vector store has not been built yet."""
+
+
+class KnowledgeEmbeddingError(KnowledgeBaseError):
+    """The embedding model could not be loaded or run."""
+
+
 class Embedder(Protocol):
     """Asymmetric embedder: documents and queries may be encoded differently."""
 
@@ -68,11 +76,16 @@ class FastEmbedEmbedder:
 
     def _load(self) -> Any:
         if self._model is None:
-            from fastembed import TextEmbedding
+            try:
+                from fastembed import TextEmbedding
 
-            self._model = TextEmbedding(
-                model_name=self.model_name, cache_dir=self.cache_dir
-            )
+                self._model = TextEmbedding(
+                    model_name=self.model_name, cache_dir=self.cache_dir
+                )
+            except Exception as exc:  # noqa: BLE001 - surfaced as a typed error
+                raise KnowledgeEmbeddingError(
+                    f"embedding 模型加载失败：{type(exc).__name__}: {exc}"
+                ) from exc
         return self._model
 
     def embed_documents(self, texts: Sequence[str]) -> list[list[float]]:
@@ -190,11 +203,19 @@ def index_knowledge(settings: Settings, *, embedder: Embedder | None = None) -> 
         pass
     collection = client.create_collection(settings.rag_collection)
     if documents:
+        try:
+            embeddings = _normalize(embedder.embed_documents(documents))
+        except KnowledgeBaseError:
+            raise
+        except Exception as exc:  # noqa: BLE001 - surfaced as a typed error
+            raise KnowledgeEmbeddingError(
+                f"embedding 计算失败：{type(exc).__name__}: {exc}"
+            ) from exc
         collection.add(
             ids=ids,
             documents=documents,
             metadatas=metadatas,
-            embeddings=_normalize(embedder.embed_documents(documents)),
+            embeddings=embeddings,
         )
     return len(documents)
 
@@ -231,6 +252,25 @@ def ensure_index(settings: Settings, *, embedder: Embedder | None = None) -> int
         return index_knowledge(settings, embedder=embedder)
 
 
+def warm_up(settings: Settings, *, embedder: Embedder | None = None) -> int:
+    """Load the embedding model once so the first query does not pay for it.
+
+    Returns the embedding dimension. Raises ``KnowledgeEmbeddingError`` when the
+    model cannot be loaded, so a cold start fails loudly instead of timing out
+    inside a request.
+    """
+    embedder = embedder or get_default_embedder(settings)
+    try:
+        vector = embedder.embed_query("warmup")
+    except KnowledgeBaseError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - surfaced as a typed error
+        raise KnowledgeEmbeddingError(
+            f"embedding 模型加载失败：{type(exc).__name__}: {exc}"
+        ) from exc
+    return len(vector)
+
+
 def search(
     settings: Settings,
     query: str,
@@ -243,22 +283,34 @@ def search(
     if not query:
         return []
     if not Path(settings.rag_persist_dir).exists():
-        raise KnowledgeBaseError("知识库尚未建立，请先运行索引")
+        raise KnowledgeIndexMissing("知识库尚未建立，请先运行索引")
 
     embedder = embedder or get_default_embedder(settings)
     client = _client(settings.rag_persist_dir)
     try:
         collection = client.get_collection(settings.rag_collection)
     except Exception as exc:
-        raise KnowledgeBaseError("知识库尚未建立，请先运行索引") from exc
+        raise KnowledgeIndexMissing("知识库尚未建立，请先运行索引") from exc
     if collection.count() == 0:
         return []
 
-    result = collection.query(
-        query_embeddings=_normalize([embedder.embed_query(query)]),
-        n_results=top_k or settings.rag_top_k,
-        include=["documents", "metadatas", "distances"],
-    )
+    try:
+        query_vector = embedder.embed_query(query)
+    except KnowledgeBaseError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - surfaced as a typed error
+        raise KnowledgeEmbeddingError(
+            f"embedding 计算失败：{type(exc).__name__}: {exc}"
+        ) from exc
+
+    try:
+        result = collection.query(
+            query_embeddings=_normalize([query_vector]),
+            n_results=top_k or settings.rag_top_k,
+            include=["documents", "metadatas", "distances"],
+        )
+    except Exception as exc:  # noqa: BLE001 - surfaced as a typed error
+        raise KnowledgeBaseError(f"向量检索失败：{type(exc).__name__}: {exc}") from exc
     documents = (result.get("documents") or [[]])[0]
     metadatas = (result.get("metadatas") or [[]])[0]
     distances = (result.get("distances") or [[]])[0]
@@ -290,6 +342,11 @@ if __name__ == "__main__":
         action="store_true",
         help="仅在向量库缺失时建立索引",
     )
+    group.add_argument(
+        "--warm",
+        action="store_true",
+        help="只加载 embedding 模型做预热，不建索引",
+    )
     args = parser.parse_args()
 
     if args.check:
@@ -298,6 +355,15 @@ if __name__ == "__main__":
             raise SystemExit(0)
         print("向量库尚未建立")
         raise SystemExit(1)
+
+    if args.warm:
+        try:
+            dimension = warm_up(settings)
+        except KnowledgeBaseError as exc:
+            print(f"embedding 模型预热失败：{exc}")
+            raise SystemExit(1) from exc
+        print(f"embedding 模型已预热（向量维度 {dimension}）")
+        raise SystemExit(0)
 
     if args.ensure and has_index(settings):
         print(f"向量库已存在，跳过索引：{index_size(settings)} 个片段")

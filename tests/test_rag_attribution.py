@@ -263,5 +263,52 @@ class RagAttributionRouteTest(unittest.TestCase):
         self.assertFalse(detail["rag"]["grounding"]["grounded"])
 
 
+class RetrievalStatusTest(unittest.TestCase):
+    def _trace(self, observations: list[Observation]) -> RunTrace:
+        return RunTrace(
+            run_id="r1",
+            question="q",
+            started_at="2026-09-19T00:00:00+00:00",
+            duration_ms=10,
+            decision=_decision(),
+            observations=observations,
+            answer="答案",
+        )
+
+    def test_ok(self) -> None:
+        item = rag_attribution_service.to_item(self._trace([_search_observation(_documents())]))
+        self.assertEqual(item.retrieval, "ok")
+
+    def test_empty(self) -> None:
+        item = rag_attribution_service.to_item(self._trace([_search_observation([])]))
+        self.assertEqual(item.retrieval, "empty")
+
+    def test_failed_carries_error(self) -> None:
+        observation = _search_observation(_documents(), success=False).model_copy(
+            update={"error": "工具 search_knowledge 超时（30.0s）"}
+        )
+        item = rag_attribution_service.to_item(self._trace([observation]))
+        self.assertEqual(item.retrieval, "failed")
+        self.assertIn("超时", item.retrieval_error or "")
+
+    def test_summary_counts_failures(self) -> None:
+        traces = [
+            self._trace([_search_observation(_documents())]),
+            self._trace([_search_observation([])]),
+            self._trace(
+                [
+                    _search_observation(_documents(), success=False).model_copy(
+                        update={"error": "超时"}
+                    )
+                ]
+            ),
+        ]
+        summary = summarize(traces, {}, window_days=7)
+        self.assertEqual(summary.retrieval.get("ok"), 1)
+        self.assertEqual(summary.retrieval.get("empty"), 1)
+        self.assertEqual(summary.retrieval.get("failed"), 1)
+        self.assertEqual(summary.retrieval_failures, 1)
+
+
 if __name__ == "__main__":
     unittest.main()

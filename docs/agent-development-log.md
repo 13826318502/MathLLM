@@ -2042,4 +2042,222 @@ python -c "from app.core.config import settings; from app.services import rag_se
 | 缓存路径可配置，便于换模型/换机器 | 首次使用要重新下载一次模型（约 90MB） |
 | 进程级缓存键含目录，多配置互不干扰 | 键格式变化，属内部实现细节 |
 
+---
+
+# 第二十节：知识库检索失败可诊断化（区分失败类型 + 启动预热 + 归因页检索状态）
+
+> 背景：第十九节解决了缓存位置，但「超时/失败」和「知识库确实没有」在界面上仍然长得一样——都显示「根据知识库的信息无法回答」。用户要求：**能直接判断问题出在哪里，方便以后修改**。
+>
+> 采纳方案：① 区分失败类型（核心，可诊断）② 启动预热 embedding 模型（预防）③ 归因页展示检索状态（长期观测）。
+>
+> 状态：完成，`168` 个单元测试通过（新增 `9` 个），并用真机 API 验证。
+
+---
+
+## 一、问题：三类失败被压成一句话
+
+| 真实情况 | 修复前表现 | 问题 |
+|---|---|---|
+| 检索超时 / 工具失败 | 「根据知识库的信息无法回答」 | 把**基础设施故障**说成了**没有答案**，误导 |
+| 索引未建立 | 同上 | 看不出要建库 |
+| embedding 加载失败 | 同上 | 看不出是模型/网络问题 |
+| 检索正常但没有相关内容 | 「根据知识库的信息无法回答」 | 唯一正确的用法 |
+
+目标：让前三种明确报出「检索失败 + 原因」，只有第四种才是「无法回答」。
+
+## 二、实现
+
+### 1. `rag_service.py`：异常分型 + 预热
+
+新增两个 `KnowledgeBaseError` 子类：
+
+```python
+class KnowledgeIndexMissing(KnowledgeBaseError):   # 索引没建
+class KnowledgeEmbeddingError(KnowledgeBaseError): # embedding 模型加载/计算失败
+```
+
+- `FastEmbedEmbedder._load()` 把 `TextEmbedding(...)` 的异常包成 `KnowledgeEmbeddingError`（含异常类型与信息）。
+- `index_knowledge()` 的 `embed_documents`、`search()` 的 `embed_query`、`collection.query()` 分别包成 `KnowledgeEmbeddingError` / `KnowledgeBaseError`。
+- `search()` 里「目录不存在」和「collection 不存在」改为抛 `KnowledgeIndexMissing`（原来是笼统的 `KnowledgeBaseError`）。
+- 新增 `warm_up(settings, *, embedder=None) -> int`：主动 `embed_query("warmup")` 一次，把模型加载移出请求路径；失败抛 `KnowledgeEmbeddingError`。
+
+CLI 增加 `--warm`：
+
+```powershell
+python -m app.services.rag_service --warm
+# embedding 模型已预热（向量维度 512）
+```
+
+### 2. `knowledge.py`：工具层区分「失败」与「无命中」
+
+| 情况 | 返回 |
+|---|---|
+| 索引缺失 | `success=False, error="知识库尚未建立，请先运行索引", data.reason="index_missing"` |
+| embedding 失败 | `success=False, error="检索失败：<原因>", data.reason="embedding_error"` |
+| 其他检索异常 | `success=False, error="<原因>", data.reason="retrieval_error"` |
+| 检索成功但 0 命中 | **`success=True, data={"documents": [], "reason": "no_match"}`** |
+| 超时 | 由 `run_tool` 的 `asyncio.wait_for` 产生，`success=False, error="工具 search_knowledge 超时（30.0s）"` |
+
+> **语义变更**：0 命中从 `success=False` 改为 `success=True`（检索本身成功了，只是没有相关内容）。这样调用方才能把「失败」和「无命中」分开。
+
+### 3. `loop.py`：兜底文案按原因分流
+
+新增常量与辅助函数：
+
+```python
+KNOWLEDGE_UNAVAILABLE_ANSWER = "根据知识库的信息无法回答。"
+KNOWLEDGE_FAILED_TEMPLATE = "知识库检索失败（{reason}），暂时无法回答。"
+
+def _knowledge_failure(observations) -> str | None:
+    for observation in observations:
+        if observation.tool == "search_knowledge" and not observation.success:
+            return observation.error or "未知错误"
+    return None
+```
+
+知识库回答且没有片段时：
+
+```python
+failure = _knowledge_failure(observations)
+answer = KNOWLEDGE_FAILED_TEMPLATE.format(reason=failure) if failure else KNOWLEDGE_UNAVAILABLE_ANSWER
+```
+
+于是：
+
+| 看到 | 含义 |
+|---|---|
+| 知识库检索失败（工具 search_knowledge 超时（30.0s）） | 超时/基础设施问题 |
+| 知识库检索失败（知识库尚未建立，请先运行索引） | 索引没建 |
+| 知识库检索失败（检索失败：embedding 模型加载失败：…） | 模型/网络问题 |
+| 根据知识库的信息无法回答。 | 检索正常，知识库确实没有 |
+
+### 4. 启动预热：`start_local.ps1`
+
+`--ensure` 之后增加：
+
+```powershell
+Write-Host "Preloading the embedding model (first run may download ~90MB)..." -ForegroundColor Cyan
+& $pythonPath -m app.services.rag_service --warm
+if ($LASTEXITCODE -ne 0) { Write-Host "Embedding model preload failed; ..." -ForegroundColor Yellow }
+```
+
+把首查的模型加载（首次含约 90MB 下载）挪到启动阶段，避免在 30s 工具超时里完成。
+
+### 5. 归因页：新增「检索状态」
+
+`rag_attribution_service.RagAttributionItem` 增加：
+
+```python
+retrieval: str = "none"          # ok / empty / failed / none
+retrieval_error: str | None = None
+```
+
+`_retrieval_status()` 从观察里判定：有失败的 `search_knowledge` → `failed`（带 error）；有片段 → `ok`；used_knowledge 但无片段 → `empty`；否则 `none`。
+
+`RagAttributionSummary` 增加 `retrieval`（分布）与 `retrieval_failures`（失败次数）。
+
+前端（`web/app.js`）：
+- 列表行新增检索状态徽标：`检索成功` / `无命中` / `检索失败`（失败时 hover 显示原因）。
+- 详情统计行新增「检索状态」格（失败时附错误信息）。
+- 概览新增「检索失败」卡片（副标题显示无命中次数）。
+
+## 三、测试（新增 9 个，共 168）
+
+- `test_rag.py`：0 命中改为成功且 `reason=no_match`；`KnowledgeIndexMissing` / `KnowledgeEmbeddingError` 的分型；`warm_up` 返回维度、失败包成 `KnowledgeEmbeddingError`。
+- `test_loop.py`：检索失败时回答「知识库检索失败（…）」；无命中时回答「根据知识库的信息无法回答。」。
+- `test_rag_attribution.py`：`retrieval` 取值为 ok / empty / failed（带 error）；summary 统计失败数。
+
+`Ran 168 tests ... OK`；`node --check web/app.js` 通过。
+
+## 四、真机验证
+
+- `python -m app.services.rag_service --warm` → `embedding 模型已预热（向量维度 512）`。
+- 另起后端（8090，避开用户正在运行的 8080 旧进程）后 `GET /api/rag/attribution`：
+  - `summary.retrieval = {"failed":5,"ok":1}`，`retrieval_failures = 5`
+  - 逐条 `retrieval`：failed / failed / failed / failed / none / ok / none / failed / none
+  - 即历史上有 **5 次知识库运行检索失败**，现在能在页面上直接看出来。
+
+## 五、踩坑与教训
+
+1. **旧进程不重启看不到新字段**：第一次在 8080 上验证时字段为空——因为 8080 还是用户 14:17 启动的旧后端（新代码没加载）。改端口到 8090 才验证成功。**改后端代码后必须重启。**
+2. **「0 命中」的语义要慎重**：从 `success=False` 改成 `success=True` 是有意为之——它是「检索成功、结果为空」，不是「失败」。这样调用方和页面才能区分。改动同时更新了对应的单元测试。
+3. **超时是框架层抛的**：`asyncio.wait_for` 在 `run_tool` 里兜底，工具处理函数拿不到，所以超时只能通过 `observation.success=False` + `error` 文本识别，`_knowledge_failure()` 正是基于这一点。
+
+## 六、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 一眼分清「检索失败/超时」「索引缺失」「模型问题」「确实没有」 | 回答文案变长，含错误详情 |
+| 启动预热把冷启动移出请求路径 | 启动时多一步（首次含约 90MB 下载，有进度） |
+| 归因页可长期统计检索失败次数 | 多了 `retrieval`/`retrieval_error` 字段与徽标 |
+| 失败原因进 trace，可回放排查 | 无 |
+
+---
+
+# 第二十一节：路由到 none 时引导回数学/知识问题
+
+> 反馈：Agent 轨迹里出现「路由 general → none」时，模型仍会自由回答（如闲聊）。用户要求：路由到 `none` 时直接返回引导语，把用户拉回数学题或知识类问题。
+>
+> 状态：完成，`169` 个单元测试通过（更新 4 个、新增 1 个）。
+
+---
+
+## 一、改动
+
+`app/agent/loop.py` 新增常量：
+
+```python
+OUT_OF_SCOPE_ANSWER = "根据知识库的知识无法回答该问题，请提问数学问题或其他知识类问题。"
+```
+
+在答案分支中，`math` 直通之后、knowledge 兜底之前，新增：
+
+```python
+elif decision.tool == "none" and decision.intent != "math":
+    # The router picked no tool: the question is outside the assistant's
+    # scope (math and the knowledge base). Guide the user back instead of
+    # letting the model answer anything.
+    yield {"type": "thinking", "stage": "answer"}
+    answer = OUT_OF_SCOPE_ANSWER
+    yield {"type": "answer_delta", "content": answer}
+    answer_model = {"model": "", "role": ""}
+```
+
+- 触发条件：`tool == "none"`（即路由判定为 `general`，或路由解析失败回落成 `general/none`）。
+- 结果：确定性文案，不调用模型（`stream_raw` 调用为 0），`answer_model` 为空。
+- 排除 `math`：若路由把数学题误判成 `math/none`，不走引导，仍走原生成路径，避免对数学题说「请提问数学问题」。
+
+## 二、行为变化
+
+| 输入 | 之前 | 之后 |
+|---|---|---|
+| 你好 / 今天天气怎么样 | 模型自由回答 | 「根据知识库的知识无法回答该问题，请提问数学问题或其他知识类问题。」 |
+| 数学题 | 解题 | 不变 |
+| 数学概念 / 项目问题 | 检索知识库 | 不变 |
+
+> 这是有意的产品取舍：助手收敛到「数学 + 知识库」，不再承接通用闲聊。
+
+## 三、测试
+
+原本有 4 个用例用 `general/none` 来验证「模型生成答案」路径，因行为改变需要改用 `knowledge + search_knowledge`（该路径同样走 `generate_answer_stream`）：
+
+- `test_loop.py`
+  - `test_non_math_answer_uses_orchestrator_stream`：改用 `knowledge` 路由 + patch 检索命中。
+  - `test_unparsable_action_falls_back_to_final`：断言答案改为 `OUT_OF_SCOPE_ANSWER`。
+  - 新增 `test_general_route_returns_out_of_scope_guidance`：`general/none` → 固定引导语，`stream_calls == 0`。
+- `test_agent_stream.py`
+  - `test_answer_deltas_reconstruct_answer`、`test_empty_answer_gets_fallback_delta`：改用 `knowledge` 路由 + patch 检索命中。
+
+`Ran 169 tests ... OK`；`node --check web/app.js` 通过。
+
+## 四、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 助手聚焦数学/知识，闲聊不再自由发挥 | 失去通用闲聊能力（有意为之） |
+| 路由异常回落成 general/none 时也有确定行为 | 引导语固定，不含具体建议 |
+| 不调用模型，省一次请求 | 无 |
+
+
+
 

@@ -5,11 +5,11 @@ import unittest
 from dataclasses import replace
 from unittest.mock import patch
 
-from app.agent.loop import iter_agent_events, run_agent
+from app.agent.loop import OUT_OF_SCOPE_ANSWER, iter_agent_events, run_agent
 from app.agent.tools import ToolContext
 from app.core.config import settings
 from app.services import rag_service
-from app.services.rag_service import KnowledgeBaseError
+from app.services.rag_service import KnowledgeBaseError, RetrievedChunk
 
 
 def _completion(content: str) -> dict:
@@ -100,11 +100,20 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(client.stream_calls, 1)
 
     async def test_non_math_answer_uses_orchestrator_stream(self) -> None:
-        client = ScriptedClient([_route("general", "none", query="你好"), FINAL_JSON])
-        result = await run_agent(client, "你好", make_ctx(client))
+        client = ScriptedClient([_route("knowledge", "search_knowledge"), FINAL_JSON])
+        chunks = [RetrievedChunk(content="判别式是 b^2-4ac", source="01.md", distance=0.4)]
+        with patch.object(rag_service, "search", return_value=chunks):
+            result = await run_agent(client, "什么是判别式", make_ctx(client))
         self.assertEqual(result.answer, "最终答案")
         self.assertEqual(client.stream_calls, 1)
         self.assertEqual(client.complete_calls, 0)
+
+    async def test_general_route_returns_out_of_scope_guidance(self) -> None:
+        client = ScriptedClient([_route("general", "none", query="你好"), FINAL_JSON])
+        result = await run_agent(client, "你好", make_ctx(client))
+        self.assertEqual(result.answer, OUT_OF_SCOPE_ANSWER)
+        # The guidance is fixed, so the model is never asked to answer.
+        self.assertEqual(client.stream_calls, 0)
 
     async def test_second_tool_call(self) -> None:
         client = ScriptedClient(
@@ -178,12 +187,25 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         # The answer is fixed, so the model is not asked to improvise one.
         self.assertEqual(client.stream_calls, 0)
 
+    async def test_knowledge_retrieval_failure_is_reported(self) -> None:
+        client = ScriptedClient([_route("knowledge", "search_knowledge"), FINAL_JSON])
+        with patch.object(
+            rag_service,
+            "search",
+            side_effect=KnowledgeBaseError("检索超时（30s）"),
+        ):
+            result = await run_agent(client, "什么是判别式", make_ctx(client))
+        # A failure must not be disguised as "nothing found".
+        self.assertIn("检索失败", result.answer)
+        self.assertIn("检索超时", result.answer)
+        self.assertEqual(client.stream_calls, 0)
+
     async def test_unparsable_action_falls_back_to_final(self) -> None:
         client = ScriptedClient([_route("general", "none", query="你好"), "不是 JSON"])
         result = await run_agent(client, "你好", make_ctx(client))
         self.assertEqual(result.stopped_reason, "final")
         self.assertEqual(result.steps, 0)
-        self.assertEqual(result.answer, "最终答案")
+        self.assertEqual(result.answer, OUT_OF_SCOPE_ANSWER)
 
     async def test_empty_question_rejected(self) -> None:
         client = ScriptedClient([_route("general", "none")])

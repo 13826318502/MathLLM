@@ -136,10 +136,11 @@ class IterAgentEventsTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_answer_deltas_reconstruct_answer(self) -> None:
         client = ScriptedClient(
-            [_route("general", "none", query="你好"), FINAL_JSON],
+            [_route("knowledge", "search_knowledge", query="什么是判别式"), FINAL_JSON],
             chunks=["方程", "的解", "是 2 和 3"],
         )
-        events = await collect(client)
+        with patch.object(rag_service, "search", return_value=_knowledge_chunks()):
+            events = await collect(client, question="什么是判别式")
         streamed = "".join(
             event["content"] for event in events if event["type"] == "answer_delta"
         )
@@ -149,9 +150,11 @@ class IterAgentEventsTest(unittest.IsolatedAsyncioTestCase):
 
     async def test_empty_answer_gets_fallback_delta(self) -> None:
         client = ScriptedClient(
-            [_route("general", "none", query="你好"), FINAL_JSON], chunks=[]
+            [_route("knowledge", "search_knowledge", query="什么是判别式"), FINAL_JSON],
+            chunks=[],
         )
-        events = await collect(client)
+        with patch.object(rag_service, "search", return_value=_knowledge_chunks()):
+            events = await collect(client, question="什么是判别式")
         deltas = [event["content"] for event in events if event["type"] == "answer_delta"]
         self.assertEqual(len(deltas), 1)
         self.assertIn("暂时无法生成回答", deltas[0])

@@ -26,14 +26,29 @@ async def _search(args: SearchInput, ctx: ToolContext) -> ToolResult:
             args.query,
             top_k=args.top_k,
         )
-    except rag_service.KnowledgeBaseError as exc:
-        return ToolResult(success=False, error=str(exc), data={"documents": []})
-    if not chunks:
+    except rag_service.KnowledgeIndexMissing as exc:
         return ToolResult(
             success=False,
-            error="知识库中没有找到相关内容",
-            data={"documents": []},
+            error=str(exc),
+            data={"documents": [], "reason": "index_missing"},
         )
+    except rag_service.KnowledgeEmbeddingError as exc:
+        return ToolResult(
+            success=False,
+            error=f"检索失败：{exc}",
+            data={"documents": [], "reason": "embedding_error"},
+        )
+    except rag_service.KnowledgeBaseError as exc:
+        return ToolResult(
+            success=False,
+            error=str(exc),
+            data={"documents": [], "reason": "retrieval_error"},
+        )
+    if not chunks:
+        # Retrieval itself worked; the knowledge base just has nothing relevant.
+        # This is reported as success so callers can tell it apart from a
+        # timeout or a missing index.
+        return ToolResult(success=True, data={"documents": [], "reason": "no_match"})
     return ToolResult(
         success=True,
         data={

@@ -54,6 +54,10 @@ class RagAttributionItem(BaseModel):
     retrieved_count: int = 0
     sources: list[str] = Field(default_factory=list)
     cited_sources: list[str] = Field(default_factory=list)
+    # Retrieval outcome: ok / empty (ran, nothing relevant) / failed (timeout,
+    # missing index, embedding error) / none (never searched).
+    retrieval: str = "none"
+    retrieval_error: str | None = None
     grounding: str = GROUNDING_NONE
     unsupported: list[str] = Field(default_factory=list)
     answer_model: str = ""
@@ -69,6 +73,8 @@ class RagAttributionSummary(BaseModel):
     knowledge_runs: int = 0
     knowledge_rate: float | None = None
     avg_retrieved: float = 0.0
+    retrieval: dict[str, int] = Field(default_factory=dict)
+    retrieval_failures: int = 0
     grounding: dict[str, int] = Field(default_factory=dict)
     grounded_rate: float | None = None
     ungrounded_runs: int = 0
@@ -176,6 +182,21 @@ def _status(grounding: RagGrounding | None) -> str:
     return GROUNDING_VERIFIED if grounding.grounded else GROUNDING_UNKNOWN
 
 
+def _retrieval_status(
+    trace: RunTrace,
+    attribution: RagAttribution,
+) -> tuple[str, str | None]:
+    """Classify how retrieval went: ok / empty / failed / none."""
+    for observation in trace.observations:
+        if observation.tool == "search_knowledge" and not observation.success:
+            return "failed", observation.error
+    if attribution.retrieved:
+        return "ok", None
+    if attribution.used_knowledge:
+        return "empty", None
+    return "none", None
+
+
 def to_item(
     trace: RunTrace,
     checks: dict[str, RagGrounding] | None = None,
@@ -183,6 +204,7 @@ def to_item(
     checks = checks or {}
     attribution = attribution_from_trace(trace)
     grounding = _effective_grounding(attribution, checks, trace.run_id)
+    retrieval, retrieval_error = _retrieval_status(trace, attribution)
     return RagAttributionItem(
         run_id=trace.run_id,
         question=trace.question,
@@ -195,6 +217,8 @@ def to_item(
         retrieved_count=len(attribution.retrieved),
         sources=list(dict.fromkeys(item.source for item in attribution.retrieved)),
         cited_sources=attribution.cited_sources,
+        retrieval=retrieval,
+        retrieval_error=retrieval_error,
         grounding=_status(grounding),
         unsupported=list(grounding.unsupported) if grounding else [],
         answer_model=trace.answer_model,
@@ -218,6 +242,8 @@ def summarize(
     total = len(traces)
     knowledge_runs = 0
     retrieved_total = 0
+    retrieval_counts: dict[str, int] = {}
+    retrieval_failures = 0
     verified = 0
     unknown = 0
     ungrounded = 0
@@ -227,6 +253,10 @@ def summarize(
             continue
         knowledge_runs += 1
         retrieved_total += len(attribution.retrieved)
+        status, _ = _retrieval_status(trace, attribution)
+        retrieval_counts[status] = retrieval_counts.get(status, 0) + 1
+        if status == "failed":
+            retrieval_failures += 1
         grounding = _effective_grounding(attribution, checks, trace.run_id)
         if grounding is None:
             continue
@@ -242,6 +272,8 @@ def summarize(
         knowledge_runs=knowledge_runs,
         knowledge_rate=_rate(knowledge_runs, total),
         avg_retrieved=round(retrieved_total / knowledge_runs, 2) if knowledge_runs else 0.0,
+        retrieval=retrieval_counts,
+        retrieval_failures=retrieval_failures,
         grounding={
             GROUNDING_VERIFIED: verified,
             GROUNDING_UNKNOWN: unknown,

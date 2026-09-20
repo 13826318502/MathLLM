@@ -138,6 +138,21 @@ class RagServiceTest(unittest.TestCase):
         second = rag_service.ensure_index(self.settings, embedder=ExplodingEmbedder())
         self.assertEqual(second, first)
 
+    def test_warm_up_returns_dimension(self) -> None:
+        dimension = rag_service.warm_up(self.settings, embedder=self.embedder)
+        self.assertGreater(dimension, 0)
+
+    def test_warm_up_wraps_embedding_failure(self) -> None:
+        class BrokenEmbedder:
+            def embed_documents(self, texts: list[str]) -> list[list[float]]:
+                raise RuntimeError("boom")
+
+            def embed_query(self, text: str) -> list[float]:
+                raise RuntimeError("boom")
+
+        with self.assertRaises(rag_service.KnowledgeEmbeddingError):
+            rag_service.warm_up(self.settings, embedder=BrokenEmbedder())
+
 
 class KnowledgeToolTest(unittest.IsolatedAsyncioTestCase):
     def _ctx(self) -> ToolContext:
@@ -163,11 +178,36 @@ class KnowledgeToolTest(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result.data["documents"][0]["source"], "discriminant.md")
         self.assertIn("b^2", result.data["documents"][0]["content"])
 
-    async def test_empty_result_is_failure(self) -> None:
+    async def test_empty_result_is_success_with_no_documents(self) -> None:
         with patch.object(rag_service, "search", return_value=[]):
             result = await call_tool("search_knowledge", {"query": "无关问题"}, self._ctx())
+        # Retrieval worked; there is simply nothing relevant. This must be
+        # distinguishable from a timeout or a missing index.
+        self.assertTrue(result.success)
+        self.assertEqual(result.data["documents"], [])
+        self.assertEqual(result.data["reason"], "no_match")
+
+    async def test_missing_index_is_reported_as_failure(self) -> None:
+        with patch.object(
+            rag_service,
+            "search",
+            side_effect=rag_service.KnowledgeIndexMissing("知识库尚未建立，请先运行索引"),
+        ):
+            result = await call_tool("search_knowledge", {"query": "判别式"}, self._ctx())
         self.assertFalse(result.success)
-        self.assertIn("没有找到", result.error or "")
+        self.assertIn("知识库", result.error or "")
+        self.assertEqual(result.data["reason"], "index_missing")
+
+    async def test_embedding_error_is_reported_as_failure(self) -> None:
+        with patch.object(
+            rag_service,
+            "search",
+            side_effect=rag_service.KnowledgeEmbeddingError("embedding 模型加载失败：X"),
+        ):
+            result = await call_tool("search_knowledge", {"query": "判别式"}, self._ctx())
+        self.assertFalse(result.success)
+        self.assertIn("检索失败", result.error or "")
+        self.assertEqual(result.data["reason"], "embedding_error")
 
 
 if __name__ == "__main__":

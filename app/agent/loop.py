@@ -46,6 +46,8 @@ DEFAULT_MAX_VERIFY_RETRIES = 1
 MAX_OBSERVATION_CHARS = 4000
 EMPTY_ANSWER_FALLBACK = "抱歉，暂时无法生成回答。"
 KNOWLEDGE_UNAVAILABLE_ANSWER = "根据知识库的信息无法回答。"
+KNOWLEDGE_FAILED_TEMPLATE = "知识库检索失败（{reason}），暂时无法回答。"
+OUT_OF_SCOPE_ANSWER = "根据知识库的知识无法回答该问题，请提问数学问题或其他知识类问题。"
 SKIP_VERIFY_REASON = "知识库检索回答：内容来自检索片段，已跳过独立验证"
 
 ACTION_SYSTEM_PROMPT = """你是数学学习助手的执行规划器。
@@ -229,6 +231,14 @@ def _latest_solver_answer(observations: list[Observation]) -> str | None:
         answer = _answer_from_observation(observation)
         if answer:
             return answer
+    return None
+
+
+def _knowledge_failure(observations: list[Observation]) -> str | None:
+    """Return the error of a failed search_knowledge call, if any."""
+    for observation in observations:
+        if observation.tool == "search_knowledge" and not observation.success:
+            return observation.error or "未知错误"
     return None
 
 
@@ -548,13 +558,27 @@ async def _iter_agent_events(
             # only re-send it when it did not come through the stream.
             if streamed_answer.strip() != answer.strip():
                 yield {"type": "answer_delta", "content": answer}
+        elif decision.tool == "none" and decision.intent != "math":
+            # The router picked no tool: the question is outside the
+            # assistant's scope (math and the knowledge base). Guide the user
+            # back instead of letting the model answer anything.
+            yield {"type": "thinking", "stage": "answer"}
+            answer = OUT_OF_SCOPE_ANSWER
+            yield {"type": "answer_delta", "content": answer}
+            answer_model = {"model": "", "role": ""}
         elif decision.intent == "knowledge" and not verify_service.documents_from_observations(
             observations
         ):
             # A knowledge intent may only be answered from the knowledge base.
-            # With nothing retrieved, do not let the model improvise an answer.
+            # Tell a retrieval failure (timeout, missing index, embedding error)
+            # apart from a genuine "nothing relevant found".
             yield {"type": "thinking", "stage": "answer"}
-            answer = KNOWLEDGE_UNAVAILABLE_ANSWER
+            failure = _knowledge_failure(observations)
+            answer = (
+                KNOWLEDGE_FAILED_TEMPLATE.format(reason=failure)
+                if failure
+                else KNOWLEDGE_UNAVAILABLE_ANSWER
+            )
             yield {"type": "answer_delta", "content": answer}
             answer_model = {"model": "", "role": ""}
         else:
