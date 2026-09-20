@@ -169,6 +169,15 @@ class RunAgentTest(unittest.IsolatedAsyncioTestCase):
         # Knowledge answers skip independent verification by default.
         self.assertIsNone(result.verification)
 
+    async def test_knowledge_without_results_answers_unavailable(self) -> None:
+        client = ScriptedClient([_route("knowledge", "search_knowledge"), FINAL_JSON])
+        with patch.object(rag_service, "search", return_value=[]):
+            result = await run_agent(client, "什么是判别式", make_ctx(client))
+        self.assertEqual(result.stopped_reason, "final")
+        self.assertEqual(result.answer, "根据知识库的信息无法回答。")
+        # The answer is fixed, so the model is not asked to improvise one.
+        self.assertEqual(client.stream_calls, 0)
+
     async def test_unparsable_action_falls_back_to_final(self) -> None:
         client = ScriptedClient([_route("general", "none", query="你好"), "不是 JSON"])
         result = await run_agent(client, "你好", make_ctx(client))

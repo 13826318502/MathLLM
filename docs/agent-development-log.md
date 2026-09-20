@@ -1652,3 +1652,297 @@ check_by_substitution(lhs="x**2 - 5*x + 6", rhs="0",
 | 每条路径后面紧跟它的产出，阅读顺序与执行顺序一致 | 依赖模型输出的标题格式；格式变了会退化成不拆分 |
 | 验证结论（SymPy）与模型自查段并排展示，归属清晰 | 轨迹卡内容变长，卡片更高 |
 | 流式期间也按路径分块，边写边归位 | 每次事件重渲染整张卡（已用 rAF 节流） |
+
+---
+
+# 第十七节：知识库归因（RAG Attribution）功能
+
+> 目标：对**每一次模型的回答**回答三个问题——这次有没有走知识库？检索到了哪些片段（含来源、相似度、排名）？回答是不是基于这些片段？
+>
+> 交付：一个独立的「知识库归因」页面 + 后端归因服务 + 自动接地检查；旧运行记录也能派生归因。
+>
+> 状态：实现完成，`158` 个单元测试全部通过（新增 `12` 个），并已用真机（本地 Ollama + Chroma + 已有 traces + 浏览器）端到端验证。
+
+---
+
+## 一、需求与设计决策
+
+用户最初想做「RAG 效果评估页」，澄清后明确：不要标注集跑分，而是**对每次回答做归因**——是否依据知识库、检索到了什么。据此确定的四个决策：
+
+| 决策点 | 选择 | 理由 |
+|---|---|---|
+| 页面形态 | **独立新页面**（不是并进运行观测） | 归因是「内容质量」视角，观测是「运行性能」视角，分开更清晰 |
+| 接地检查 | **自动**（每次知识库回答都跑） | 用户要求自动；每次多 1 次模型调用 |
+| trace schema | **允许新增 `rag` 字段** | 旧数据无该字段仍可解析；新运行多一块结构化归因 |
+| 相似度 | **展示 `distance`** | 需要 `search_knowledge` 返回距离；旧 trace 无此字段则显示 `—` |
+
+### 为什么不是「图片转向量」那类方案
+归因要判断「回答是否依据检索内容」，这是**语义核对**，不是向量相似度。项目里已有的 `verify_service.check_grounding()` 正是做这件事的受约束裁判（只在检索片段内判断），直接复用即可，无需引入新的向量模型。
+
+## 二、数据模型改动
+
+`app/agent/schema.py` 新增三个模型：
+
+```python
+class RetrievedSource(BaseModel):   # 一个被检索到的知识片段
+    source: str
+    rank: int = 0
+    distance: float | None = None
+    snippet: str = ""
+
+class RagGrounding(BaseModel):      # 回答是否被检索资料支持
+    grounded: bool
+    unsupported: list[str] = []     # 资料未支持的关键结论
+    reason: str = ""
+
+class RagAttribution(BaseModel):    # 一次回答的知识库归因
+    used_knowledge: bool = False
+    query: str | None = None
+    retrieved: list[RetrievedSource] = []
+    cited_sources: list[str] = []   # 回答中显式提到的来源
+    grounding: RagGrounding | None = None
+```
+
+- `AgentRun` 与 `RunTrace` 各新增可选字段 `rag: RagAttribution | None = None`。
+- **向后兼容**：旧 JSONL 里没有 `rag`，`RunTrace.model_validate` 依然通过，归因由服务在读取时**按需派生**（见下）。
+
+`app/agent/tools/knowledge.py` 的 `search_knowledge` 返回体补上 `distance` 与 `rank`：
+
+```python
+"documents": [
+    {"content": chunk.content, "source": chunk.source,
+     "distance": chunk.distance, "rank": rank}
+    for rank, chunk in enumerate(chunks, start=1)
+]
+```
+
+## 三、后端实现
+
+### 3.1 归因服务 `app/services/rag_attribution_service.py`（新增）
+
+核心是「从 trace 派生」，因此对新旧记录一视同仁：
+
+| 函数 | 作用 |
+|---|---|
+| `build_attribution(decision, observations, answer)` | 解析 `search_knowledge` 观察里的 `documents`，生成 `RagAttribution`；`used_knowledge` 由「有检索结果」或「路由为 knowledge」判定；`cited_sources` 用来源文件名/词干在回答中匹配 |
+| `attribution_from_trace(trace)` | 有 `trace.rag` 直接返回，否则现场派生（旧记录兼容） |
+| `to_item(trace, checks)` / `list_items(...)` | 拍平成列表项（含来源列表、引用、接地状态、未支持结论） |
+| `summarize(traces, checks, window_days)` | 概览统计：走知识库比例、平均检索片段数、接地通过率、未接地数 |
+| `load_checks(path)` / `save_check(path, run_id, grounding)` | 手动「重新核对」结果的 sidecar 存储 |
+| `checks_path(trace_dir)` | `data/traces/rag_checks.jsonl` |
+
+> 注意：`build_attribution` 的 `retrieved` 与 `cited_sources` 都在**服务层派生**，页面不依赖被截断的 `observation.summary` 之外的任何信息；`snippet` 截断到 300 字符，避免 trace 膨胀。
+
+### 3.2 自动接地：只在「跳过验证」分支跑
+
+`app/services/verify_service.py` 把原来的 `check_grounding` 拆出一个返回结构化结论的 `judge_grounding(client, answer, documents) -> GroundingVerdict | None`，`check_grounding` 改为调用它。这样归因层能拿到 `unsupported` 列表。
+
+`app/agent/loop.py` 的改动：
+
+1. 新增变量 `rag_grounding: RagGrounding | None = None`。
+2. 在 `should_skip_verification()` 为真（知识库回答默认跳过 SymPy 验证）时：
+   - 若 `settings.rag_grounding` 且确有检索片段，发 `rag_grounding_start` 事件；
+   - 调 `verify_service.judge_grounding()`，成功后发 `rag_grounding` 事件（含 `grounded/unsupported/reason`）；
+   - 之后照旧发 `verify_skipped`。
+3. 若 `verify_rag=True`（走 `verify_answer`），当返回的 `verification.method == "grounding"` 时，把结论同步成 `RagGrounding`。
+4. 答案定稿后 `build_attribution(...)` 组装 `rag`，把 `rag_grounding` 填进去，随 `AgentRun` 一起返回，并写进 `done` 事件。
+
+**为什么只放在 skip 分支**：如果 `verify_rag=True`，`verify_answer` 已经调用过 `check_grounding`，再跑一次就是重复的模型调用；放在 skip 分支既满足「自动接地」，又不与既有验证路径打架，也不改变 `run.verification` 的语义（默认仍为 `None`）。这一点直接保住了既有的两个知识库流式测试。
+
+`app/services/trace_service.py` 的 `build_trace()` 增加 `rag=run.rag`，归因随运行一起落盘到 `data/traces/runs.jsonl`。
+
+### 3.3 配置 `app/core/config.py`
+
+新增 `rag_grounding: bool`，读取 `MATHLLM_RAG_GROUNDING`（默认 `1`，即开启）。想省一次模型调用可设为 `0`。
+
+### 3.4 路由 `app/api/routes/rag_attribution.py`（新增，已在 `main.py` 注册）
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/rag/attribution?days=7&limit=50` | 概览 + 最近运行归因列表（新→旧） |
+| GET | `/api/rag/attribution/{run_id}` | 单次详情：`RunTrace` + `rag`（含片段、引用、接地） |
+| POST | `/api/rag/attribution/{run_id}/check` | 对某次回答**重新**跑接地裁判，结果写入 `rag_checks.jsonl`，并覆盖详情里的结论 |
+
+- `days=0` 表示全部；沿用 `metrics_service.filter_since()` 做时间窗过滤。
+- 详情接口对旧记录会现场派生 `rag`；`check` 接口在没有检索片段时返回 `400`。
+
+## 四、前端实现
+
+`web/index.html`：系统分组下新增导航 `data-page="rag-attribution"`「知识库归因」（图标 `◈`）。
+
+`web/app.js`：
+
+| 位置 | 改动 |
+|---|---|
+| `PAGE_META` | 新增 `"rag-attribution": ["系统 / 知识库归因", "看看每次回答有没有依据知识库"]` |
+| `state` | 新增 `ragAttribution: { loading, days: 7, summary, runs, error }` |
+| `setPage` / `render` / `hashchange` / 初始化 | 进入该页时调用 `loadRagAttribution()`；`render()` 增加页面分支 |
+| 新增函数 | `ragAttributionPage()`、`loadRagAttribution()`、`ragAttributionRun(item)`、`ragDetailMarkup(trace)`、`loadRagDetail(runId)`、`checkRagGrounding(runId)`、`ragGroundingBadge(status)` |
+| `bindPageEvents` | 绑定 `#rag-refresh`、`#rag-days`、`[data-rag-detail]`、`[data-rag-check]` |
+
+页面结构：
+
+1. **概览卡片**：运行总数、走知识库比例、平均检索片段数、接地通过率、未接地回答数。
+2. **逐次回答列表**：每条 `<details>` 显示时间、问题、`知识库/未用知识库` 徽标、`已接地/未接地/未检查` 徽标、片段数与耗时；展开显示路由、检索查询、命中来源、回答引用、未支持结论。
+3. **加载详情**：点按后请求详情接口，内联渲染每个检索片段的 `#rank + 来源 + 距离 + 片段文本`、接地结论、模型回答（截断 1200 字）。
+4. **重新核对**：对知识库回答重跑接地裁判并刷新。
+
+`web/styles.css`：新增 `.rag-detail` / `.rag-detail-block` / `.rag-chunk` / `.rag-chunk-head` / `.rag-rank` / `.rag-distance` / `.rag-chunk-body`，复用既有 `run-card` / `run-badge` / `obs-note` / `stat-card` 样式。
+
+## 五、测试
+
+新增 `tests/test_rag_attribution.py`（12 个用例，全部离线）：
+
+- `BuildAttributionTest`：无知识库使用、片段解析（来源/rank/distance/snippet）、引用匹配、检索失败不计片段但算知识库运行。
+- `SummarizeTest`：接地状态计数、通过率、空窗口返回 `None`。
+- `ChecksStoreTest`：sidecar 读写与「后写覆盖」。
+- `LoopGroundingTest`：知识库运行在默认设置下自动记录 `rag.grounding`。
+- `RagAttributionRouteTest`：列表/详情/404/`check` 落盘并覆盖详情结论。
+
+结果：`Ran 158 tests ... OK`（原 146 + 新 12）。`node --check web/app.js` 通过。
+
+## 六、真机验证
+
+1. 启动后端（8080）与静态前端（7860）。
+2. `GET /api/rag/attribution?days=0` 返回 4 次既有运行：`knowledge_rate=0.5`、`avg_retrieved=1.5`，其中一次知识库运行派生出 `retrieved_count=3`，证明**旧 trace 也能派生归因**。
+3. `GET /api/rag/attribution/{run_id}` 返回 3 个片段（来源、rank、snippet；`distance` 对旧 trace 为 `null`，新运行才有）。
+4. 浏览器打开 `http://localhost:7860/#rag-attribution`：导航高亮、概览卡片、逐次回答徽标均正确；点「加载详情」后详情区展开（按钮位置随内容下移，说明片段与回答已插入）。
+
+## 七、踩坑与权衡
+
+1. **自动接地的调用顺序会打乱脚本化测试的响应队列**：最初把接地放在答案生成后、验证前，导致 `verify_rag=True` 的测试里 `form/extracted/verdict` 三次响应被提前消耗。改为**只在 skip 分支**执行后，验证路径的调用序列保持不变，测试零改动。
+2. **`observation.summary` 会被截断到 4000 字符**：所以归因的片段解析必须容忍截断；`snippet` 再截到 300 字符，只用于展示，不用于判定。
+3. **旧 trace 没有 `distance`/`rank`**：解析时用枚举序号兜底 `rank`，`distance` 缺失就置 `None`，页面显示 `—`，不报错。
+4. **`data/traces/` 已被 gitignore**：`rag_checks.jsonl` 放在同目录，天然不入库；归因本身是运行时产物，不污染仓库。
+
+| 得到 | 付出 |
+|---|---|
+| 每次回答自动有「是否用知识库 / 检索了什么 / 是否接地」三问答案 | 每次知识库回答多 1 次接地模型调用（可 `MATHLLM_RAG_GROUNDING=0` 关闭） |
+| 旧运行记录也能派生归因，无需迁移 | 旧记录的 `distance` 为空，展示为 `—` |
+| 归因结构化落盘，可回放、可统计 | `runs.jsonl` 每条记录略增（片段 snippet 最多 300 字/条） |
+
+## 八、后续可选
+
+- 概览加「走知识库但未接地」的筛选，直接定位疑似幻觉回答。
+- 引用检测目前是「来源名/词干出现在回答里」，可升级为按片段内容做引用归因。
+- 若接入多模态，图片类回答也可复用同一套归因结构（`used_knowledge` + `retrieved` + `grounding`）。
+
+---
+
+# 第十八节：知识库归因的可用性打磨（只显示知识库回答 + 无结果兜底）
+
+> 反馈来自真机使用：① 归因页把「未走知识库」的运行也列出来了，噪声大；② 详情里看不出「检索到几段、引用了几段、准确率多少」；③ 知识库没检索到内容时，模型还在自由发挥，应该直接说「根据知识库的信息无法回答」。
+>
+> 状态：三项全部完成，`159` 个单元测试通过（新增 `1` 个），并用真机浏览器逐项验证。
+
+---
+
+## 一、列表只显示「走知识库」的回答
+
+**改动位置**：`web/app.js` 的 `ragAttributionPage()`。
+
+```js
+const knowledgeRuns = view.runs.filter((item) => item.used_knowledge);
+const runs = knowledgeRuns.length
+  ? knowledgeRuns.map(ragAttributionRun).join("")
+  : `<div class="card empty-state"><strong>窗口内没有走知识库的回答</strong>…</div>`;
+```
+
+- 概览统计口径不变（仍以全部运行做分母，才能看出「走知识库比例」），但列表只渲染 `used_knowledge === true` 的运行。
+- 每行的徽标从「知识库 / 未用知识库」二选一简化为固定的「知识库」；「重新核对」按钮对所有列出的运行都显示（因为都走过知识库）。
+- 概览卡片也做了语义微调：`走知识库` 卡片副标题改为「全部 N 次运行中 M 次」，新增 `未检查` 卡片（做了接地判定之外的知识库回答数）。
+
+## 二、详情展示「检索到多少片段 / 引用了哪些 / 准确率多高」
+
+**改动位置**：`web/app.js` 的 `ragDetailMarkup()` + `ragAttributionRun()` 的行内 meta。
+
+详情顶部新增一行统计（`.rag-stat-row`）：
+
+| 统计项 | 取值 |
+|---|---|
+| 相关片段 | `rag.retrieved.length` 个 |
+| 引用来源 | `rag.cited_sources.length` 个 |
+| 接地准确率 | 本次：已接地 `100%` / 未接地 `0%` / 未检查 `—`；并附「窗口 X%」（当前时间窗的 `summary.grounded_rate`） |
+
+列表行的 meta 也从「N 片段 · 耗时」升级为「N 片段 · 引用 M · 耗时」，不展开就能看到引用数量。
+
+`web/styles.css` 新增 `.rag-stat-row` / `.rag-stat`（自适应卡片式小格），深色模式沿用变量自动适配。
+
+> 「准确率」采用**接地准确率**（回答被检索资料支持的比例），因为它是项目里可判定的量；检索相似度 `distance` 仍逐片段展示（旧记录为 `—`）。
+
+## 三、知识库没检索到 → 直接回答「根据知识库的信息无法回答」
+
+**问题**：`search_knowledge` 无结果或失败时，`observation.success = false`，此前仍会走模型生成，模型可能凭自身知识作答，违背「knowledge 意图只依据知识库」的约束。
+
+**改动位置**：`app/agent/loop.py`。
+
+1. 新增常量：
+
+```python
+KNOWLEDGE_UNAVAILABLE_ANSWER = "根据知识库的信息无法回答。"
+```
+
+2. 在答案生成分支里，`math` 直通之后、模型生成之前，插入知识库兜底：
+
+```python
+elif decision.intent == "knowledge" and not verify_service.documents_from_observations(
+    observations
+):
+    # A knowledge intent may only be answered from the knowledge base.
+    # With nothing retrieved, do not let the model improvise an answer.
+    yield {"type": "thinking", "stage": "answer"}
+    answer = KNOWLEDGE_UNAVAILABLE_ANSWER
+    yield {"type": "answer_delta", "content": answer}
+    answer_model = {"model": "", "role": ""}
+```
+
+- 触发条件：路由意图为 `knowledge` 且**没有任何检索片段**（无论是因为没命中、工具报错还是超时）。
+- 此时不再调用模型生成答案（`stream_raw` 调用次数为 0），回答是确定性的固定文案。
+- 该路径下 `documents` 为空，后续 `rag_grounding` 自然跳过，归因里 `grounding = null`、`retrieved = []`，页面显示「未检索到知识库片段 / 未做接地检查」。
+- 非 knowledge 意图（math / general）不受影响。
+
+## 四、测试
+
+`tests/test_loop.py` 新增：
+
+```python
+async def test_knowledge_without_results_answers_unavailable(self) -> None:
+    client = ScriptedClient([_route("knowledge", "search_knowledge"), FINAL_JSON])
+    with patch.object(rag_service, "search", return_value=[]):
+        result = await run_agent(client, "什么是判别式", make_ctx(client))
+    self.assertEqual(result.stopped_reason, "final")
+    self.assertEqual(result.answer, "根据知识库的信息无法回答。")
+    self.assertEqual(client.stream_calls, 0)   # 不再让模型自由发挥
+```
+
+结果：`Ran 159 tests ... OK`（原 158 + 新 1）；`node --check web/app.js` 通过。
+
+## 五、真机验证
+
+1. `web/index.html` 缓存版本号从 `20260918-12` 升到 `20260920-01`，否则浏览器会继续用旧 `app.js`（踩坑见下）。
+2. 启动后端 + 静态前端，打开 `/#rag-attribution`：
+   - 概览：走知识库 50.0%（全部 6 次运行中 3 次）、接地准确率 100%、未检查 2。
+   - 列表只剩 3 条知识库运行（两条数学运行不再出现）。
+3. 点「加载详情」（3 片段那条）后，`browser.inspect` 读到元素文本：
+
+   ```
+   相关片段 3 个  引用来源 0 个  接地准确率 100% 窗口 100.0%
+   检索片段 #1 06-MathLLM项目与解题模型.md 距离 —
+   ```
+
+   详情高度 1106px，证明片段与统计已插入。
+
+## 六、踩坑
+
+1. **浏览器缓存旧脚本**：只改了 `app.js` 但没改 `index.html` 里的 `?v=` 版本号，页面仍是旧行为（显示全部 6 条）。把 `styles.css` / `app.js` 的 `?v=` 统一升到 `20260920-01` 后恢复。**改前端静态资源务必同步升版本号。**
+2. **浏览器面板的滚动不是窗口滚动**：`browser.scroll` 读到 `maxScrollY=0`，但详情其实已经渲染。改用 `browser.inspect` 读取元素文本/高度来确认，比依赖视口文本快照可靠。
+3. **`browser.capture` 两次失败**（`UnknownVizError` / 超时），本轮验证改用 `snapshot` + `inspect` 完成。
+
+## 七、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 列表聚焦知识库回答，噪声大幅减少 | 概览「走知识库比例」与列表条数不同口径，需要副标题解释 |
+| 详情一眼看到片段数/引用数/接地准确率 | 旧记录 `distance` 为 `—`、引用多为 0（回答很少显式写来源名） |
+| 知识库无结果时确定性兜底，杜绝模型自由发挥 | 工具超时也会被归为「无法回答」，真实故障被这条文案掩盖（后续可细分「无命中」与「检索失败」两种文案） |
+

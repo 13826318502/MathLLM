@@ -188,6 +188,11 @@ body.dark .run-badge.fail { color: #f4a0b0; background: #3a1f28; }
 .rag-chunk-head code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rag-distance { flex: 0 0 auto; color: var(--subtle); font-variant-numeric: tabular-nums; }
 .rag-chunk-body { color: var(--muted); font-size: .74rem; line-height: 1.6; white-space: pre-wrap; }
+.rag-stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+.rag-stat { flex: 1 1 120px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface-soft); }
+.rag-stat span { display: block; color: var(--subtle); font-size: .68rem; }
+.rag-stat strong { display: block; color: var(--ink); font-size: .95rem; }
+.rag-stat em { color: var(--subtle); font-size: .68rem; font-style: normal; }
 .trace-model { padding: 1px 6px; border-radius: 6px; color: var(--muted); background: rgba(120,128,160,.13); font-size: .68rem; }
 .trace-retry { margin-top: 6px; color: #b4762a; }
 .trace-verify { display: flex; align-items: center; gap: 7px; margin-top: 7px; }

@@ -45,6 +45,7 @@ DEFAULT_MAX_STEPS = 4
 DEFAULT_MAX_VERIFY_RETRIES = 1
 MAX_OBSERVATION_CHARS = 4000
 EMPTY_ANSWER_FALLBACK = "抱歉，暂时无法生成回答。"
+KNOWLEDGE_UNAVAILABLE_ANSWER = "根据知识库的信息无法回答。"
 SKIP_VERIFY_REASON = "知识库检索回答：内容来自检索片段，已跳过独立验证"
 
 ACTION_SYSTEM_PROMPT = """你是数学学习助手的执行规划器。
@@ -547,6 +548,15 @@ async def _iter_agent_events(
             # only re-send it when it did not come through the stream.
             if streamed_answer.strip() != answer.strip():
                 yield {"type": "answer_delta", "content": answer}
+        elif decision.intent == "knowledge" and not verify_service.documents_from_observations(
+            observations
+        ):
+            # A knowledge intent may only be answered from the knowledge base.
+            # With nothing retrieved, do not let the model improvise an answer.
+            yield {"type": "thinking", "stage": "answer"}
+            answer = KNOWLEDGE_UNAVAILABLE_ANSWER
+            yield {"type": "answer_delta", "content": answer}
+            answer_model = {"model": "", "role": ""}
         else:
             yield {"type": "thinking", "stage": "answer"}
             parts: list[str] = []

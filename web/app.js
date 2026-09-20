@@ -438,15 +438,16 @@ function ragGroundingBadge(status) {
 function ragAttributionRun(item) {
   const time = String(item.started_at || "").replace("T", " ").slice(5, 16);
   const sources = (item.sources || []).length ? item.sources.join("、") : "（未检索到片段）";
-  const cited = (item.cited_sources || []).length ? item.cited_sources.join("、") : "（未显式引用）";
+  const citedList = item.cited_sources || [];
+  const cited = citedList.length ? citedList.join("、") : "（未显式引用）";
   const unsupported = item.unsupported || [];
   return `<details class="card run-card" data-rag-card="${escapeHtml(item.run_id)}">
     <summary class="run-summary">
       <span class="run-time">${escapeHtml(time)}</span>
       <span class="run-question" title="${escapeHtml(item.question)}">${escapeHtml(item.question)}</span>
-      <span class="run-badge ${item.used_knowledge ? "ok" : ""}">${item.used_knowledge ? "知识库" : "未用知识库"}</span>
-      ${item.used_knowledge ? ragGroundingBadge(item.grounding) : ""}
-      <span class="run-meta">${item.retrieved_count ?? 0} 片段 · ${formatSeconds(item.duration_ms)}</span>
+      <span class="run-badge ok">知识库</span>
+      ${ragGroundingBadge(item.grounding)}
+      <span class="run-meta">${item.retrieved_count ?? 0} 片段 · 引用 ${citedList.length} · ${formatSeconds(item.duration_ms)}</span>
     </summary>
     <div class="run-body">
       <div class="run-row"><span>run_id</span><code>${escapeHtml(item.run_id)}</code></div>
@@ -458,7 +459,7 @@ function ragAttributionRun(item) {
       <div class="rag-detail" id="rag-detail-${escapeHtml(item.run_id)}"></div>
       <div class="page-actions">
         <button class="btn" data-rag-detail="${escapeHtml(item.run_id)}">加载详情</button>
-        ${item.used_knowledge ? `<button class="btn primary" data-rag-check="${escapeHtml(item.run_id)}">重新核对</button>` : ""}
+        <button class="btn primary" data-rag-check="${escapeHtml(item.run_id)}">重新核对</button>
       </div>
     </div>
   </details>`;
@@ -467,22 +468,23 @@ function ragAttributionRun(item) {
 function ragAttributionPage() {
   const view = state.ragAttribution;
   const options = [[1, "最近 1 天"], [7, "最近 7 天"], [30, "最近 30 天"], [0, "全部"]];
-  const header = `<div class="page-title-row"><div><h2>知识库归因</h2><p>每次回答是否依据知识库、检索到了什么、是否被检索资料支持。数据来自 <code>/api/rag/attribution</code>。</p></div><div class="page-actions"><select id="rag-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="rag-refresh">刷新</button></div></div>`;
+  const header = `<div class="page-title-row"><div><h2>知识库归因</h2><p>只统计走过知识库的回答：检索到了什么、引用了哪些、是否被检索资料支持。数据来自 <code>/api/rag/attribution</code>。</p></div><div class="page-actions"><select id="rag-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="rag-refresh">刷新</button></div></div>`;
   if (view.loading) return `${header}<div class="card empty-state"><strong>正在读取归因数据…</strong><p>需要后端已启动。</p></div>`;
   if (view.error) return `${header}<div class="card empty-state"><strong>读取失败</strong><p>${escapeHtml(view.error)}</p><button class="btn primary" id="rag-refresh">重试</button></div>`;
   if (!view.summary) return `${header}<div class="card empty-state"><strong>还没有数据</strong><p>点右上角「刷新」读取运行记录。</p></div>`;
   const summary = view.summary;
   const cards = `<div class="stat-grid">
-    ${metricCard("运行总数", String(summary.runs ?? 0), "当前窗口")}
-    ${metricCard("走知识库", formatPercent(summary.knowledge_rate), `${summary.knowledge_runs ?? 0} 次运行`)}
+    ${metricCard("走知识库", formatPercent(summary.knowledge_rate), `全部 ${summary.runs ?? 0} 次运行中 ${summary.knowledge_runs ?? 0} 次`)}
     ${metricCard("平均检索片段", String(summary.avg_retrieved ?? 0), "每次知识库回答")}
-    ${metricCard("接地通过率", formatPercent(summary.grounded_rate), `已接地 ${summary.grounding?.verified ?? 0} · 未接地 ${summary.grounding?.unknown ?? 0}`)}
+    ${metricCard("接地准确率", formatPercent(summary.grounded_rate), `已接地 ${summary.grounding?.verified ?? 0} · 未接地 ${summary.grounding?.unknown ?? 0}`)}
     ${metricCard("未接地回答", String(summary.ungrounded_runs ?? 0), "资料未支持的结论")}
+    ${metricCard("未检查", String(summary.grounding?.none ?? 0), "未做接地判定")}
   </div>`;
-  const runs = view.runs.length
-    ? view.runs.map(ragAttributionRun).join("")
-    : `<div class="card empty-state"><strong>窗口内没有运行记录</strong><p>在「开始解题」里用 Agent 模式提一个知识类问题，这里就会出现一次归因。</p></div>`;
-  return `${header}${cards}<div class="section-heading"><h3>逐次回答</h3><p>展开查看检索片段、引用与接地结论，最新的在最上面</p></div>${runs}`;
+  const knowledgeRuns = view.runs.filter((item) => item.used_knowledge);
+  const runs = knowledgeRuns.length
+    ? knowledgeRuns.map(ragAttributionRun).join("")
+    : `<div class="card empty-state"><strong>窗口内没有走知识库的回答</strong><p>在「开始解题」里用 Agent 模式提一个知识类问题，这里就会出现一次归因。</p></div>`;
+  return `${header}${cards}<div class="section-heading"><h3>走知识库的回答</h3><p>展开查看检索片段、引用与接地结论，最新的在最上面</p></div>${runs}`;
 }
 
 async function loadRagAttribution() {
@@ -506,16 +508,27 @@ async function loadRagAttribution() {
 
 function ragDetailMarkup(trace) {
   const rag = trace.rag || {};
-  const chunks = (rag.retrieved || []).map((item) => `
+  const retrieved = rag.retrieved || [];
+  const cited = rag.cited_sources || [];
+  const grounding = rag.grounding;
+  const summary = state.ragAttribution.summary;
+  const runRate = grounding ? (grounding.grounded ? "100%" : "0%") : "—";
+  const windowRate = summary ? formatPercent(summary.grounded_rate) : "—";
+  const stats = `<div class="rag-stat-row">
+    <div class="rag-stat"><span>相关片段</span><strong>${retrieved.length} 个</strong></div>
+    <div class="rag-stat"><span>引用来源</span><strong>${cited.length} 个</strong></div>
+    <div class="rag-stat"><span>接地准确率</span><strong>${runRate}</strong><em>窗口 ${windowRate}</em></div>
+  </div>`;
+  const chunks = retrieved.map((item) => `
     <div class="rag-chunk">
       <div class="rag-chunk-head"><span class="rag-rank">#${item.rank}</span><code>${escapeHtml(item.source)}</code><span class="rag-distance">距离 ${item.distance === null || item.distance === undefined ? "—" : Number(item.distance).toFixed(3)}</span></div>
       <div class="rag-chunk-body">${escapeHtml(item.snippet || "")}</div>
     </div>`).join("") || `<div class="obs-empty">未检索到知识库片段</div>`;
-  const grounding = rag.grounding;
   const groundingLine = grounding
     ? `${grounding.grounded ? "已接地" : "未接地"}：${escapeHtml(grounding.reason || "")}`
     : "未做接地检查";
   return `
+    ${stats}
     <div class="rag-detail-block"><strong>检索片段</strong>${chunks}</div>
     <div class="rag-detail-block"><strong>接地结论</strong><div class="obs-note">${groundingLine}</div></div>
     <div class="rag-detail-block"><strong>模型回答</strong><div class="run-answer">${escapeHtml((trace.answer || "").slice(0, 1200)) || "（无答案）"}</div></div>`;
