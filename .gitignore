@@ -24,6 +24,9 @@ data/processed/*
 # Local Chroma vector store built from knowledge/
 data/chroma/
 
+# Persistent fastembed model cache (kept out of the OS temp dir)
+data/fastembed_cache/
+
 # Agent run traces (JSONL) written by the observability layer
 data/traces/
 

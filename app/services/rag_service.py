@@ -51,17 +51,28 @@ class RetrievedChunk:
 
 
 class FastEmbedEmbedder:
-    """Lazily loaded fastembed model, shared per process via get_default_embedder."""
+    """Lazily loaded fastembed model, shared per process via get_default_embedder.
 
-    def __init__(self, model_name: str = DEFAULT_EMBEDDING_MODEL) -> None:
+    ``cache_dir`` points at a persistent location inside the project. The
+    fastembed default lives under the OS temp directory, which a routine temp
+    cleanup can delete mid-flight, leaving a half-populated cache that fails to
+    load with ``NO_SUCHFILE``.
+    """
+
+    def __init__(
+        self, model_name: str = DEFAULT_EMBEDDING_MODEL, cache_dir: str | None = None
+    ) -> None:
         self.model_name = model_name
+        self.cache_dir = cache_dir
         self._model: Any = None
 
     def _load(self) -> Any:
         if self._model is None:
             from fastembed import TextEmbedding
 
-            self._model = TextEmbedding(model_name=self.model_name)
+            self._model = TextEmbedding(
+                model_name=self.model_name, cache_dir=self.cache_dir
+            )
         return self._model
 
     def embed_documents(self, texts: Sequence[str]) -> list[list[float]]:
@@ -78,11 +89,12 @@ class FastEmbedEmbedder:
 
 
 def get_default_embedder(settings: Settings) -> Embedder:
-    """Return the process-wide embedder for the configured model."""
-    embedder = _EMBEDDERS.get(settings.rag_embedding_model)
+    """Return the process-wide embedder for the configured model and cache."""
+    key = f"{settings.rag_embedding_model}@{settings.rag_cache_dir}"
+    embedder = _EMBEDDERS.get(key)
     if embedder is None:
-        embedder = FastEmbedEmbedder(settings.rag_embedding_model)
-        _EMBEDDERS[settings.rag_embedding_model] = embedder
+        embedder = FastEmbedEmbedder(settings.rag_embedding_model, settings.rag_cache_dir)
+        _EMBEDDERS[key] = embedder
     return embedder
 
 

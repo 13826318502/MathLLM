@@ -75,6 +75,7 @@ class Settings:
     rag_persist_dir: str
     rag_collection: str
     rag_embedding_model: str
+    rag_cache_dir: str
     rag_top_k: int
     trace_dir: str
     trace_enabled: bool
@@ -183,6 +184,9 @@ class Settings:
             rag_collection=os.getenv("MATHLLM_RAG_COLLECTION", "math_knowledge"),
             rag_embedding_model=os.getenv(
                 "MATHLLM_RAG_EMBEDDING_MODEL", "BAAI/bge-small-zh-v1.5"
+            ),
+            rag_cache_dir=os.getenv(
+                "MATHLLM_FASTEMBED_CACHE_DIR", "data/fastembed_cache"
             ),
             rag_top_k=_as_int("MATHLLM_RAG_TOP_K", 3),
             trace_dir=os.getenv("MATHLLM_TRACE_DIR", "data/traces"),

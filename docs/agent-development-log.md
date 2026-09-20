@@ -1946,3 +1946,100 @@ async def test_knowledge_without_results_answers_unavailable(self) -> None:
 | 详情一眼看到片段数/引用数/接地准确率 | 旧记录 `distance` 为 `—`、引用多为 0（回答很少显式写来源名） |
 | 知识库无结果时确定性兜底，杜绝模型自由发挥 | 工具超时也会被归为「无法回答」，真实故障被这条文案掩盖（后续可细分「无命中」与「检索失败」两种文案） |
 
+---
+
+# 第十九节：fastembed 缓存被 Temp 清理误删导致检索失败（含缓存目录迁移）
+
+> 现象：Agent 模式问「mathllm 是什么模型」，路由到 `search_knowledge`，工具失败：
+>
+> ```
+> 工具 search_knowledge 执行失败: [ONNXRuntimeError] : 3 : NO_SUCHFILE :
+> Load model from C:\Users\zpb\AppData\Local\Temp\fastembed_cache\models--Qdrant--
+> bge-small-zh-v1.5\snapshots\46fbe35f...\model\optimized.onnx failed:
+> Load model ... optimized.onnx failed. File doesn't exist
+> ```
+>
+> 状态：定位为缓存目录问题，已迁移到项目内持久目录并重建；`159` 个测试通过，检索真机验证恢复。
+
+---
+
+## 一、根因
+
+1. `fastembed` 的默认缓存目录是 `os.path.join(tempfile.gettempdir(), "fastembed_cache")`，在 Windows 上即 `%TEMP%\fastembed_cache`。
+2. 第十七节 RAG 建库时，embedding 模型（`BAAI/bge-small-zh-v1.5`）就下载到了这个 Temp 目录里；Chroma 索引里存的是**向量**，模型文件仍只在缓存目录。
+3. 之前做 C 盘清理时，把 `C:\Users\zpb\AppData\Local\Temp` 的内容整体删除了，于是 `fastembed_cache` 被破坏：`blobs/`、`refs/`、`snapshots/` 目录结构还在，但 `model/optimized.onnx` 这个权重文件没了。
+4. 之后查询时，`rag_service.search()` → `get_default_embedder()` → `FastEmbedEmbedder._load()` → `TextEmbedding(...)` 尝试从缓存加载，看到 snapshot 目录已存在就不再重新下载，但权重文件缺失 → `NO_SUCHFILE`。
+5. 因为查询向量算不出来，`search_knowledge` 工具抛错，Agent 就返回「暂时无法完成请求 / 工具执行失败」。
+
+> 关键点：**索引在、模型缓存不在**。删除 Temp 不会损坏 `data/chroma`（索引是持久目录），但会让查询时的 embedding 模型加载失败。
+
+## 二、修复：把缓存迁出 Temp
+
+### 1. 配置项（`app/core/config.py`）
+
+新增字段 `rag_cache_dir`，读取 `MATHLLM_FASTEMBED_CACHE_DIR`，默认 `data/fastembed_cache`：
+
+```python
+rag_cache_dir=os.getenv("MATHLLM_FASTEMBED_CACHE_DIR", "data/fastembed_cache"),
+```
+
+### 2. Embedder 支持自定义缓存目录（`app/services/rag_service.py`）
+
+```python
+class FastEmbedEmbedder:
+    def __init__(self, model_name=DEFAULT_EMBEDDING_MODEL, cache_dir: str | None = None):
+        self.model_name = model_name
+        self.cache_dir = cache_dir
+        self._model = None
+
+    def _load(self):
+        if self._model is None:
+            from fastembed import TextEmbedding
+            self._model = TextEmbedding(model_name=self.model_name, cache_dir=self.cache_dir)
+        return self._model
+```
+
+进程级缓存键从「仅模型名」改为「模型名@缓存目录」，避免不同目录互相串用：
+
+```python
+def get_default_embedder(settings):
+    key = f"{settings.rag_embedding_model}@{settings.rag_cache_dir}"
+    ...
+```
+
+### 3. 忽略与模板
+
+- `.gitignore` 增加 `data/fastembed_cache/`（模型权重不入库）。
+- `.env.local.example` 增加 `MATHLLM_FASTEMBED_CACHE_DIR=data/fastembed_cache` 及注释说明。
+
+### 4. 重建缓存
+
+```powershell
+Remove-Item -Recurse -Force "$env:TEMP\fastembed_cache"
+python -c "from app.core.config import settings; from app.services import rag_service; rag_service.get_default_embedder(settings).embed_query('判别式')"
+```
+
+新缓存落到 `data/fastembed_cache/fast-bge-small-zh-v1.5/`，其中 `model_optimized.onnx` 约 90MB（fastembed 0.8.0 的缓存布局与旧版不同，不再用 `models--Qdrant--*/snapshots/...`）。
+
+## 三、验证
+
+- `rag_service.search(settings, "二次方程判别式")` 返回 3 条，Top1 命中 `01-二次方程与判别式.md`（distance 0.436）。
+- `embed_query("判别式")` 维度 512，缓存目录为 `data/fastembed_cache`。
+- `Ran 159 tests ... OK`。
+
+## 四、踩坑与教训
+
+1. **清理系统 Temp 会误伤应用缓存**：fastembed（以及不少库）默认把模型/缓存放在 `%TEMP%`。清理 `AppData\Local\Temp` 前要意识到这一点；对需要在意的模型，应显式指定持久 `cache_dir`。本次已把 fastembed 迁到 `data/fastembed_cache`。
+2. **残缺缓存比没有缓存更难排查**：`snapshots/` 目录存在会让 fastembed 误判「已下载」，直接去读缺失的权重文件，报 `NO_SUCHFILE`，而不是自动重下。遇到这种情况要**整目录删除**再重建。
+3. **改后端配置后必须重启后端**：正在运行的旧进程仍持有旧的缓存路径，不重启不会生效。
+4. **这类故障不会污染仓库**：`data/fastembed_cache/` 已 gitignore；`data/chroma` 索引未受影响，无需重新建库。
+
+## 五、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 模型缓存落在项目内，清理系统 Temp 不再影响 RAG | 项目 `data/` 下多占约 90MB（已 gitignore，不影响仓库） |
+| 缓存路径可配置，便于换模型/换机器 | 首次使用要重新下载一次模型（约 90MB） |
+| 进程级缓存键含目录，多配置互不干扰 | 键格式变化，属内部实现细节 |
+
+
