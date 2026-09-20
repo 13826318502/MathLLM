@@ -26,6 +26,9 @@ class ChatRequest(BaseModel):
 class AgentRunRequest(BaseModel):
     question: str = Field(..., min_length=1, max_length=8000)
     max_steps: int = Field(default=4, ge=1, le=8)
+    # Optional conversation context, so Agent mode can resolve follow-ups.
+    messages: list[ChatMessage] = Field(default_factory=list, max_length=20)
+    summary: str | None = Field(default=None, max_length=4000)
 
 
 class MemorySummaryRequest(BaseModel):

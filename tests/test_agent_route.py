@@ -76,6 +76,22 @@ class AgentRouteTest(unittest.TestCase):
         response = self.http.post("/api/agent/run", json={"question": ""})
         self.assertEqual(response.status_code, 422)
 
+    def test_agent_run_accepts_history(self) -> None:
+        response = self.http.post(
+            "/api/agent/run",
+            json={
+                "question": "那验算一下",
+                "max_steps": 2,
+                "messages": [
+                    {"role": "user", "content": "解方程 x^2-5x+6=0"},
+                    {"role": "assistant", "content": "x=2 或 x=3"},
+                ],
+                "summary": "用户在解一元二次方程",
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["stopped_reason"], "final")
+
     def test_health_uses_solver_client(self) -> None:
         """Guards the client refactor: a missing attribute here returns 500."""
         self.client.models = ["mathllm-round7:latest"]

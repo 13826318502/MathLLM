@@ -2436,6 +2436,73 @@ rag_grounding = RagGrounding(
 | 解题页侧栏直接暴露知识库文档，一键跳转阅读 | 文档列表需后端 `/api/knowledge/documents`，旧后端会显示「知识库暂无文档」 |
 | 去掉快捷工具，界面更简洁 | 快捷学习入口（提示/讲简单/检查答案）不再提供 |
 
+---
+
+# 第二十四节：Agent 模式接入对话历史 + 输出截断修复
+
+> 反馈：① 输出在 `$$ x_1 = 2,` 处被截断；② 想删掉「连续追问」模式，因为以为 Agent 模式已带追问——实际并没有，于是先把历史能力加进 Agent，再删掉该模式。
+>
+> 状态：完成，`183` 个单元测试通过（新增 6 个），前端真机验证。
+
+---
+
+## 一、输出截断：输出 token 上限
+
+- 现象：math 运行的答案在公式中间断掉（trace 尾部 `$$ x_1 = 2,`）。
+- 原因：`.env.local` 里 `MATHLLM_MAX_OUTPUT_TOKENS=512`，解题模型（`mathllm-round7`）的输出被硬截断。步进解答 + 行间公式很容易超过 512 token（`.env.local.example` 的默认值本就是 1024）。
+- 修复：`.env.local` 改为 `MATHLLM_MAX_OUTPUT_TOKENS=1024`（该文件 gitignore，不入库）。需重启后端生效。
+- 说明：`.env.local` 由 `start_local.ps1` 加载；直接用 `python -m app.api.main` 启动时若 shell 未设该变量，则用 `config.py` 默认值 1024。
+
+## 二、Agent 模式接入对话历史
+
+**前提纠正**：Agent 模式原本**不带上下文**——`sendQuestion` 只发 `{question, max_steps}`，`AgentRunRequest` 也只有这两个字段；带上下文的是「连续追问」（走 `/chat`）。
+
+**后端**：
+
+| 文件 | 改动 |
+|---|---|
+| `app/api/models.py` | `AgentRunRequest` 增加 `messages: list[ChatMessage]`（≤20）与 `summary: str | None`（≤4000） |
+| `app/services/chat_service.py` | 新增 `build_history(messages, max_messages, max_chars)`：校验并返回不含 system 的 user/assistant 轮次 |
+| `app/agent/router.py` | `classify(..., history=None, summary=None)`：把摘要作为 system、历史轮次拼在 system 与当前问题之间；路由提示词新增「结合历史把追问/省略/指代改写成完整自包含的 query」 |
+| `app/agent/loop.py` | `run_agent` / `iter_agent_events` / `_iter_agent_events` / `decide_next_action` / `_answer_messages` / `generate_answer_stream` 全部透传 `history` + `summary` |
+| `app/api/routes/agent.py` | 两个接口用 `build_history` 校验并传入；校验失败返回 422 |
+
+**前端**（`web/app.js`）：
+
+- 删除「连续追问」按钮与 `follow_up` 分支；模式只剩 `solve` / `agent`。
+- Agent 模式的请求体改为 `{ question, max_steps, messages: 最近对话, summary: 压缩摘要 }`，复用原「连续追问」的 `splitHistory` + `shouldSummarize` + `requestConversationSummary` 逻辑。
+- Agent 模式不再每次清空 `memorySummary`；模式按钮文案改为「带上下文，自动选工具并展示轨迹」。
+- 状态栏文案：Agent 模式显示「带上下文追问，过长时自动压缩旧内容 / 已启用压缩摘要」。
+
+> 效果：Agent 模式现在可以追问（「那第二步呢」），路由会把追问改写成自包含 query 再调工具；历史过长时自动摘要压缩。
+
+## 三、测试（新增 6 个，共 183）
+
+- `test_router.py`：`CapturingClient` 验证 `classify` 把 `summary` 与历史轮次放进 messages、当前问题在最后。
+- `test_chat_history.py`（新）：`build_history` 空输入、去 system、超条数、超字符数。
+- `test_agent_route.py`：`/api/agent/run` 接受 `messages` + `summary` 并正常返回。
+
+`Ran 183 tests ... OK`；`node --check web/app.js` 通过。
+
+## 四、真机验证
+
+- 解题页模式切换只剩「单题解答 / Agent 模式」，Agent 按钮标注「带上下文」。
+- 缓存版本号 `20260920-04` → `20260920-05`。
+
+## 五、踩坑与教训
+
+1. **删除功能前先确认前提**：用户以为「Agent 已带追问」，实际 Agent 只发当前问题、不带历史。若直接删除会丢掉多轮能力——先纠正、再加历史、最后删除。
+2. **本地 `.env.local` 会覆盖代码默认值**：`config.py` 默认 1024，但 `.env.local` 里的 512 生效，导致截断。排查输出异常时先看 `.env.local`。
+
+## 六、权衡
+
+| 得到 | 付出 |
+|---|---|
+| Agent 模式可多轮追问，路由能消解指代 | 每次请求多带历史，输入 token 增加 |
+| 少一个模式，界面更简单 | 原「连续追问」走 `/chat`（纯对话）的路径不再从界面进入 |
+| 输出上限 1024，步进解答不再断在公式中间 | 输出越长，本地模型耗时越久 |
+
+
 
 
 

@@ -29,6 +29,7 @@ JSON 字段：
 - 询问 MathLLM 项目本身、系统功能、模型信息、使用方法 -> intent=knowledge, tool=search_knowledge
 - 只要内容可能与知识库文档有关，就优先选 knowledge
 - 输入即使是陈述句、介绍或复述，只要主题是数学或本项目，也按上面的规则归类
+- 如果当前输入是对此前对话的追问、省略或指代（如「那第二步呢」「再算一下」），要结合对话历史理解意图，并把 query 改写成完整、自包含的问题
 - 其他普通问题 -> intent=general, tool=none
 
 示例：
@@ -44,17 +45,27 @@ async def classify(
     client: VLLMClient,
     question: str,
     *,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
     max_retries: int = 2,
 ) -> RouteDecision:
-    """Route a question to an intent and tool, with validation and retries."""
+    """Route a question to an intent and tool, with validation and retries.
+
+    ``history`` (prior user/assistant turns) and ``summary`` give the router the
+    context it needs to resolve references like "那第二步呢" into a
+    self-contained ``query``.
+    """
     question = (question or "").strip()
     if not question:
         raise ValueError("问题不能为空")
 
-    messages = [
-        {"role": "system", "content": ROUTER_SYSTEM_PROMPT},
-        {"role": "user", "content": question},
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": ROUTER_SYSTEM_PROMPT}
     ]
+    if summary:
+        messages.append({"role": "system", "content": f"此前对话摘要：\n{summary}"})
+    messages.extend(history or [])
+    messages.append({"role": "user", "content": question})
     decision = await complete_structured(
         client,
         messages,

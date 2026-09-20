@@ -258,15 +258,13 @@ function formulaEditorMarkup() {
 function solvePage() {
   const mode = state.answerMode;
   const memoryStatus = mode === "agent"
-    ? `<div class="memory-status ${state.loading ? "active" : ""}"><span class="memory-status-dot"></span>先判断问题类型，再决定查知识库、调用解题模型或直接回答</div>`
-    : mode === "follow_up"
-      ? `<div class="memory-status ${state.memorySummary ? "active" : ""}"><span class="memory-status-dot"></span>${state.memorySummary ? "已启用压缩摘要，较早对话已整理" : "连续追问会保留最近对话，过长时自动压缩旧内容"}</div>`
-      : `<div class="memory-status"><span class="memory-status-dot"></span>单题模式不会发送之前的对话，响应更快</div>`;
+    ? `<div class="memory-status ${state.loading ? "active" : ""}"><span class="memory-status-dot"></span>${state.memorySummary ? "已启用压缩摘要，较早对话已整理" : "带上下文追问，过长时自动压缩旧内容"}</div>`
+    : `<div class="memory-status"><span class="memory-status-dot"></span>单题模式不会发送之前的对话，响应更快</div>`;
   const generationButton = state.loading
     ? `<button class="btn danger" id="stop-generation" type="button">暂停输出</button>`
     : `<button class="btn primary" id="send-question">开始解题  →</button>`;
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
-    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button><button class="mode-button ${mode === "agent" ? "active" : ""}" data-answer-mode="agent" type="button"><strong>Agent 模式</strong><span>自动选工具并展示轨迹</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button>${generationButton}</div></div></div></div></div>
+    <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "agent" ? "active" : ""}" data-answer-mode="agent" type="button"><strong>Agent 模式</strong><span>带上下文，自动选工具并展示轨迹</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button>${generationButton}</div></div></div></div></div>
       <div class="side-stack"><div class="card side-card"><h3>知识库文档</h3><div class="knowledge-mini-list">${knowledgeMiniList()}</div></div><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div></div>`;
 }
 
@@ -1142,22 +1140,12 @@ async function sendQuestion() {
   const assistantMessage = { role: "assistant", content: "" };
   if (state.answerMode === "agent") {
     assistantMessage.trace = { status: "running", decision: null, steps: [], switches: [], thinking: "classify", retries: [], verification: null, verificationSkipped: "", routeModel: "", verifyModel: "", answerModel: "", stoppedReason: "" };
-    state.memorySummary = "";
-    state.memoryCursor = 0;
   }
   state.loading = true; state.chatPinnedToBottom = true; state.messages.push({ role: "user", content: question }, assistantMessage); render();
   try {
-    let endpoint = "/chat";
-    let body = { messages: state.messages.slice(0, -1), stream: true };
+    let endpoint;
+    let body;
     if (state.answerMode === "agent") {
-      endpoint = "/agent/stream";
-      body = { question, max_steps: 4 };
-    } else if (state.answerMode === "solve") {
-      endpoint = "/solve";
-      body = { question, stream: true };
-      state.memorySummary = "";
-      state.memoryCursor = 0;
-    } else {
       const allMessages = state.messages.slice(0, -1).map(({ role, content }) => ({ role, content }));
       const recentBudget = Math.max(600, MEMORY_CONFIG.maxContextTokens - MEMORY_CONFIG.maxOutputTokens - 450);
       const [oldMessages, recentMessages] = splitHistory(
@@ -1178,7 +1166,13 @@ async function sendQuestion() {
           toast("自动摘要暂时失败，将只使用最近对话继续回答。");
         }
       }
-      body = { messages: recentMessages, summary: state.memorySummary || undefined, stream: true };
+      endpoint = "/agent/stream";
+      body = { question, max_steps: 4, messages: recentMessages, summary: state.memorySummary || undefined };
+    } else {
+      endpoint = "/solve";
+      body = { question, stream: true };
+      state.memorySummary = "";
+      state.memoryCursor = 0;
     }
     const response = await fetch(`${apiBase()}${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: requestController.signal });
     if (!response.ok) throw new Error(`后端请求失败（HTTP ${response.status}）`);
@@ -1237,8 +1231,8 @@ function bindPageEvents() {
   document.querySelectorAll("[data-page]").forEach((button) => button.onclick = () => setPage(button.dataset.page));
   document.querySelectorAll("[data-answer-mode]").forEach((button) => button.onclick = () => {
     const mode = button.dataset.answerMode;
-    state.answerMode = mode === "follow_up" ? "follow_up" : mode === "agent" ? "agent" : "solve";
-    if (state.answerMode !== "follow_up") {
+    state.answerMode = mode === "agent" ? "agent" : "solve";
+    if (state.answerMode !== "agent") {
       state.memorySummary = "";
       state.memoryCursor = 0;
     }

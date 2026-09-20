@@ -13,6 +13,7 @@ from app.agent.tools import ToolContext
 from app.api.dependencies import get_orchestrator, get_settings, get_vllm_client
 from app.api.models import AgentRunRequest
 from app.core.config import Settings
+from app.services.chat_service import build_history
 from app.services.vllm_client import VLLMServiceError
 
 router = APIRouter()
@@ -27,10 +28,15 @@ async def agent_run(
 ) -> AgentRun:
     ctx = ToolContext(client=orchestrator, solver=solver, settings=settings)
     try:
+        history = build_history(
+            request.messages, settings.max_history_messages, settings.max_history_chars
+        )
         return await run_agent(
             orchestrator,
             request.question,
             ctx,
+            history=history or None,
+            summary=request.summary,
             max_steps=request.max_steps,
         )
     except ValueError as exc:
@@ -47,6 +53,13 @@ async def agent_stream(
     solver=Depends(get_vllm_client),
 ):
     ctx = ToolContext(client=orchestrator, solver=solver, settings=settings)
+    try:
+        history = build_history(
+            request.messages, settings.max_history_messages, settings.max_history_chars
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    summary = request.summary
 
     async def events():
         try:
@@ -54,6 +67,8 @@ async def agent_stream(
                 orchestrator,
                 request.question,
                 ctx,
+                history=history or None,
+                summary=summary,
                 max_steps=request.max_steps,
             ):
                 yield {"data": json.dumps(event, ensure_ascii=False)}

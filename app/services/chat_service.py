@@ -58,3 +58,31 @@ def build_chat_messages(
             raise ValueError(f"对话内容不能超过 {max_chars} 个字符")
         result.append({"role": message.role, "content": content})
     return result
+
+
+def build_history(
+    messages: list[ChatMessage],
+    max_messages: int,
+    max_chars: int,
+) -> list[dict[str, str]]:
+    """Validate prior turns for the agent and return them without a system prompt.
+
+    The agent builds its own system prompts (router / planner / answer), so it
+    wants the raw user/assistant turns plus an optional summary, not the chat
+    system prompt.
+    """
+    if not messages:
+        return []
+    if len(messages) > max_messages:
+        raise ValueError(f"对话最多保留 {max_messages} 条消息")
+    result: list[dict[str, str]] = []
+    total_chars = 0
+    for message in messages:
+        content = _clean_content(message.content)
+        if not content:
+            raise ValueError("消息内容不能为空")
+        total_chars += len(content)
+        if total_chars > max_chars:
+            raise ValueError(f"对话内容不能超过 {max_chars} 个字符")
+        result.append({"role": message.role, "content": content})
+    return result

@@ -30,6 +30,23 @@ class FakeClient:
         return _completion(self._contents[index])
 
 
+class CapturingClient:
+    """Records the messages it was called with."""
+
+    def __init__(self, content: str):
+        self.content = content
+        self.messages: list[dict[str, str]] = []
+
+    async def complete_json(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        max_tokens: int | None = None,
+    ) -> dict:
+        self.messages = messages
+        return _completion(self.content)
+
+
 class ExtractJsonObjectTest(unittest.TestCase):
     def test_plain_object(self) -> None:
         self.assertEqual(extract_json_object('{"a": 1}'), '{"a": 1}')
@@ -121,6 +138,20 @@ class ClassifyTest(unittest.IsolatedAsyncioTestCase):
         client = FakeClient(['{"intent": "general", "tool": "none", "query": "x"}'])
         with self.assertRaises(ValueError):
             await classify(client, "   ")
+
+    async def test_history_and_summary_are_sent(self) -> None:
+        client = CapturingClient(
+            '{"intent": "math", "tool": "solve_math_problem", "query": "验算 x=2 和 x=3"}'
+        )
+        history = [
+            {"role": "user", "content": "解方程 x^2-5x+6=0"},
+            {"role": "assistant", "content": "x=2 或 x=3"},
+        ]
+        await classify(client, "那验算一下", history=history, summary="用户在解一元二次方程")
+        contents = [message["content"] for message in client.messages]
+        self.assertTrue(any("用户在解一元二次方程" in text for text in contents))
+        self.assertIn({"role": "user", "content": "解方程 x^2-5x+6=0"}, client.messages)
+        self.assertEqual(client.messages[-1], {"role": "user", "content": "那验算一下"})
 
 
 if __name__ == "__main__":

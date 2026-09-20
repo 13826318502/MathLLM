@@ -256,6 +256,8 @@ def _answer_messages(
     decision: RouteDecision,
     observations: list[Observation],
     feedback: str | None = None,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
 ) -> list[dict[str, str]]:
     hint = _ANSWER_STYLE_HINTS.get(decision.answer_style, "")
     content = (
@@ -264,10 +266,14 @@ def _answer_messages(
     )
     if feedback:
         content += f"\n\n上一版答案被独立验证判定为错误：{feedback}\n请重新计算并给出正确的最终答案。"
-    return [
-        {"role": "system", "content": ANSWER_SYSTEM_PROMPT},
-        {"role": "user", "content": content},
+    messages: list[dict[str, str]] = [
+        {"role": "system", "content": ANSWER_SYSTEM_PROMPT}
     ]
+    if summary:
+        messages.append({"role": "system", "content": f"此前对话摘要：\n{summary}"})
+    messages.extend(history or [])
+    messages.append({"role": "user", "content": content})
+    return messages
 
 
 async def decide_next_action(
@@ -275,14 +281,21 @@ async def decide_next_action(
     question: str,
     decision: RouteDecision,
     observations: list[Observation],
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
 ) -> AgentAction:
     """Ask the model what to do next; fall back to ``final`` when unparsable."""
     catalog = json.dumps(tool_catalog(), ensure_ascii=False, indent=2)
-    messages = [
+    messages: list[dict[str, str]] = [
         {
             "role": "system",
             "content": ACTION_SYSTEM_PROMPT.replace("__CATALOG__", catalog),
-        },
+        }
+    ]
+    if summary:
+        messages.append({"role": "system", "content": f"此前对话摘要：\n{summary}"})
+    messages.extend(history or [])
+    messages.append(
         {
             "role": "user",
             "content": (
@@ -290,8 +303,8 @@ async def decide_next_action(
                 f"路由结果：intent={decision.intent}, tool={decision.tool}\n"
                 f"已有观察：\n{_observations_text(observations)}"
             ),
-        },
-    ]
+        }
+    )
     action = await complete_structured(
         client,
         messages,
@@ -309,9 +322,13 @@ async def generate_answer_stream(
     observations: list[Observation],
     *,
     feedback: str | None = None,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
 ) -> AsyncIterator[str]:
     """Yield the final answer in chunks as the model produces them."""
-    messages = _answer_messages(question, decision, observations, feedback)
+    messages = _answer_messages(
+        question, decision, observations, feedback, history=history, summary=summary
+    )
     async for payload in client.stream_raw(messages):
         chunk = extract_stream_content(payload)
         if chunk:
@@ -323,9 +340,14 @@ async def generate_answer(
     question: str,
     decision: RouteDecision,
     observations: list[Observation],
+    *,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
 ) -> str:
     parts: list[str] = []
-    async for chunk in generate_answer_stream(client, question, decision, observations):
+    async for chunk in generate_answer_stream(
+        client, question, decision, observations, history=history, summary=summary
+    ):
         parts.append(chunk)
     return "".join(parts) or EMPTY_ANSWER_FALLBACK
 
@@ -360,6 +382,8 @@ async def iter_agent_events(
     question: str,
     ctx: ToolContext,
     *,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
     max_steps: int = DEFAULT_MAX_STEPS,
     max_verify_retries: int = DEFAULT_MAX_VERIFY_RETRIES,
 ) -> AsyncIterator[dict[str, Any]]:
@@ -378,6 +402,8 @@ async def iter_agent_events(
             client,
             question,
             ctx,
+            history=history,
+            summary=summary,
             max_steps=max_steps,
             max_verify_retries=max_verify_retries,
         ):
@@ -417,6 +443,8 @@ async def _iter_agent_events(
     question: str,
     ctx: ToolContext,
     *,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
     max_steps: int = DEFAULT_MAX_STEPS,
     max_verify_retries: int = DEFAULT_MAX_VERIFY_RETRIES,
 ) -> AsyncIterator[dict[str, Any]]:
@@ -426,7 +454,7 @@ async def _iter_agent_events(
         raise ValueError("问题不能为空")
 
     yield {"type": "thinking", "stage": "classify"}
-    decision = await classify(client, question)
+    decision = await classify(client, question, history=history, summary=summary)
     for event in _drain_model_switches(client, "classify"):
         yield event
     yield {"type": "route", "decision": decision.model_dump(), **_model_label(client)}
@@ -478,7 +506,9 @@ async def _iter_agent_events(
             stopped_reason = "max_steps"
             break
         yield {"type": "thinking", "stage": "decide"}
-        action = await decide_next_action(client, question, decision, observations)
+        action = await decide_next_action(
+            client, question, decision, observations, history=history, summary=summary
+        )
         for event in _drain_model_switches(client, "decide"):
             yield event
         if action.action == "final":
@@ -585,7 +615,13 @@ async def _iter_agent_events(
             yield {"type": "thinking", "stage": "answer"}
             parts: list[str] = []
             async for chunk in generate_answer_stream(
-                client, question, decision, observations, feedback=feedback
+                client,
+                question,
+                decision,
+                observations,
+                feedback=feedback,
+                history=history,
+                summary=summary,
             ):
                 parts.append(chunk)
                 yield {"type": "answer_delta", "content": chunk}
@@ -683,6 +719,8 @@ async def run_agent(
     question: str,
     ctx: ToolContext,
     *,
+    history: list[dict[str, str]] | None = None,
+    summary: str | None = None,
     max_steps: int = DEFAULT_MAX_STEPS,
     max_verify_retries: int = DEFAULT_MAX_VERIFY_RETRIES,
 ) -> AgentRun:
@@ -692,6 +730,8 @@ async def run_agent(
         client,
         question,
         ctx,
+        history=history,
+        summary=summary,
         max_steps=max_steps,
         max_verify_retries=max_verify_retries,
     ):
