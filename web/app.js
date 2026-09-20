@@ -731,7 +731,12 @@ function isSectionLine(line, keywords) {
   if (!trimmed) return false;
   if (/^#{1,6}\s+/.test(trimmed)) {
     const plain = trimmed.replace(/^#{1,6}\s+/, "").replace(/[*_`]/g, "").trim();
-    return keywords.some((word) => plain.startsWith(word));
+    return keywords.some((word) => {
+      if (!plain.startsWith(word)) return false;
+      if (plain === word) return true;
+      // Only a separator may follow, so "结论先行" does not match "结论".
+      return /^[\s:：,，.。\-—(（]/.test(plain.slice(word.length));
+    });
   }
   const plain = trimmed.replace(/[*_`]/g, "").trim().replace(/[：:]$/, "").trim();
   return keywords.some((word) => plain === word);
@@ -761,7 +766,13 @@ function splitAnswer(content) {
 
 function renderTraceMarkup(trace, content = "") {
   if (!trace) return "";
-  const { solution, verifySection, finalSection } = splitAnswer(content);
+  const verifySkipped = trace.verificationSkipped || "";
+  // Knowledge answers skip verification entirely, so there is no verify
+  // section to split out: show the whole answer under "解题回答".
+  const split = verifySkipped
+    ? { solution: String(content || "").trim(), verifySection: "", finalSection: "" }
+    : splitAnswer(content);
+  const { solution, verifySection, finalSection } = split;
   const route = trace.decision
     ? `<div class="trace-route"><span class="trace-label">路由</span><span class="trace-badge">${escapeHtml(trace.decision.intent)}</span><span class="trace-arrow">→</span><span class="trace-badge tool">${escapeHtml(trace.decision.tool)}</span>${modelTag(trace.routeModel)}</div>`
     : `<div class="trace-route"><span class="trace-label">路由</span><span class="trace-muted">正在分析问题类型…</span></div>`;
@@ -790,7 +801,6 @@ function renderTraceMarkup(trace, content = "") {
 
   const retries = (trace.retries || []).map((item) => `<div class="trace-retry">第 ${item.attempt} 次修正：${escapeHtml(item.reason || "答案被证伪")}</div>`).join("");
   const verifying = trace.status === "running" && trace.thinking === "verify";
-  const verifySkipped = trace.verificationSkipped || "";
   const verification = trace.verification
     ? `<div class="trace-verify ${escapeHtml(trace.verification.status)}"><span class="trace-verify-dot"></span><span class="trace-verify-label">验证 · ${escapeHtml(VERIFY_LABEL[trace.verification.status] || trace.verification.status)}</span><span class="trace-step-detail">${escapeHtml(VERIFY_METHOD[trace.verification.method] || "")}</span>${modelTag(trace.verifyModel)}</div>`
     : "";

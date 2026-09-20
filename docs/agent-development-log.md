@@ -2502,6 +2502,74 @@ rag_grounding = RagGrounding(
 | 少一个模式，界面更简单 | 原「连续追问」走 `/chat`（纯对话）的路径不再从界面进入 |
 | 输出上限 1024，步进解答不再断在公式中间 | 输出越长，本地模型耗时越久 |
 
+---
+
+# 第二十五节：修复知识库回答被误切到「验证回答」
+
+> 现象：知识库问题的轨迹卡里，第①块「解题回答」只剩一个标题，整段正文跑到了第②块「验证回答」下。
+>
+> 状态：完成，纯前端修复，用真实代码切片在 node 里验证。
+
+---
+
+## 一、原因
+
+`web/app.js` 的 `splitAnswer()` 会按标题关键词把回答切成「解题回答 / 验证回答 / 最终答案」三段：
+
+```js
+const FINAL_SECTION_WORDS = ["最终答案", "结论", "答案"];
+```
+
+模型的回答里有一个标题「## 结论先行」，`isSectionLine()` 对标题用的是 `plain.startsWith(word)`，于是「结论先行」命中了「结论」→ 被当成「最终答案」段的起点。结果：
+
+- `solution` = 「## 结论先行」之前的内容（只有 `# MathLLM 项目与解题模型介绍` 这个标题）
+- `finalSection` = 「## 结论先行」到结尾的全部正文
+
+渲染时 `finalSection` 落在第②块「验证回答」下，于是看起来「回答跑到了验证里」。
+
+## 二、修复（两处）
+
+1. **知识库回答不做拆分**：知识库回答会 `verify_skipped`（跳过独立验证），本就没有「验证段」，整段应放「解题回答」。
+
+   ```js
+   const verifySkipped = trace.verificationSkipped || "";
+   const split = verifySkipped
+     ? { solution: String(content || "").trim(), verifySection: "", finalSection: "" }
+     : splitAnswer(content);
+   ```
+
+2. **标题匹配收紧**：标题里关键词之后必须紧跟分隔符或结束，才算命中。
+
+   ```js
+   return keywords.some((word) => {
+     if (!plain.startsWith(word)) return false;
+     if (plain === word) return true;
+     // Only a separator may follow, so "结论先行" does not match "结论".
+     return /^[\s:：,，.。\-—(（]/.test(plain.slice(word.length));
+   });
+   ```
+
+   这样 `结论先行` 不再命中 `结论`，而 `最终答案：`、`检查与验证`、`## 最终答案` 仍正常命中。
+
+## 三、验证
+
+用真实代码切片（`const VERIFY_SECTION_WORDS` 到 `function renderTraceMarkup`）在 node 里 eval：
+
+| 输入 | solution | verifySection | finalSection |
+|---|---|---|---|
+| 含「## 结论先行 / ## 分步解答」的知识库回答 | 整段 | 空 | 空 |
+| 含「## 检查与验证 / ## 最终答案」的数学回答 | 解题正文 | 「检查与验证」段 | 「最终答案」段 |
+
+`node --check web/app.js` 通过；缓存版本号 `20260920-05` → `20260920-06`。
+
+## 四、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 知识库回答完整显示在「解题回答」 | 无 |
+| 标题关键词不再被前缀误匹配 | 关键词后必须跟分隔符；极端写法（如「最终答案如下」无分隔）不会命中，退化为不拆分（内容仍完整） |
+
+
 
 
 
