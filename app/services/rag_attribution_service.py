@@ -26,6 +26,7 @@ from pydantic import BaseModel, Field
 from app.agent.schema import (
     Observation,
     RagAttribution,
+    RagCitation,
     RagGrounding,
     RetrievedSource,
     RouteDecision,
@@ -54,6 +55,7 @@ class RagAttributionItem(BaseModel):
     retrieved_count: int = 0
     sources: list[str] = Field(default_factory=list)
     cited_sources: list[str] = Field(default_factory=list)
+    citations: list[RagCitation] = Field(default_factory=list)
     # Retrieval outcome: ok / empty (ran, nothing relevant) / failed (timeout,
     # missing index, embedding error) / none (never searched).
     retrieval: str = "none"
@@ -114,7 +116,16 @@ def _to_source(document: dict[str, Any], fallback_rank: int) -> RetrievedSource:
         rank=rank_value,
         distance=distance_value,
         snippet=str(document.get("content", ""))[:SNIPPET_CHARS],
+        start_line=_as_int_or_none(document.get("start_line")),
+        end_line=_as_int_or_none(document.get("end_line")),
     )
+
+
+def _as_int_or_none(value: Any) -> int | None:
+    try:
+        return int(value) if value is not None else None
+    except (TypeError, ValueError):
+        return None
 
 
 def build_attribution(
@@ -217,6 +228,7 @@ def to_item(
         retrieved_count=len(attribution.retrieved),
         sources=list(dict.fromkeys(item.source for item in attribution.retrieved)),
         cited_sources=attribution.cited_sources,
+        citations=list(grounding.citations) if grounding else [],
         retrieval=retrieval,
         retrieval_error=retrieval_error,
         grounding=_status(grounding),

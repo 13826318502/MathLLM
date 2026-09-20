@@ -3,12 +3,13 @@ from __future__ import annotations
 import json
 import unittest
 
-from app.agent.schema import Observation
+from app.agent.schema import GroundingVerdict, Observation
 from app.core.config import settings
 from app.services import verify_service
 from app.services.verify_service import (
     check_by_substitution,
     check_expression_value,
+    citations_from_verdict,
     documents_from_observations,
     verify_answer,
 )
@@ -131,6 +132,45 @@ class DocumentsTest(unittest.TestCase):
         observation = _search_observation(["x"])
         observation = observation.model_copy(update={"success": False})
         self.assertEqual(documents_from_observations([observation]), [])
+
+    def test_sources_carry_line_ranges(self) -> None:
+        observation = Observation(
+            step=0,
+            tool="search_knowledge",
+            arguments={"query": "判别式"},
+            success=True,
+            summary=json.dumps(
+                {
+                    "documents": [
+                        {
+                            "content": "判别式 Δ = b^2 - 4ac",
+                            "source": "01.md",
+                            "start_line": 3,
+                            "end_line": 7,
+                        }
+                    ]
+                },
+                ensure_ascii=False,
+            ),
+            duration_ms=1,
+        )
+        sources = verify_service.sources_from_observations([observation])
+        self.assertEqual(sources[0]["start_line"], 3)
+        self.assertEqual(sources[0]["end_line"], 7)
+
+
+class CitationsTest(unittest.TestCase):
+    def test_maps_used_chunks_to_sources(self) -> None:
+        verdict = GroundingVerdict(grounded=True, used_chunks=[1, 2, 2, 9])
+        sources = [
+            {"source": "a.md", "start_line": 1, "end_line": 5, "content": "x"},
+            {"source": "b.md", "start_line": 10, "end_line": 12, "content": "y"},
+        ]
+        citations = citations_from_verdict(verdict, sources)
+        # 9 is out of range and the duplicate 2 collapses.
+        self.assertEqual(len(citations), 2)
+        self.assertEqual(citations[0].source, "a.md")
+        self.assertEqual(citations[1].start_line, 10)
 
 
 def _form(

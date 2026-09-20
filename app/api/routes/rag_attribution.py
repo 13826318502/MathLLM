@@ -82,12 +82,12 @@ async def rag_attribution_check(
     trace = rag_attribution_service.find_trace(_load(settings.trace_dir), run_id)
     if trace is None:
         raise HTTPException(status_code=404, detail="未找到该运行记录")
-    documents = _documents(trace)
-    if not documents:
+    sources = verify_service.sources_from_observations(trace.observations)
+    if not sources:
         raise HTTPException(status_code=400, detail="该运行没有检索到知识库片段")
     try:
         verdict = await verify_service.judge_grounding(
-            orchestrator, trace.answer, documents
+            orchestrator, trace.answer, sources
         )
     except VLLMServiceError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
@@ -97,12 +97,9 @@ async def rag_attribution_check(
         grounded=verdict.grounded,
         unsupported=list(verdict.unsupported),
         reason=verdict.reason,
+        citations=verify_service.citations_from_verdict(verdict, sources),
     )
     rag_attribution_service.save_check(
         rag_attribution_service.checks_path(settings.trace_dir), run_id, grounding
     )
     return grounding
-
-
-def _documents(trace: RunTrace) -> list[str]:
-    return verify_service.documents_from_observations(trace.observations)

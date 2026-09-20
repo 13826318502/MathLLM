@@ -14,6 +14,7 @@ from app.api.routes import (
     agent,
     chat,
     health,
+    knowledge,
     memory,
     metrics,
     rag_attribution,
@@ -57,6 +58,7 @@ def create_app() -> FastAPI:
     application.include_router(
         rag_attribution.router, prefix="/api", tags=["observability"]
     )
+    application.include_router(knowledge.router, prefix="/api", tags=["knowledge"])
     return application
 
 

@@ -56,6 +56,8 @@ class RetrievedChunk:
     content: str
     source: str
     distance: float
+    start_line: int | None = None
+    end_line: int | None = None
 
 
 class FastEmbedEmbedder:
@@ -111,13 +113,18 @@ def get_default_embedder(settings: Settings) -> Embedder:
     return embedder
 
 
+def normalize_text(text: str) -> str:
+    """Normalize line endings and trim, matching what the splitter indexes."""
+    return text.replace("\r\n", "\n").strip()
+
+
 def split_text(
     text: str,
     chunk_size: int = CHUNK_SIZE,
     overlap: int = CHUNK_OVERLAP,
 ) -> list[str]:
     """Split text into overlapping chunks, packing whole paragraphs first."""
-    normalized = text.replace("\r\n", "\n").strip()
+    normalized = normalize_text(text)
     if not normalized:
         return []
     overlap = max(0, min(overlap, chunk_size // 2))
@@ -142,6 +149,36 @@ def split_text(
     if current.strip():
         chunks.append(current.strip())
     return chunks
+
+
+def _chunk_offsets(normalized: str, chunks: list[str]) -> list[tuple[int, int]]:
+    """Locate each chunk in the normalized text, returning char offsets.
+
+    Chunks are substrings of the normalized text (packed paragraphs or
+    windowed slices), so a forward ``find`` is enough. A chunk that cannot be
+    located yields ``(-1, -1)`` and no line range.
+    """
+    offsets: list[tuple[int, int]] = []
+    cursor = 0
+    for chunk in chunks:
+        index = normalized.find(chunk, cursor)
+        if index == -1:
+            index = normalized.find(chunk)
+        if index == -1:
+            offsets.append((-1, -1))
+            continue
+        offsets.append((index, index + len(chunk)))
+        cursor = index
+    return offsets
+
+
+def _line_range(normalized: str, start: int, end: int) -> tuple[int, int] | None:
+    """Convert char offsets into 1-based inclusive line numbers."""
+    if start < 0 or end < 0:
+        return None
+    start_line = normalized.count("\n", 0, start) + 1
+    end_line = normalized.count("\n", 0, end) + 1
+    return start_line, end_line
 
 
 def _load_documents(knowledge_dir: Path) -> list[tuple[str, str]]:
@@ -189,12 +226,20 @@ def index_knowledge(settings: Settings, *, embedder: Embedder | None = None) -> 
 
     ids: list[str] = []
     documents: list[str] = []
-    metadatas: list[dict[str, str]] = []
+    metadatas: list[dict[str, Any]] = []
     for source, text in _load_documents(knowledge_dir):
-        for index, chunk in enumerate(split_text(text)):
+        normalized = normalize_text(text)
+        chunks = split_text(text)
+        offsets = _chunk_offsets(normalized, chunks)
+        for index, chunk in enumerate(chunks):
+            metadata: dict[str, Any] = {"source": source}
+            line_range = _line_range(normalized, *offsets[index])
+            if line_range is not None:
+                metadata["start_line"] = line_range[0]
+                metadata["end_line"] = line_range[1]
             ids.append(f"{source}#{index}")
             documents.append(chunk)
-            metadatas.append({"source": source})
+            metadatas.append(metadata)
 
     client = _client(settings.rag_persist_dir)
     try:
@@ -317,11 +362,16 @@ def search(
 
     chunks: list[RetrievedChunk] = []
     for content, metadata, distance in zip(documents, metadatas, distances):
+        data = metadata or {}
+        start_line = data.get("start_line")
+        end_line = data.get("end_line")
         chunks.append(
             RetrievedChunk(
                 content=content or "",
-                source=str((metadata or {}).get("source", "unknown")),
+                source=str(data.get("source", "unknown")),
                 distance=float(distance),
+                start_line=int(start_line) if start_line is not None else None,
+                end_line=int(end_line) if end_line is not None else None,
             )
         )
     return chunks

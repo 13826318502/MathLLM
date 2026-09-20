@@ -2258,6 +2258,121 @@ elif decision.tool == "none" and decision.intent != "math":
 | 路由异常回落成 general/none 时也有确定行为 | 引导语固定，不含具体建议 |
 | 不调用模型，省一次请求 | 无 |
 
+---
+
+# 第二十二节：引用定位到「文档 + 行范围」+ 知识库文档浏览页
+
+> 反馈：归因页的「引用来源」按文件名做字面匹配，模型几乎不在回答里写文件名，所以恒为 0，没意义。用户要求：让接地裁判直接输出「回答引用了哪个文档的哪几行（范围即可）」；另外新增一个页面浏览知识库里的 Markdown 文档。
+>
+> 状态：完成，`177` 个单元测试通过（新增 8 个），并用真机浏览器验证。
+
+---
+
+## 一、引用定位：从「字面匹配文件名」改为「裁判判定片段」
+
+### 1. 建库时记录行号范围（`rag_service.py`）
+
+片段原本按字符窗口切，没有行号。新增：
+
+```python
+def normalize_text(text): ...            # \r\n -> \n, strip
+def _chunk_offsets(normalized, chunks): ...  # 用 forward find 定位每个片段的字符偏移
+def _line_range(normalized, start, end): ...  # 偏移 -> 1-based 行号
+```
+
+`index_knowledge` 给每个片段写入 metadata `{"source", "start_line", "end_line"}`；`search` 把它们读进 `RetrievedChunk`（新增 `start_line`/`end_line` 字段）。`search_knowledge` 工具把行号一并返回。
+
+> 行号是近似的（片段按字符切、可能从行中间开始），符合「给个范围就行」。
+
+### 2. 裁判输出「用到了哪些片段」（`schema.py` + `verify_service.py`）
+
+`GroundingVerdict` 增加 `used_chunks: list[int]`（资料里 `[片段 N]` 的编号）。裁判 prompt 现在给每个片段标注来源与行范围：
+
+```
+[片段 1]（来源：01-二次方程与判别式.md 第 1-16 行）
+<片段内容>
+```
+
+并新增 `sources_from_observations()`（返回 content + source + 行范围），`judge_grounding()` 改为接收这些结构；`documents_from_observations()` 保留为它的文本投影。
+
+### 3. 映射成引用（`loop.py` + `verify_service.py`）
+
+新增 `verify_service.citations_from_verdict(verdict, sources)`：把 `used_chunks` 映射成 `RagCitation{source, start_line, end_line}`，越界索引忽略、重复去重。
+
+`RagGrounding` 增加 `citations`；自动接地时写入：
+
+```python
+rag_grounding = RagGrounding(
+    grounded=verdict.grounded,
+    unsupported=list(verdict.unsupported),
+    reason=verdict.reason,
+    citations=verify_service.citations_from_verdict(verdict, sources),
+)
+```
+
+`RagAttributionItem` 增加 `citations`，归因页据此展示。
+
+### 4. 前端展示（`web/app.js`）
+
+- 列表行：`引用位置：06-....md 第 10-25 行`（原来的「回答引用」）
+- 详情统计：`引用来源 N 个` 改为按 `grounding.citations` 计数
+- 详情新增「引用位置」块，逐片段显示 `#rank + 来源 + 第 X-Y 行 + 距离`
+
+## 二、新增「知识库文档」浏览页
+
+### 后端 `app/api/routes/knowledge.py`
+
+| 方法 | 路径 | 说明 |
+|---|---|---|
+| GET | `/api/knowledge/documents` | 列出 `knowledge/` 下的 `.md`/`.txt`（名称、大小、修改时间） |
+| GET | `/api/knowledge/documents/{name:path}` | 返回原始 Markdown 文本 |
+
+`_safe_path()` 做路径穿越校验（解析后必须落在 `knowledge/` 内）、后缀白名单校验。已在 `main.py` 注册。
+
+### 前端
+
+- `index.html` 工作区新增导航「▤ 知识库文档」
+- `web/app.js`：`PAGE_META` / `state.knowledge` / `knowledgePage()` / `loadKnowledge()` / `loadKnowledgeDoc()`，左列文档列表、右侧用 `markdownToHtml` + `renderMath` 渲染 Markdown（支持 KaTeX）
+- `web/styles.css`：`.knowledge-layout` / `.knowledge-list` / `.knowledge-doc-item` / `.knowledge-view`（含窄屏单列）
+
+## 三、测试（新增 8 个，共 177）
+
+- `test_rag.py`：索引后片段带行号范围
+- `test_verify.py`：`sources_from_observations` 带行号；`citations_from_verdict` 映射/越界/去重
+- `test_knowledge_route.py`（新）：列出、取内容、404、后缀拒绝、路径穿越拒绝
+
+`Ran 177 tests ... OK`；`node --check web/app.js` 通过。
+
+## 四、真机验证
+
+- 重建索引：`python -m app.services.rag_service` → `已索引 10 个片段`；检索返回 `01-...md L1-16` 等行号
+- 另起后端（8090）：
+  - `GET /api/knowledge/documents` 返回 6 篇文档；`GET .../01-二次方程与判别式.md` 返回内容
+  - 归因条目新增 `citations` 字段
+- 浏览器（前端临时指向 8090）：知识库文档页列出 6 篇并正确渲染 Markdown；归因页显示引用行范围
+
+## 五、踩坑（重要）
+
+1. **又用 PowerShell 改 `index.html` 写坏了文件**：为改缓存版本号，用了
+   ```powershell
+   (Get-Content -Raw) -replace ... | Set-Content -Encoding UTF8
+   ```
+   `Get-Content` 在中文 Windows 上按系统默认编码（GBK）读取 UTF-8 文件 → 得到乱码字符串 → `Set-Content` 再按 UTF-8 写回，**整个文件被双重编码写坏**；随后手动去 BOM 又误删了首字符 `<`，导致 `<!doctype>` 变成 `!doctype>`，页面进入怪异模式、显示乱码。
+   **教训（第三次了）：改 `web/` 下的静态文件一律用 Edit 工具，绝不用 `Get-Content`/`Set-Content`。**
+   恢复方式：`git checkout -- web/index.html` 还原后，用 Edit 工具重加导航与版本号。
+2. **HTML 文档本身没有版本号，会被浏览器缓存**：改坏期间浏览器缓存了坏版本，即使磁盘已修好，页面仍显示乱码。需要 `Ctrl+Shift+R` 强制刷新（或用带新 query 的 URL）。
+3. **控制台乱码会误导排查**：PowerShell 控制台按 GBK 显示，UTF-8 内容会显示成乱码；判断文件编码要用字节级校验（如 `UTF8Encoding(throwOnInvalidBytes)`），不能靠肉眼看输出。
+
+## 六、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 引用落到「文档 + 行范围」，不再是恒为 0 的字面匹配 | 行号是近似的（字符切分，非行对齐） |
+| 裁判一次调用同时给出 grounded / unsupported / citations | 裁判 prompt 变长，token 略增 |
+| 新增文档浏览页，可直接对照引用阅读原文 | 需要重建一次索引才能拿到行号（约 1 秒） |
+| 文档接口做了路径穿越与后缀校验 | 无 |
+
+
 
 
 

@@ -58,6 +58,8 @@ async def _search(args: SearchInput, ctx: ToolContext) -> ToolResult:
                     "source": chunk.source,
                     "distance": chunk.distance,
                     "rank": rank,
+                    "start_line": chunk.start_line,
+                    "end_line": chunk.end_line,
                 }
                 for rank, chunk in enumerate(chunks, start=1)
             ]

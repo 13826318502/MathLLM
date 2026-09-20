@@ -142,6 +142,14 @@ class RagServiceTest(unittest.TestCase):
         dimension = rag_service.warm_up(self.settings, embedder=self.embedder)
         self.assertGreater(dimension, 0)
 
+    def test_index_records_line_ranges(self) -> None:
+        rag_service.index_knowledge(self.settings, embedder=self.embedder)
+        chunks = rag_service.search(self.settings, "判别式", embedder=self.embedder)
+        self.assertTrue(chunks)
+        self.assertIsNotNone(chunks[0].start_line)
+        self.assertGreaterEqual(chunks[0].start_line, 1)
+        self.assertGreaterEqual(chunks[0].end_line, chunks[0].start_line)
+
     def test_warm_up_wraps_embedding_failure(self) -> None:
         class BrokenEmbedder:
             def embed_documents(self, texts: list[str]) -> list[list[float]]:

@@ -601,12 +601,10 @@ async def _iter_agent_events(
             # Knowledge answers are not substitution-checkable, but they are
             # still attributed back to the retrieved chunks: one grounding call
             # marks whether the answer is supported by them.
-            documents = verify_service.documents_from_observations(observations)
-            if ctx.settings.rag_grounding and documents:
+            sources = verify_service.sources_from_observations(observations)
+            if ctx.settings.rag_grounding and sources:
                 yield {"type": "rag_grounding_start"}
-                verdict = await verify_service.judge_grounding(
-                    client, answer, documents
-                )
+                verdict = await verify_service.judge_grounding(client, answer, sources)
                 for event in _drain_model_switches(client, "rag_grounding"):
                     yield event
                 if verdict is not None:
@@ -614,6 +612,9 @@ async def _iter_agent_events(
                         grounded=verdict.grounded,
                         unsupported=list(verdict.unsupported),
                         reason=verdict.reason,
+                        citations=verify_service.citations_from_verdict(
+                            verdict, sources
+                        ),
                     )
                 yield {
                     "type": "rag_grounding",

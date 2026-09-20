@@ -68,6 +68,8 @@ class GroundingVerdict(BaseModel):
 
     grounded: bool
     unsupported: list[str] = Field(default_factory=list, max_length=10)
+    # 1-based indices of the provided chunks the answer actually relies on.
+    used_chunks: list[int] = Field(default_factory=list, max_length=20)
     reason: str = Field(default="", max_length=300)
 
 
@@ -87,6 +89,16 @@ class RetrievedSource(BaseModel):
     rank: int = 0
     distance: float | None = None
     snippet: str = ""
+    start_line: int | None = None
+    end_line: int | None = None
+
+
+class RagCitation(BaseModel):
+    """A knowledge-base location an answer is grounded in."""
+
+    source: str
+    start_line: int | None = None
+    end_line: int | None = None
 
 
 class RagGrounding(BaseModel):
@@ -95,6 +107,7 @@ class RagGrounding(BaseModel):
     grounded: bool
     unsupported: list[str] = Field(default_factory=list)
     reason: str = ""
+    citations: list[RagCitation] = Field(default_factory=list)
 
 
 class RagAttribution(BaseModel):

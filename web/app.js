@@ -11,6 +11,7 @@ const PAGE_META = {
   "favorite-detail": ["学习工作区 / 我的收藏 / 题目详情", "收藏题目详情"],
   history: ["学习工作区 / 学习记录", "看看自己最近解决了什么"],
   toolkit: ["学习工作区 / 学习工具", "用适合自己的方式理解数学"],
+  knowledge: ["学习工作区 / 知识库文档", "看看知识库里到底写了什么"],
   observability: ["系统 / 运行观测", "看看 Agent 每次运行到底发生了什么"],
   "rag-attribution": ["系统 / 知识库归因", "看看每次回答有没有依据知识库"],
   settings: ["系统 / 设置", "调整你的本地学习空间"],
@@ -74,6 +75,7 @@ const state = {
   activeRequestController: null,
   observability: { loading: false, days: 7, metrics: null, traces: [], error: "" },
   ragAttribution: { loading: false, days: 7, summary: null, runs: [], error: "" },
+  knowledge: { loading: false, docs: [], current: "", content: "", error: "" },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -216,6 +218,7 @@ function setPage(page) {
   $("#sidebar").classList.remove("open");
   if (state.page === "observability") loadObservability();
   if (state.page === "rag-attribution") loadRagAttribution();
+  if (state.page === "knowledge") loadKnowledge();
 }
 function showFavoriteDetail(index) {
   state.favoriteDetailIndex = Number(index);
@@ -447,8 +450,10 @@ function ragGroundingBadge(status) {
 function ragAttributionRun(item) {
   const time = String(item.started_at || "").replace("T", " ").slice(5, 16);
   const sources = (item.sources || []).length ? item.sources.join("、") : "（未检索到片段）";
-  const citedList = item.cited_sources || [];
-  const cited = citedList.length ? citedList.join("、") : "（未显式引用）";
+  const citations = item.citations || [];
+  const cited = citations.length
+    ? citations.map((citation) => `${citation.source}${citation.start_line ? ` 第 ${citation.start_line}-${citation.end_line} 行` : ""}`).join("；")
+    : "（未判定引用片段）";
   const unsupported = item.unsupported || [];
   return `<details class="card run-card" data-rag-card="${escapeHtml(item.run_id)}">
     <summary class="run-summary">
@@ -457,14 +462,14 @@ function ragAttributionRun(item) {
       <span class="run-badge ok">知识库</span>
       ${ragRetrievalBadge(item)}
       ${ragGroundingBadge(item.grounding)}
-      <span class="run-meta">${item.retrieved_count ?? 0} 片段 · 引用 ${citedList.length} · ${formatSeconds(item.duration_ms)}</span>
+      <span class="run-meta">${item.retrieved_count ?? 0} 片段 · 引用 ${citations.length} · ${formatSeconds(item.duration_ms)}</span>
     </summary>
     <div class="run-body">
       <div class="run-row"><span>run_id</span><code>${escapeHtml(item.run_id)}</code></div>
       <div class="run-row"><span>路由</span><b>${escapeHtml(item.intent || "—")} → ${escapeHtml(item.tool || "—")}</b></div>
       <div class="run-row"><span>检索查询</span><b>${escapeHtml(item.query || "—")}</b></div>
       <div class="run-row"><span>命中来源</span><b>${escapeHtml(sources)}</b></div>
-      <div class="run-row"><span>回答引用</span><b>${escapeHtml(cited)}</b></div>
+      <div class="run-row"><span>引用位置</span><b>${escapeHtml(cited)}</b></div>
       ${unsupported.length ? `<div class="run-row fail"><span>未支持的结论</span><b>${escapeHtml(unsupported.join("；"))}</b></div>` : ""}
       <div class="rag-detail" id="rag-detail-${escapeHtml(item.run_id)}"></div>
       <div class="page-actions">
@@ -520,8 +525,8 @@ async function loadRagAttribution() {
 function ragDetailMarkup(trace) {
   const rag = trace.rag || {};
   const retrieved = rag.retrieved || [];
-  const cited = rag.cited_sources || [];
   const grounding = rag.grounding;
+  const citations = grounding ? (grounding.citations || []) : [];
   const summary = state.ragAttribution.summary;
   const runRate = grounding ? (grounding.grounded ? "100%" : "0%") : "—";
   const windowRate = summary ? formatPercent(summary.grounded_rate) : "—";
@@ -531,21 +536,25 @@ function ragDetailMarkup(trace) {
   const retrievalText = RAG_RETRIEVAL_LABEL[retrievalStatus] || "—";
   const stats = `<div class="rag-stat-row">
     <div class="rag-stat"><span>相关片段</span><strong>${retrieved.length} 个</strong></div>
-    <div class="rag-stat"><span>引用来源</span><strong>${cited.length} 个</strong></div>
+    <div class="rag-stat"><span>引用来源</span><strong>${citations.length} 个</strong></div>
     <div class="rag-stat"><span>检索状态</span><strong>${escapeHtml(retrievalText)}</strong>${failedObservation ? `<em>${escapeHtml(failedObservation.error || "")}</em>` : ""}</div>
     <div class="rag-stat"><span>接地准确率</span><strong>${runRate}</strong><em>窗口 ${windowRate}</em></div>
   </div>`;
   const chunks = retrieved.map((item) => `
     <div class="rag-chunk">
-      <div class="rag-chunk-head"><span class="rag-rank">#${item.rank}</span><code>${escapeHtml(item.source)}</code><span class="rag-distance">距离 ${item.distance === null || item.distance === undefined ? "—" : Number(item.distance).toFixed(3)}</span></div>
+      <div class="rag-chunk-head"><span class="rag-rank">#${item.rank}</span><code>${escapeHtml(item.source)}</code>${item.start_line ? `<span class="rag-lines">第 ${item.start_line}-${item.end_line} 行</span>` : ""}<span class="rag-distance">距离 ${item.distance === null || item.distance === undefined ? "—" : Number(item.distance).toFixed(3)}</span></div>
       <div class="rag-chunk-body">${escapeHtml(item.snippet || "")}</div>
     </div>`).join("") || `<div class="obs-empty">未检索到知识库片段</div>`;
+  const citationText = citations.length
+    ? citations.map((item) => `${item.source}${item.start_line ? ` 第 ${item.start_line}-${item.end_line} 行` : ""}`).join("；")
+    : "（未判定引用了哪些片段）";
   const groundingLine = grounding
     ? `${grounding.grounded ? "已接地" : "未接地"}：${escapeHtml(grounding.reason || "")}`
     : "未做接地检查";
   return `
     ${stats}
     <div class="rag-detail-block"><strong>检索片段</strong>${chunks}</div>
+    <div class="rag-detail-block"><strong>引用位置</strong><div class="obs-note">${escapeHtml(citationText)}</div></div>
     <div class="rag-detail-block"><strong>接地结论</strong><div class="obs-note">${groundingLine}</div></div>
     <div class="rag-detail-block"><strong>模型回答</strong><div class="run-answer">${escapeHtml((trace.answer || "").slice(0, 1200)) || "（无答案）"}</div></div>`;
 }
@@ -576,6 +585,55 @@ async function checkRagGrounding(runId) {
   }
 }
 
+async function loadKnowledge() {
+  const view = state.knowledge;
+  view.loading = true;
+  view.error = "";
+  render();
+  try {
+    const response = await fetch(`${apiBase()}/knowledge/documents`);
+    if (!response.ok) throw new Error(`文档接口失败（HTTP ${response.status}）`);
+    view.docs = await response.json();
+    if (!view.current || !view.docs.some((doc) => doc.name === view.current)) {
+      view.current = view.docs.length ? view.docs[0].name : "";
+    }
+  } catch (error) {
+    view.error = error.message || String(error);
+  } finally {
+    view.loading = false;
+  }
+  if (view.current) {
+    await loadKnowledgeDoc(view.current, false);
+  }
+  if (state.page === "knowledge") render();
+}
+
+async function loadKnowledgeDoc(name, doRender = true) {
+  const view = state.knowledge;
+  view.current = name;
+  try {
+    const response = await fetch(`${apiBase()}/knowledge/documents/${encodeURIComponent(name)}`);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    view.content = payload.content;
+  } catch (error) {
+    view.content = `加载失败：${error.message || error}`;
+  }
+  if (doRender && state.page === "knowledge") render();
+}
+
+function knowledgePage() {
+  const view = state.knowledge;
+  const header = `<div class="page-title-row"><div><h2>知识库文档</h2><p>RAG 检索用的 Markdown 文档，可对照「知识库归因」里的引用行范围阅读。</p></div><div class="page-actions"><button class="btn" id="knowledge-refresh">刷新</button></div></div>`;
+  if (view.loading && !view.docs.length) return `${header}<div class="card empty-state"><strong>正在读取文档列表…</strong><p>需要后端已启动。</p></div>`;
+  if (view.error && !view.docs.length) return `${header}<div class="card empty-state"><strong>读取失败</strong><p>${escapeHtml(view.error)}</p><button class="btn primary" id="knowledge-refresh">重试</button></div>`;
+  const list = view.docs.length
+    ? view.docs.map((doc) => `<button class="knowledge-doc-item ${doc.name === view.current ? "active" : ""}" data-knowledge-doc="${escapeHtml(doc.name)}"><span class="knowledge-doc-name">${escapeHtml(doc.name)}</span><span class="knowledge-doc-meta">${Math.max(1, Math.round(doc.size / 1024))} KB</span></button>`).join("")
+    : `<div class="obs-empty">knowledge/ 目录下没有文档</div>`;
+  const body = view.content ? markdownToHtml(view.content) : `<div class="obs-empty">选择左侧文档查看内容</div>`;
+  return `${header}<div class="knowledge-layout"><div class="card knowledge-list">${list}</div><div class="card knowledge-view" id="knowledge-view">${body}</div></div>`;
+}
+
 function settingsPage() {
   const dark = document.body.classList.contains("dark");
   return `<div class="page-title-row"><div><h2>设置</h2><p>这些设置只保存在当前浏览器，不会上传到服务器。</p></div></div><div class="card card-pad settings-form"><div class="field"><label for="api-base-input">FastAPI 服务地址</label><input id="api-base-input" value="${escapeHtml(apiBase())}" placeholder="http://127.0.0.1:8080/api"/><small>默认由本地启动器提供。不要在这里填写 API Key，密钥只应放在后端环境变量中。</small></div><div class="setting-row"><div><strong>深色模式</strong><p>适合晚上学习，切换后会立即生效。</p></div><button class="switch ${dark ? "on" : ""}" id="settings-theme-toggle" aria-label="切换深色模式"></button></div><div class="setting-row"><div><strong>本地数据</strong><p>收藏和学习记录只保存在浏览器 localStorage。</p></div><button class="btn danger" id="clear-local-data">清除本地数据</button></div><div class="page-actions"><button class="btn primary" id="save-settings">保存设置</button></div></div>`;
@@ -583,7 +641,7 @@ function settingsPage() {
 
 function render() {
   setActiveNav(); updateCounts();
-  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : state.page === "observability" ? observabilityPage() : state.page === "rag-attribution" ? ragAttributionPage() : settingsPage();
+  pageContainer.innerHTML = state.page === "solve" ? solvePage() : state.page === "favorites" ? favoritesPage() : state.page === "favorite-detail" ? favoriteDetailPage() : state.page === "history" ? historyPage() : state.page === "toolkit" ? toolkitPage() : state.page === "observability" ? observabilityPage() : state.page === "rag-attribution" ? ragAttributionPage() : state.page === "knowledge" ? knowledgePage() : settingsPage();
   renderMarkdownSurfaces();
   renderFavoriteQuestionPreviews();
   renderFavoriteToolbar();
@@ -1172,6 +1230,8 @@ function bindPageEvents() {
   });
   document.querySelectorAll("[data-rag-detail]").forEach((button) => button.addEventListener("click", () => loadRagDetail(button.dataset.ragDetail)));
   document.querySelectorAll("[data-rag-check]").forEach((button) => button.addEventListener("click", () => checkRagGrounding(button.dataset.ragCheck)));
+  document.querySelectorAll("#knowledge-refresh").forEach((button) => button.addEventListener("click", loadKnowledge));
+  document.querySelectorAll("[data-knowledge-doc]").forEach((button) => button.addEventListener("click", () => loadKnowledgeDoc(button.dataset.knowledgeDoc)));
   $("#stop-generation")?.addEventListener("click", stopGeneration);
   $("#chat-messages")?.addEventListener("scroll", (event) => {
     const chat = event.currentTarget;
@@ -1239,8 +1299,10 @@ window.addEventListener("hashchange", () => {
   render();
   if (state.page === "observability") loadObservability();
   if (state.page === "rag-attribution") loadRagAttribution();
+  if (state.page === "knowledge") loadKnowledge();
 });
 if (localStorage.getItem(STORAGE.theme) === "dark") document.body.classList.add("dark");
 render(); checkHealth();
 if (state.page === "observability") loadObservability();
 if (state.page === "rag-attribution") loadRagAttribution();
+if (state.page === "knowledge") loadKnowledge();
