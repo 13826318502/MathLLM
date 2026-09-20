@@ -76,6 +76,7 @@ const state = {
   observability: { loading: false, days: 7, metrics: null, traces: [], error: "" },
   ragAttribution: { loading: false, days: 7, summary: null, runs: [], error: "" },
   knowledge: { loading: false, docs: [], current: "", content: "", error: "" },
+  solveDocs: { loading: false, loaded: false, docs: [] },
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -255,11 +256,6 @@ function formulaEditorMarkup() {
 }
 
 function solvePage() {
-  const quick = [
-    ["💡", "只给我提示", "先自己想一想", "请先给我解题思路和关键提示，不要直接给出最终答案。"],
-    ["🧩", "讲简单一点", "适合初学者", "请用适合初学者的简单语言解释，并说明每一步为什么这样做。"],
-    ["✅", "检查我的答案", "找出思路漏洞", "请检查我写出的答案或思路，指出错误并给出改进建议。"],
-  ];
   const mode = state.answerMode;
   const memoryStatus = mode === "agent"
     ? `<div class="memory-status ${state.loading ? "active" : ""}"><span class="memory-status-dot"></span>先判断问题类型，再决定查知识库、调用解题模型或直接回答</div>`
@@ -271,7 +267,37 @@ function solvePage() {
     : `<button class="btn primary" id="send-question">开始解题  →</button>`;
   return `<div class="hero-card"><span class="hero-chip">学习模式 · 逐步讲解</span><h2>把不会的题，变成会做的题。</h2><p>不用担心问得不完整。你可以直接粘贴题目，也可以继续追问“为什么”，我们一起把思路理清楚。</p></div>
     <div class="page-grid"><div><div class="section-heading"><h3>数学对话</h3><p>支持 Markdown 与可视化公式输入</p></div><div class="card chat-card"><div class="chat-toolbar"><strong>解题空间</strong><span>${state.loading ? "正在生成答案…" : "准备好了"}</span></div><div class="chat-messages" id="chat-messages">${renderMessages()}</div><div class="composer"><div class="answer-mode-switch" role="group" aria-label="答题模式"><button class="mode-button ${mode === "solve" ? "active" : ""}" data-answer-mode="solve" type="button"><strong>单题解答</strong><span>不带历史，速度更快</span></button><button class="mode-button ${mode === "follow_up" ? "active" : ""}" data-answer-mode="follow_up" type="button"><strong>连续追问</strong><span>保留上下文，自动压缩</span></button><button class="mode-button ${mode === "agent" ? "active" : ""}" data-answer-mode="agent" type="button"><strong>Agent 模式</strong><span>自动选工具并展示轨迹</span></button></div>${memoryStatus}<textarea id="question-input" placeholder="例如：求解方程 x² - 5x + 6 = 0，最好解释每一步…"></textarea>${formulaEditorMarkup()}<div class="composer-actions"><span class="composer-hint">Enter 提交 · Shift + Enter 换行</span><div class="composer-buttons"><button class="btn ghost" id="toggle-formula-editor" type="button">公式工具 ∑</button><button class="btn ghost" id="save-current-favorite">收藏题目</button><button class="btn ghost" id="clear-chat">清空对话</button>${generationButton}</div></div></div></div></div>
-      <div class="side-stack"><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div><div class="card side-card"><h3>快捷学习工具</h3>${quick.map(([icon, title, desc, instruction]) => `<button class="quick-tool" data-instruction="${escapeHtml(instruction)}"><span class="tool-icon">${icon}</span><span><strong>${title}</strong><span>${desc}</span></span></button>`).join("")}</div></div></div>`;
+      <div class="side-stack"><div class="card side-card"><h3>知识库文档</h3><div class="knowledge-mini-list">${knowledgeMiniList()}</div></div><div class="card side-card"><h3>试试这些题</h3><div class="example-list">${EXAMPLES.map(([label, question]) => `<button class="example-btn" data-example="${escapeHtml(question)}"><strong>${label}</strong><br>${escapeHtml(question)}</button>`).join("")}</div></div></div>`;
+}
+
+function knowledgeMiniList() {
+  const view = state.solveDocs;
+  if (!view.docs.length) {
+    return `<div class="obs-empty">${view.loaded ? "知识库暂无文档" : "正在读取文档…"}</div>`;
+  }
+  return view.docs
+    .map((doc) => `<button class="knowledge-mini-item" data-open-doc="${escapeHtml(doc.name)}"><span class="knowledge-doc-name">${escapeHtml(doc.name)}</span><span class="knowledge-doc-meta">${Math.max(1, Math.round(doc.size / 1024))} KB</span></button>`)
+    .join("");
+}
+
+async function loadSolveDocs() {
+  const view = state.solveDocs;
+  if (view.loaded || view.loading) return;
+  view.loading = true;
+  try {
+    const response = await fetch(`${apiBase()}/knowledge/documents`);
+    if (response.ok) view.docs = await response.json();
+  } catch {
+    // Ignore: the sidebar list is best-effort.
+  }
+  view.loading = false;
+  view.loaded = true;
+  if (state.page === "solve") render();
+}
+
+function openKnowledgeDoc(name) {
+  state.knowledge.current = name;
+  setPage("knowledge");
 }
 
 function favoritesPage() {
@@ -555,8 +581,7 @@ function ragDetailMarkup(trace) {
     ${stats}
     <div class="rag-detail-block"><strong>检索片段</strong>${chunks}</div>
     <div class="rag-detail-block"><strong>引用位置</strong><div class="obs-note">${escapeHtml(citationText)}</div></div>
-    <div class="rag-detail-block"><strong>接地结论</strong><div class="obs-note">${groundingLine}</div></div>
-    <div class="rag-detail-block"><strong>模型回答</strong><div class="run-answer">${escapeHtml((trace.answer || "").slice(0, 1200)) || "（无答案）"}</div></div>`;
+    <div class="rag-detail-block"><strong>接地结论</strong><div class="obs-note">${groundingLine}</div></div>`;
 }
 
 async function loadRagDetail(runId) {
@@ -647,6 +672,7 @@ function render() {
   renderFavoriteToolbar();
   renderMath();
   bindPageEvents();
+  if (state.page === "solve") loadSolveDocs();
   scrollChatToLatest();
 }
 
@@ -1232,6 +1258,7 @@ function bindPageEvents() {
   document.querySelectorAll("[data-rag-check]").forEach((button) => button.addEventListener("click", () => checkRagGrounding(button.dataset.ragCheck)));
   document.querySelectorAll("#knowledge-refresh").forEach((button) => button.addEventListener("click", loadKnowledge));
   document.querySelectorAll("[data-knowledge-doc]").forEach((button) => button.addEventListener("click", () => loadKnowledgeDoc(button.dataset.knowledgeDoc)));
+  document.querySelectorAll("[data-open-doc]").forEach((button) => button.onclick = () => openKnowledgeDoc(button.dataset.openDoc));
   $("#stop-generation")?.addEventListener("click", stopGeneration);
   $("#chat-messages")?.addEventListener("scroll", (event) => {
     const chat = event.currentTarget;

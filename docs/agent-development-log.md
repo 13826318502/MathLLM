@@ -2372,6 +2372,71 @@ rag_grounding = RagGrounding(
 | 新增文档浏览页，可直接对照引用阅读原文 | 需要重建一次索引才能拿到行号（约 1 秒） |
 | 文档接口做了路径穿越与后缀校验 | 无 |
 
+---
+
+# 第二十三节：界面调整（归因去回答 / 解题页侧栏改为知识库文档）
+
+> 反馈：① 知识库归因详情里的「模型回答」没必要展示；② 解题页右侧把「试试这些题」换成知识库文档列表（可点击跳转），示例题下移，删掉「快捷学习工具」。
+>
+> 状态：完成，纯前端改动，复用已有 `/api/knowledge/documents`，真机浏览器验证通过。
+
+---
+
+## 一、知识库归因详情去掉「模型回答」
+
+`web/app.js` 的 `ragDetailMarkup()` 删除末尾整块：
+
+```js
+<div class="rag-detail-block"><strong>模型回答</strong><div class="run-answer">…</div></div>
+```
+
+详情现在只保留：统计行（相关片段 / 引用来源 / 检索状态 / 接地准确率）、检索片段（含行号与距离）、引用位置、接地结论。
+
+## 二、解题页右侧改版
+
+原来右侧是两张卡：「试试这些题」+「快捷学习工具」。改为：
+
+| 位置 | 现在 | 说明 |
+|---|---|---|
+| 上 | **知识库文档** | 列出 `knowledge/` 文档（名称 + 大小），点击跳转到「知识库文档」页并打开该文档 |
+| 下 | **试试这些题** | 原来的 4 个示例题，整体下移到原「快捷学习工具」位置 |
+| — | 删除「快捷学习工具」 | 连同 `quick` 数组一起移除 |
+
+实现：
+
+- `solvePage()` 删除 `quick` 数组，侧栏改为：
+  ```html
+  <div class="side-stack">
+    <div class="card side-card"><h3>知识库文档</h3><div class="knowledge-mini-list">${knowledgeMiniList()}</div></div>
+    <div class="card side-card"><h3>试试这些题</h3><div class="example-list">…</div></div>
+  </div>
+  ```
+- 新增 `state.solveDocs = { loading, loaded, docs }` 与 `loadSolveDocs()`：进入解题页时按需拉取一次文档列表（best-effort，失败静默），成功后重渲染。
+- 新增 `knowledgeMiniList()` 渲染列表；`openKnowledgeDoc(name)` 设置 `state.knowledge.current` 后 `setPage("knowledge")`，复用知识库文档页的加载逻辑。
+- `render()` 末尾：`if (state.page === "solve") loadSolveDocs();`（内部有 `loaded/loading` 守卫，不会循环）。
+- `bindPageEvents()` 绑定 `[data-open-doc]`。
+- `web/styles.css` 新增 `.knowledge-mini-list` / `.knowledge-mini-item`。
+
+> 说明：`appendInstruction` 与 `[data-instruction]` 处理器保留（「学习工具」页的 `data-tool-instruction` 仍在用），只是解题页不再有快捷工具按钮。
+
+## 三、验证
+
+- `node --check web/app.js` 通过。
+- 真机（前端临时指向带新接口的 8090 后端）：
+  - 解题页右侧显示 6 篇知识库文档 + 4 个示例题，无「快捷学习工具」
+  - 点「03-概率基础.md」→ 跳转到 `#knowledge` 并打开该文档（内容正确渲染）
+  - 归因详情不再出现「模型回答」
+- 缓存版本号 `20260920-03` → `20260920-04`（用 Edit 工具修改，**没有再用 PowerShell**）。
+
+## 四、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 归因页聚焦「检索/引用/接地」，不再混入回答正文 | 想回看回答需去运行观测页 |
+| 解题页侧栏直接暴露知识库文档，一键跳转阅读 | 文档列表需后端 `/api/knowledge/documents`，旧后端会显示「知识库暂无文档」 |
+| 去掉快捷工具，界面更简洁 | 快捷学习入口（提示/讲简单/检查答案）不再提供 |
+
+
 
 
 

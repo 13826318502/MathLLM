@@ -205,6 +205,9 @@ body.dark .run-badge.fail { color: #f4a0b0; background: #3a1f28; }
 .knowledge-view h1, .knowledge-view h2, .knowledge-view h3 { color: var(--ink); }
 .knowledge-view pre { overflow: auto; }
 @media (max-width: 760px) { .knowledge-layout { grid-template-columns: 1fr; } }
+.knowledge-mini-list { display: flex; flex-direction: column; gap: 4px; }
+.knowledge-mini-item { display: flex; justify-content: space-between; gap: 8px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface-soft); color: var(--muted); font: inherit; font-size: .74rem; text-align: left; cursor: pointer; }
+.knowledge-mini-item:hover { color: var(--ink); border-color: var(--accent, #6366e8); }
 .trace-model { padding: 1px 6px; border-radius: 6px; color: var(--muted); background: rgba(120,128,160,.13); font-size: .68rem; }
 .trace-retry { margin-top: 6px; color: #b4762a; }
 .trace-verify { display: flex; align-items: center; gap: 7px; margin-top: 7px; }
