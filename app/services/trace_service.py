@@ -107,6 +107,26 @@ def record_trace(trace: RunTrace, path: Path | str) -> None:
         logger.exception("failed to record run trace")
 
 
+def clear_traces(path: Path | str) -> int:
+    """Delete the trace file and return how many runs were removed.
+
+    Backs the observability page's "clear history" action. Never raises:
+    clearing history must not break a request.
+    """
+    target = Path(path)
+    if not target.exists():
+        return 0
+    try:
+        count = sum(
+            1 for line in target.read_text(encoding="utf-8").splitlines() if line.strip()
+        )
+        target.unlink()
+        return count
+    except OSError:  # pragma: no cover - defensive
+        logger.exception("failed to clear run traces")
+        return 0
+
+
 def load_traces(path: Path | str, limit: int = 50) -> list[RunTrace]:
     """Return the most recent traces, oldest first within the requested window."""
     target = Path(path)

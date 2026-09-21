@@ -91,6 +91,19 @@ class MetricsRouteTest(unittest.TestCase):
         self.assertEqual(payload[0]["decision"]["tool"], "solve_math_problem")
         self.assertEqual(payload[0]["answer"], "x=2 或 x=3")
 
+    def test_clear_traces_removes_history(self) -> None:
+        response = self.http.delete("/api/traces")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["cleared_runs"], 1)
+        self.assertEqual(self.http.get("/api/traces?limit=5").json(), [])
+        self.assertEqual(self.http.get("/api/metrics?days=0").json()["runs"], 0)
+
+    def test_clear_traces_is_idempotent(self) -> None:
+        self.http.delete("/api/traces")
+        response = self.http.delete("/api/traces")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["cleared_runs"], 0)
+
     def test_metrics_with_no_traces(self) -> None:
         empty = tempfile.TemporaryDirectory(ignore_cleanup_errors=True)
         app.dependency_overrides[get_settings] = lambda: replace(

@@ -262,6 +262,18 @@ class RagAttributionRouteTest(unittest.TestCase):
         detail = self.http.get("/api/rag/attribution/run-1").json()
         self.assertFalse(detail["rag"]["grounding"]["grounded"])
 
+    def test_clear_traces_removes_runs_and_checks(self) -> None:
+        self.http.post("/api/rag/attribution/run-1/check")
+        checks_path = rag_attribution_service.checks_path(self._tmp.name)
+        self.assertIn("run-1", load_checks(checks_path))
+        response = self.http.delete("/api/traces")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["cleared_runs"], 1)
+        self.assertEqual(payload["cleared_checks"], 1)
+        self.assertEqual(load_checks(checks_path), {})
+        self.assertEqual(self.http.get("/api/rag/attribution").json()["summary"]["runs"], 0)
+
 
 class RetrievalStatusTest(unittest.TestCase):
     def _trace(self, observations: list[Observation]) -> RunTrace:

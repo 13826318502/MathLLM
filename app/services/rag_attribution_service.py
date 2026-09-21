@@ -17,6 +17,7 @@ when present.
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -32,6 +33,8 @@ from app.agent.schema import (
     RouteDecision,
     RunTrace,
 )
+
+logger = logging.getLogger(__name__)
 
 CHECKS_FILENAME = "rag_checks.jsonl"
 SNIPPET_CHARS = 300
@@ -326,6 +329,26 @@ def load_checks(path: Path | str) -> dict[str, RagGrounding]:
         except (json.JSONDecodeError, KeyError, ValueError):
             continue
     return checks
+
+
+def clear_checks(path: Path | str) -> int:
+    """Delete stored grounding re-checks and return how many were removed.
+
+    Paired with clearing the traces: the checks are keyed by ``run_id``, so they
+    are meaningless once their runs are gone.
+    """
+    target = Path(path)
+    if not target.exists():
+        return 0
+    try:
+        count = sum(
+            1 for line in target.read_text(encoding="utf-8").splitlines() if line.strip()
+        )
+        target.unlink()
+        return count
+    except OSError:  # pragma: no cover - defensive
+        logger.exception("failed to clear grounding re-checks")
+        return 0
 
 
 def save_check(

@@ -414,16 +414,29 @@ function observabilityRun(trace) {
       <div class="run-row"><span>模型调用</span><b>${usage.calls ?? 0} 次 · 回退 ${trace.fallbacks ?? 0} 次</b></div>
       ${trace.error ? `<div class="run-row fail"><span>错误</span><b>${escapeHtml(trace.error)}</b></div>` : ""}
       ${tools ? `<div class="trace-steps">${tools}</div>` : ""}
-      ${verify && verify.detail ? `<div class="obs-note">${escapeHtml(verify.detail)}</div>` : ""}
-      <div class="run-answer">${escapeHtml((trace.answer || "").slice(0, 400)) || "（无答案）"}</div>
+      <div class="run-detail" id="run-detail-${escapeHtml(trace.run_id)}" hidden>
+        ${verify && verify.detail ? `<div class="obs-note">${escapeHtml(verify.detail)}</div>` : ""}
+        <div class="run-answer">${escapeHtml(trace.answer || "") || "（无答案）"}</div>
+      </div>
+      <div class="page-actions">
+        <button class="btn" data-run-detail="${escapeHtml(trace.run_id)}">加载详情</button>
+      </div>
     </div>
   </details>`;
+}
+
+function toggleRunDetail(runId, button) {
+  const target = document.getElementById(`run-detail-${runId}`);
+  if (!target) return;
+  target.hidden = !target.hidden;
+  if (button) button.textContent = target.hidden ? "加载详情" : "收起";
 }
 
 function observabilityPage() {
   const view = state.observability;
   const options = [[1, "最近 1 天"], [7, "最近 7 天"], [30, "最近 30 天"], [0, "全部"]];
-  const header = `<div class="page-title-row"><div><h2>运行观测</h2><p>每次 Agent 运行的调用链与整体指标，数据来自后端 <code>/api/metrics</code> 与 <code>/api/traces</code>。</p></div><div class="page-actions"><select id="obs-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="obs-refresh">刷新</button></div></div>`;
+  const clearButton = '<button class="btn danger" id="obs-clear">清空历史</button>';
+  const header = `<div class="page-title-row"><div><h2>运行观测</h2><p>每次 Agent 运行的调用链与整体指标，数据来自后端 <code>/api/metrics</code> 与 <code>/api/traces</code>。</p></div><div class="page-actions">${clearButton}<select id="obs-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="obs-refresh">刷新</button></div></div>`;
   if (view.loading) return `${header}<div class="card empty-state"><strong>正在读取运行记录…</strong><p>需要后端已启动。</p></div>`;
   if (view.error) return `${header}<div class="card empty-state"><strong>读取失败</strong><p>${escapeHtml(view.error)}</p><button class="btn primary" id="obs-refresh">重试</button></div>`;
   if (!view.metrics) return `${header}<div class="card empty-state"><strong>还没有数据</strong><p>点右上角「刷新」读取运行记录。</p></div>`;
@@ -452,6 +465,24 @@ async function loadObservability() {
   } finally {
     view.loading = false;
     if (state.page === "observability") render();
+  }
+}
+
+async function clearTraceHistory() {
+  if (!window.confirm("确定清空全部运行历史吗？该操作不可恢复。")) return;
+  try {
+    const response = await fetch(`${apiBase()}/traces`, { method: "DELETE" });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const payload = await response.json();
+    state.observability.metrics = null;
+    state.observability.traces = [];
+    state.ragAttribution.summary = null;
+    state.ragAttribution.runs = [];
+    toast(`已清空 ${payload.cleared_runs ?? 0} 条运行记录。`);
+    if (state.page === "observability") await loadObservability();
+    else if (state.page === "rag-attribution") await loadRagAttribution();
+  } catch (error) {
+    toast(`清空失败：${error.message || String(error)}`);
   }
 }
 
@@ -507,7 +538,8 @@ function ragAttributionRun(item) {
 function ragAttributionPage() {
   const view = state.ragAttribution;
   const options = [[1, "最近 1 天"], [7, "最近 7 天"], [30, "最近 30 天"], [0, "全部"]];
-  const header = `<div class="page-title-row"><div><h2>知识库归因</h2><p>只统计走过知识库的回答：检索到了什么、引用了哪些、是否被检索资料支持。数据来自 <code>/api/rag/attribution</code>。</p></div><div class="page-actions"><select id="rag-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="rag-refresh">刷新</button></div></div>`;
+  const clearButton = '<button class="btn danger" id="rag-clear">清空历史</button>';
+  const header = `<div class="page-title-row"><div><h2>知识库归因</h2><p>只统计走过知识库的回答：检索到了什么、引用了哪些、是否被检索资料支持。数据来自 <code>/api/rag/attribution</code>。</p></div><div class="page-actions">${clearButton}<select id="rag-days" class="obs-select">${options.map(([value, label]) => `<option value="${value}" ${view.days === value ? "selected" : ""}>${label}</option>`).join("")}</select><button class="btn" id="rag-refresh">刷新</button></div></div>`;
   if (view.loading) return `${header}<div class="card empty-state"><strong>正在读取归因数据…</strong><p>需要后端已启动。</p></div>`;
   if (view.error) return `${header}<div class="card empty-state"><strong>读取失败</strong><p>${escapeHtml(view.error)}</p><button class="btn primary" id="rag-refresh">重试</button></div>`;
   if (!view.summary) return `${header}<div class="card empty-state"><strong>还没有数据</strong><p>点右上角「刷新」读取运行记录。</p></div>`;
@@ -582,17 +614,32 @@ function ragDetailMarkup(trace) {
     <div class="rag-detail-block"><strong>接地结论</strong><div class="obs-note">${groundingLine}</div></div>`;
 }
 
-async function loadRagDetail(runId) {
+async function toggleRagDetail(runId, button) {
   const target = document.getElementById(`rag-detail-${runId}`);
   if (!target) return;
+  const loaded = target.dataset.loaded === "1";
+  if (loaded) {
+    target.hidden = !target.hidden;
+    if (button) button.textContent = target.hidden ? "加载详情" : "收起";
+    return;
+  }
+  if (button) {
+    button.disabled = true;
+    button.textContent = "收起";
+  }
+  target.hidden = false;
   target.innerHTML = `<div class="obs-empty">正在加载详情…</div>`;
   try {
     const response = await fetch(`${apiBase()}/rag/attribution/${encodeURIComponent(runId)}`);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     target.innerHTML = ragDetailMarkup(await response.json());
+    target.dataset.loaded = "1";
     renderMath();
   } catch (error) {
     target.innerHTML = `<div class="obs-note">加载失败：${escapeHtml(error.message || String(error))}</div>`;
+    if (button) button.textContent = "加载详情";
+  } finally {
+    if (button) button.disabled = false;
   }
 }
 
@@ -1249,16 +1296,19 @@ function bindPageEvents() {
     render();
   });
   document.querySelectorAll("#obs-refresh").forEach((button) => button.addEventListener("click", loadObservability));
+  $("#obs-clear")?.addEventListener("click", clearTraceHistory);
   $("#obs-days")?.addEventListener("change", (event) => {
     state.observability.days = Number(event.target.value) || 0;
     loadObservability();
   });
   document.querySelectorAll("#rag-refresh").forEach((button) => button.addEventListener("click", loadRagAttribution));
+  $("#rag-clear")?.addEventListener("click", clearTraceHistory);
   $("#rag-days")?.addEventListener("change", (event) => {
     state.ragAttribution.days = Number(event.target.value) || 0;
     loadRagAttribution();
   });
-  document.querySelectorAll("[data-rag-detail]").forEach((button) => button.addEventListener("click", () => loadRagDetail(button.dataset.ragDetail)));
+  document.querySelectorAll("[data-run-detail]").forEach((button) => button.addEventListener("click", () => toggleRunDetail(button.dataset.runDetail, button)));
+  document.querySelectorAll("[data-rag-detail]").forEach((button) => button.addEventListener("click", () => toggleRagDetail(button.dataset.ragDetail, button)));
   document.querySelectorAll("[data-rag-check]").forEach((button) => button.addEventListener("click", () => checkRagGrounding(button.dataset.ragCheck)));
   document.querySelectorAll("#knowledge-refresh").forEach((button) => button.addEventListener("click", loadKnowledge));
   document.querySelectorAll("[data-knowledge-doc]").forEach((button) => button.addEventListener("click", () => loadKnowledgeDoc(button.dataset.knowledgeDoc)));
