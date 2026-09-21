@@ -15,6 +15,29 @@ def _completion(content: str) -> dict:
     return {"choices": [{"message": {"content": content}}]}
 
 
+def _tool_completion(name: str, arguments: dict) -> dict:
+    return {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {
+                                "name": name,
+                                "arguments": json.dumps(arguments, ensure_ascii=False),
+                            },
+                        }
+                    ],
+                }
+            }
+        ]
+    }
+
+
 class FakeClient:
     def __init__(self) -> None:
         self._json = [
@@ -31,10 +54,23 @@ class FakeClient:
         ]
         self.json_calls = 0
 
-    async def complete_json(self, messages, *, max_tokens=None, schema=None) -> dict:
+    def _next(self) -> str:
         index = min(self.json_calls, len(self._json) - 1)
         self.json_calls += 1
-        return _completion(self._json[index])
+        return self._json[index]
+
+    async def complete_json(self, messages, *, max_tokens=None, schema=None) -> dict:
+        return _completion(self._next())
+
+    async def complete_with_tools(
+        self, messages, tools, *, tool_choice=None, max_tokens=None
+    ) -> dict:
+        data = json.loads(self._next())
+        if "intent" in data:
+            return _tool_completion("route_question", data)
+        if data.get("action") == "call_tool" and data.get("tool"):
+            return _tool_completion(str(data["tool"]), data.get("arguments") or {})
+        return _completion(json.dumps(data, ensure_ascii=False))
 
     async def complete(self, messages, **kwargs) -> dict:
         return _completion("方程的解为 x=2 或 x=3。")

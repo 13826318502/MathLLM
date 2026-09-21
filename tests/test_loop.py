@@ -16,6 +16,49 @@ def _completion(content: str) -> dict:
     return {"choices": [{"message": {"content": content}}]}
 
 
+def _tool_completion(name: str, arguments: dict) -> dict:
+    return {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {
+                                "name": name,
+                                "arguments": json.dumps(arguments, ensure_ascii=False),
+                            },
+                        }
+                    ],
+                }
+            }
+        ]
+    }
+
+
+def _as_tool_response(raw: str) -> dict:
+    """Turn a queued scripted reply into a function-calling response.
+
+    Route replies become a ``route_question`` call, action replies become the
+    named tool call, and anything else (``final`` or garbage) becomes a plain
+    content reply with no tool calls.
+    """
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return _completion(raw)
+    if not isinstance(data, dict):
+        return _completion(raw)
+    if "intent" in data:
+        return _tool_completion("route_question", data)
+    if data.get("action") == "call_tool" and data.get("tool"):
+        return _tool_completion(str(data["tool"]), data.get("arguments") or {})
+    return _completion(raw)
+
+
 def _route(intent: str, tool: str, query: str = "x^2-5x+6=0") -> str:
     return json.dumps(
         {
@@ -49,6 +92,11 @@ class ScriptedClient:
         self._switches = []
         return switches
 
+    def _next(self) -> str:
+        index = min(self.json_calls, len(self._json) - 1)
+        self.json_calls += 1
+        return self._json[index]
+
     async def complete_json(
         self,
         messages: list[dict[str, str]],
@@ -56,9 +104,17 @@ class ScriptedClient:
         max_tokens: int | None = None,
         schema: dict | None = None,
     ) -> dict:
-        index = min(self.json_calls, len(self._json) - 1)
-        self.json_calls += 1
-        return _completion(self._json[index])
+        return _completion(self._next())
+
+    async def complete_with_tools(
+        self,
+        messages: list[dict[str, str]],
+        tools: list[dict],
+        *,
+        tool_choice=None,
+        max_tokens: int | None = None,
+    ) -> dict:
+        return _as_tool_response(self._next())
 
     async def complete(self, messages: list[dict[str, str]], **kwargs) -> dict:
         self.complete_calls += 1

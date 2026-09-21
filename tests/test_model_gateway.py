@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import unittest
 
 from app.agent.schema import TokenUsage
@@ -31,6 +32,29 @@ def _completion(content: str, usage: tuple[int, int] | None = None) -> dict:
     return payload
 
 
+def _tool_calls_payload(name: str, arguments: dict) -> dict:
+    return {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {
+                                "name": name,
+                                "arguments": json.dumps(arguments, ensure_ascii=False),
+                            },
+                        }
+                    ],
+                }
+            }
+        ]
+    }
+
+
 class FakeClient:
     def __init__(
         self,
@@ -41,12 +65,14 @@ class FakeClient:
         chunks: tuple[str, ...] = ("ok",),
         error: Exception | None = None,
         usage: tuple[int, int] | None = None,
+        tool_call: tuple[str, dict] | None = None,
     ) -> None:
         self.config = _config(role, model)
         self.usage = TokenUsage()
         self._content = content
         self._chunks = chunks
         self._error = error
+        self._tool_call = tool_call
         self.calls = 0
         if usage:
             self.usage.add(usage[0], usage[1], sum(usage))
@@ -66,6 +92,13 @@ class FakeClient:
     async def complete_json(self, messages, **kwargs) -> dict:
         self.calls += 1
         self._check()
+        return _completion(self._content)
+
+    async def complete_with_tools(self, messages, tools, **kwargs) -> dict:
+        self.calls += 1
+        self._check()
+        if self._tool_call is not None:
+            return _tool_calls_payload(*self._tool_call)
         return _completion(self._content)
 
     async def stream_raw(self, messages):
@@ -130,6 +163,36 @@ class FallbackTest(unittest.IsolatedAsyncioTestCase):
         gateway = _gateway(shared, shared)
         with self.assertRaises(VLLMServiceError):
             await gateway.complete_json([{"role": "user", "content": "hi"}])
+
+
+class ToolCallTest(unittest.IsolatedAsyncioTestCase):
+    async def test_forwards_tool_call_without_falling_back(self) -> None:
+        # A tool-call reply has no text content; it must not be treated as empty.
+        orchestrator = FakeClient(
+            "cloud", content="", tool_call=("route_question", {"intent": "math"})
+        )
+        solver = FakeClient("local", role="solver")
+        gateway = _gateway(orchestrator, solver)
+        result = await gateway.complete_with_tools(
+            [{"role": "user", "content": "hi"}], [{"type": "function"}]
+        )
+        calls = result["choices"][0]["message"]["tool_calls"]
+        self.assertEqual(calls[0]["function"]["name"], "route_question")
+        self.assertFalse(gateway.fell_back)
+        self.assertEqual(gateway.last_model, "cloud")
+
+    async def test_falls_back_to_solver_tool_call(self) -> None:
+        orchestrator = FakeClient("cloud", error=VLLMServiceError("down"))
+        solver = FakeClient(
+            "local", role="solver", tool_call=("route_question", {"intent": "math"})
+        )
+        gateway = _gateway(orchestrator, solver)
+        result = await gateway.complete_with_tools(
+            [{"role": "user", "content": "hi"}], [{"type": "function"}]
+        )
+        self.assertTrue(result["choices"][0]["message"]["tool_calls"])
+        self.assertTrue(gateway.fell_back)
+        self.assertEqual(gateway.last_model, "local")
 
 
 class RetryAndSwitchTest(unittest.IsolatedAsyncioTestCase):

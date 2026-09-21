@@ -24,10 +24,15 @@ class DeploymentSettings:
     gpu_memory_utilization: float
     dtype: str
     quantization: str | None
+    # vLLM must be told which parser turns a model's raw output into tool calls.
+    # Qwen2.5 uses the hermes format. Set the env var to an empty string to
+    # disable function calling (the app then falls back to prompted JSON).
+    tool_call_parser: str | None
 
     @classmethod
     def from_env(cls) -> "DeploymentSettings":
         quantization = os.getenv("MATHLLM_QUANTIZATION", "").strip() or None
+        tool_call_parser = os.getenv("MATHLLM_TOOL_CALL_PARSER", "hermes").strip() or None
         return cls(
             model_path=os.getenv("MATHLLM_MODEL_PATH", "./model"),
             served_model_name=os.getenv("MATHLLM_MODEL_NAME", "mathllm-model"),
@@ -37,6 +42,7 @@ class DeploymentSettings:
             gpu_memory_utilization=_float("MATHLLM_GPU_MEMORY_UTILIZATION", 0.9),
             dtype=os.getenv("MATHLLM_DTYPE", "float16"),
             quantization=quantization,
+            tool_call_parser=tool_call_parser,
         )
 
 

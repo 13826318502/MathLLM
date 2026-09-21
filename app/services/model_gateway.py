@@ -14,6 +14,7 @@ from app.agent.schema import TokenUsage
 from app.services.stream_service import (
     extract_completion_content,
     extract_stream_content,
+    extract_tool_calls,
 )
 from app.services.vllm_client import VLLMClient, VLLMServiceError
 
@@ -105,11 +106,18 @@ class ModelGateway:
     @staticmethod
     def _empty(result: Any) -> bool:
         """Reasoning models can spend the whole output budget thinking and
-        return no content at all; that is a failure, not an answer."""
-        return not extract_completion_content(result or {}).strip()
+        return no content at all; that is a failure, not an answer.
+
+        A tool-call reply has no text content by design, so it counts as a
+        usable result rather than an empty one.
+        """
+        payload = result or {}
+        if extract_tool_calls(payload):
+            return False
+        return not extract_completion_content(payload).strip()
 
     async def _orchestrate(
-        self, method: str, messages: list[dict[str, str]], **kwargs: Any
+        self, method: str, messages: list[dict[str, str]], *args: Any, **kwargs: Any
     ) -> dict:
         """Call the orchestrator, retrying once when it produces nothing.
 
@@ -121,7 +129,9 @@ class ModelGateway:
         last_error: VLLMServiceError | None = None
         for _ in range(ORCHESTRATOR_ATTEMPTS):
             try:
-                result = await getattr(self.orchestrator, method)(messages, **kwargs)
+                result = await getattr(self.orchestrator, method)(
+                    messages, *args, **kwargs
+                )
                 if not self._empty(result):
                     return result
                 last_error = VLLMServiceError("编排模型没有返回内容")
@@ -152,6 +162,26 @@ class ModelGateway:
                 raise
             self._record_switch(str(exc))
             result = await self.solver.complete_json(messages, **kwargs)
+            self._record(self.solver, True)
+            return result
+        self._record(self.orchestrator, False)
+        return result
+
+    async def complete_with_tools(
+        self,
+        messages: list[dict[str, str]],
+        tools: list[dict[str, Any]],
+        **kwargs: Any,
+    ) -> dict:
+        try:
+            result = await self._orchestrate(
+                "complete_with_tools", messages, tools, **kwargs
+            )
+        except VLLMServiceError as exc:
+            if not self._can_fall_back():
+                raise
+            self._record_switch(str(exc))
+            result = await self.solver.complete_with_tools(messages, tools, **kwargs)
             self._record(self.solver, True)
             return result
         self._record(self.orchestrator, False)

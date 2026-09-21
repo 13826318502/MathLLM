@@ -36,18 +36,51 @@ def extract_usage(payload: dict[str, Any]) -> tuple[int, int, int] | None:
     return prompt, completion, total
 
 
-def extract_completion_content(payload: dict[str, Any]) -> str:
+def extract_message(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return the first choice's message object, or an empty dict."""
     choices = payload.get("choices")
     if not isinstance(choices, list) or not choices:
-        return ""
+        return {}
     first = choices[0]
     if not isinstance(first, dict):
-        return ""
+        return {}
     message = first.get("message")
-    if not isinstance(message, dict):
-        return ""
-    content = message.get("content")
+    return message if isinstance(message, dict) else {}
+
+
+def extract_completion_content(payload: dict[str, Any]) -> str:
+    content = extract_message(payload).get("content")
     return content if isinstance(content, str) else ""
+
+
+def extract_tool_calls(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Return the tool calls the model asked for (empty when it answered itself)."""
+    calls = extract_message(payload).get("tool_calls")
+    if not isinstance(calls, list):
+        return []
+    return [call for call in calls if isinstance(call, dict)]
+
+
+def parse_tool_arguments(call: dict[str, Any]) -> dict[str, Any]:
+    """Parse ``tool_call.function.arguments``.
+
+    The engine sends arguments as a JSON string, so it still has to be parsed
+    and later validated against the tool's Pydantic model. A malformed payload
+    becomes an empty dict instead of an exception.
+    """
+    function = call.get("function")
+    if not isinstance(function, dict):
+        return {}
+    raw = function.get("arguments")
+    if isinstance(raw, dict):
+        return raw
+    if not isinstance(raw, str) or not raw.strip():
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except json.JSONDecodeError:
+        return {}
+    return parsed if isinstance(parsed, dict) else {}
 
 
 async def public_sse_events(

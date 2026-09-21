@@ -85,6 +85,8 @@ class VLLMClient:
         max_tokens: int | None = None,
         temperature: float = 0.0,
         response_format: dict[str, Any] | None = None,
+        tools: list[dict[str, Any]] | None = None,
+        tool_choice: Any = None,
     ) -> dict[str, Any]:
         payload: dict[str, Any] = {
             "model": self.config.model,
@@ -95,6 +97,10 @@ class VLLMClient:
         }
         if response_format is not None:
             payload["response_format"] = response_format
+        if tools is not None:
+            payload["tools"] = tools
+        if tool_choice is not None:
+            payload["tool_choice"] = tool_choice
         try:
             async with httpx.AsyncClient(
                 base_url=self.config.base_url,
@@ -139,6 +145,28 @@ class VLLMClient:
             messages,
             max_tokens=max_tokens,
             response_format=response_format,
+        )
+
+    async def complete_with_tools(
+        self,
+        messages: list[dict[str, str]],
+        tools: list[dict[str, Any]],
+        *,
+        tool_choice: Any = "auto",
+        max_tokens: int | None = None,
+    ) -> dict[str, Any]:
+        """Ask the model to pick a tool and fill its arguments.
+
+        The engine (vLLM with a tool-call parser, or a cloud API) is responsible
+        for emitting a well-formed ``tool_calls`` payload. Servers that do not
+        understand ``tools`` raise ``VLLMServiceError``, which callers turn into
+        a structured-JSON fallback.
+        """
+        return await self.complete(
+            messages,
+            tools=tools,
+            tool_choice=tool_choice,
+            max_tokens=max_tokens,
         )
 
     async def stream_raw(

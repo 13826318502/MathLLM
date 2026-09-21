@@ -41,6 +41,16 @@ def build_command(config: DeploymentSettings) -> list[str]:
     ]
     if config.quantization:
         command.extend(["--quantization", config.quantization])
+    if config.tool_call_parser:
+        # Enables OpenAI-style tool calls so the router and planner can use
+        # function calling instead of prompted JSON.
+        command.extend(
+            [
+                "--enable-auto-tool-choice",
+                "--tool-call-parser",
+                config.tool_call_parser,
+            ]
+        )
     return command
 
 

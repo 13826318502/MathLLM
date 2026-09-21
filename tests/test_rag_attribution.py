@@ -34,6 +34,43 @@ def _completion(content: str) -> dict:
     return {"choices": [{"message": {"content": content}}]}
 
 
+def _tool_completion(name: str, arguments: dict) -> dict:
+    return {
+        "choices": [
+            {
+                "message": {
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [
+                        {
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {
+                                "name": name,
+                                "arguments": json.dumps(arguments, ensure_ascii=False),
+                            },
+                        }
+                    ],
+                }
+            }
+        ]
+    }
+
+
+def _as_tool_response(raw: str) -> dict:
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError:
+        return _completion(raw)
+    if not isinstance(data, dict):
+        return _completion(raw)
+    if "intent" in data:
+        return _tool_completion("route_question", data)
+    if data.get("action") == "call_tool" and data.get("tool"):
+        return _tool_completion(str(data["tool"]), data.get("arguments") or {})
+    return _completion(raw)
+
+
 def _decision(intent: str = "knowledge", tool: str = "search_knowledge", query: str = "判别式"):
     return RouteDecision(
         intent=intent, tool=tool, query=query, answer_style="step_by_step"
@@ -155,10 +192,18 @@ class _ScriptedClient:
     def take_switches(self) -> list[dict]:
         return []
 
-    async def complete_json(self, messages, *, max_tokens=None, schema=None) -> dict:
+    def _next(self) -> str:
         index = min(getattr(self, "_calls", 0), len(self._json) - 1)
         self._calls = getattr(self, "_calls", 0) + 1
-        return _completion(self._json[index])
+        return self._json[index]
+
+    async def complete_json(self, messages, *, max_tokens=None, schema=None) -> dict:
+        return _completion(self._next())
+
+    async def complete_with_tools(
+        self, messages, tools, *, tool_choice=None, max_tokens=None
+    ) -> dict:
+        return _as_tool_response(self._next())
 
     async def complete(self, messages, **kwargs) -> dict:
         return _completion("")

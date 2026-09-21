@@ -528,8 +528,15 @@ python -m vllm.entrypoints.openai.api_server \
   --model ./outputs/<round>-merged \
   --host 0.0.0.0 \
   --port 8000 \
-  --max-model-len 2048
+  --max-model-len 2048 \
+  --enable-auto-tool-choice \
+  --tool-call-parser hermes
 ```
+
+`--enable-auto-tool-choice` 与 `--tool-call-parser hermes` 用于启用 Function
+Calling（Qwen2.5 使用 hermes 格式）。`deploy/server.py` 已默认加上这两个参数，
+可用 `MATHLLM_TOOL_CALL_PARSER=` 置空来关闭。若服务端不支持 tools，应用会自动
+回退到提示词 JSON 模式。
 
 检查服务：
 

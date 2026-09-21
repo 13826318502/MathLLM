@@ -237,6 +237,43 @@ class _ScriptedClient:
         self._index += 1
         return {"choices": [{"message": {"content": self._json[index]}}]}
 
+    async def complete_with_tools(
+        self, messages, tools, *, tool_choice=None, max_tokens=None
+    ):
+        index = min(self._index, len(self._json) - 1)
+        self._index += 1
+        raw = self._json[index]
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError:
+            return {"choices": [{"message": {"content": raw}}]}
+        if isinstance(data, dict) and "intent" in data:
+            name, arguments = "route_question", data
+        elif isinstance(data, dict) and data.get("action") == "call_tool" and data.get("tool"):
+            name, arguments = str(data["tool"]), data.get("arguments") or {}
+        else:
+            return {"choices": [{"message": {"content": raw}}]}
+        return {
+            "choices": [
+                {
+                    "message": {
+                        "role": "assistant",
+                        "content": None,
+                        "tool_calls": [
+                            {
+                                "id": "call_1",
+                                "type": "function",
+                                "function": {
+                                    "name": name,
+                                    "arguments": json.dumps(arguments, ensure_ascii=False),
+                                },
+                            }
+                        ],
+                    }
+                }
+            ]
+        }
+
     async def complete(self, messages, **kwargs):
         return {"choices": [{"message": {"content": "x=2 或 x=3"}}]}
 

@@ -40,3 +40,12 @@ def tool_catalog() -> list[dict[str, Any]]:
         }
         for spec in _REGISTRY.values()
     ]
+
+
+def openai_tools() -> list[dict[str, Any]]:
+    """Render the registry as OpenAI ``tools`` for function calling.
+
+    Each tool's ``input_model`` becomes the function's JSON Schema, so the
+    engine can constrain the model to emit a call whose arguments match it.
+    """
+    return [{"type": "function", "function": item} for item in tool_catalog()]
