@@ -47,17 +47,22 @@
 
 ### 目标
 
-让模型稳定输出一个能通过 Pydantic 校验的 `RouteDecision` JSON。这是后续路由、工具、循环的前提。
+让模型稳定输出一个能通过 Pydantic 校验的 `RouteDecision`。这是后续路由、工具、循环的前提。
+
+> 实现演进：最初用「提示词要求 JSON + `response_format=json_object`」；现已升级为
+> **Function Calling（强制工具调用）**，把「工具名 + 参数结构」交给引擎约束，提示词 JSON
+> 只作为端点不支持 `tools` 时的回退。完整改造见文末「第二十六节」。
 
 ### 三层保险
 
 | 层 | 手段 | 保证 |
 |---|---|---|
-| Prompt | 明确 schema + 只输出 JSON + 判定规则 | 模型知道要什么 |
-| 引擎 | `response_format={"type": "json_object"}` | 输出是合法 JSON（语法层面） |
-| 代码 | Pydantic 校验 + 错误反馈重试 + 兜底 | 字段/枚举正确（语义层面） |
+| Prompt | 判定规则 + 工具目录（回退时：schema + 只输出 JSON） | 模型知道要什么 |
+| 引擎 | `tools` + 强制 `tool_choice`（`route_question`）；端点不支持时回退 `response_format={"type": "json_object"}` | 工具名与参数结构合法 |
+| 代码 | Pydantic 校验 + 参数解析 + 错误反馈重试 + 兜底 | 字段/枚举正确（语义层面） |
 
-关键认知：`json_object` 只保证语法合法，不保证字段和枚举正确，所以第三层必须自己做。
+关键认知：`json_object` 只保证语法合法，不保证字段和枚举正确；Function Calling 让引擎保证
+「工具名 + 参数结构」，但 `arguments` 仍是 JSON 字符串，仍需代码层解析 + Pydantic 兜底。
 
 ### 新增文件
 
@@ -67,23 +72,37 @@
   - `ToolResult`：所有工具的统一返回信封 `{success, data, error}`
   - `MAX_QUERY_CHARS = 2000`
 - `app/agent/router.py`
-  - `ROUTER_SYSTEM_PROMPT`：含 schema、判定规则、防注入说明
-  - `classify()`：调用结构化补全，失败则兜底为 `general/none`
+  - `ROUTER_SYSTEM_PROMPT`：含判定规则、防注入说明（保留给回退路径）
+  - `ROUTE_TOOL` / `ROUTE_TOOL_CHOICE`：唯一函数 `route_question`，参数即 `RouteDecision` 的 JSON Schema
+  - `_classify_with_tools()`：强制模型调用 `route_question`，由引擎约束参数
+  - `classify()`：优先 Function Calling；无工具调用 / 参数非法 / 端点不支持时回退 `complete_structured`，全失败兜底为 `general/none`
   - 再导出 `extract_json_object`（保持 P0 测试兼容）
-- `app/agent/structured.py`
+- `app/agent/structured.py`（回退路径）
   - `extract_json_object()`：剥离 ` ```json ` 围栏、前后散文，提取 JSON 子串
   - `complete_structured()`：通用「结构化补全」——校验失败时把 Pydantic 报错原样喂回模型重试，全部失败返回 `None`
 - `tests/test_router.py`
 
 ### 修改文件
 
+- `app/services/stream_service.py`
+  - `extract_tool_calls()`：从响应里取出模型请求的工具调用（无调用时为空）
+  - `parse_tool_arguments()`：把 `tool_call.function.arguments` 的 JSON 字符串解析成 dict，非法则返回空 dict
+- `app/agent/tools/registry.py`
+  - `openai_tools()`：把注册表渲染成 OpenAI `tools` 格式，`input_model.model_json_schema()` 即参数 schema
 - `app/services/vllm_client.py`
-  - `complete()` 新增 `response_format`、`temperature` 参数
+  - `complete()` 新增 `response_format`、`temperature`、`tools`、`tool_choice` 参数
   - 新增 `complete_json()`：默认 `json_object` 模式；传入 `schema` 时走 `json_schema` 模式（vLLM 支持，部分 OpenAI 兼容服务会忽略）
+  - 新增 `complete_with_tools()`：带 `tools` 的补全；端点不支持 `tools` 时抛 `VLLMServiceError`，供调用方回退
+- `app/services/model_gateway.py`
+  - 新增 `complete_with_tools()`：编排端点优先，失败回退本地
+  - `_empty()`：把「有 `tool_calls`」视为有效输出，避免工具调用被误判为空而触发回退
 
 ### 关键设计
 
-- **剥离围栏**：7B 模型极爱输出 ` ```json `，必须在代码里剥离
+- **强制函数调用**：`tool_choice={"type":"function","function":{"name":"route_question"}}`，模型必须调用该函数，参数受引擎约束，不再需要剥离围栏
+- **纵深防御**：`arguments` 仍是 JSON 字符串，`parse_tool_arguments()` + Pydantic 校验不能省
+- **优雅降级**：端点不支持 `tools`（HTTP 400）时自动回退到提示词 JSON，保证可用性
+- **剥离围栏**（回退路径）：7B 模型极爱输出 ` ```json `，必须在代码里剥离
 - **重试带错误反馈**：不是简单重发，而是把校验报错告诉模型让它自我修正
 - **兜底不崩**：重试用尽返回安全默认值，路由失败绝不能让请求失败
 - **超长截断**：兜底路径把问题截到 2000 字符，避免兜底本身触发校验失败
@@ -125,7 +144,7 @@
 - `app/agent/schema.py`
   - `RouteDecision.tool` 枚举从占位名改为真实工具名：`solve_math_problem` / `search_knowledge` / `none`
   - 新增 `Verdict`：`correct` / `incorrect` / `uncertain` + `reason`
-- `app/agent/router.py`：改用 `complete_structured`，逻辑更薄
+- `app/agent/router.py`：路由逻辑收薄；当前优先 Function Calling（强制 `route_question`），端点不支持时回退 `complete_structured`
 
 ### 计算器的安全设计
 
@@ -153,7 +172,7 @@
 
 - `app/agent/loop.py`
   - `run_agent()`：主循环
-  - `decide_next_action()`：把工具目录 + 已有观察塞进 prompt，用 `complete_structured` 拿结构化动作；解析失败直接当 `final`
+  - `decide_next_action()`：把工具目录 + 已有观察塞进 prompt，用 `complete_with_tools`（`tool_choice="auto"`）拿工具调用；有调用即 `call_tool`，无调用即 `final`；端点不支持 `tools` 时回退 `complete_structured`，解析失败直接当 `final`
   - `generate_answer()`：**普通 completion（非 JSON）**，按 `answer_style` 加不同指令生成最终答案
   - `_execute()`：调用工具、计时、把结果压成 `Observation`（截断到 4000 字符）
 - `app/api/routes/agent.py` — `POST /api/agent/run`
@@ -171,7 +190,7 @@
 classify(P0) ──► 路由到工具则确定性执行一次
                         │
                         ▼
-        ┌──► 模型决定下一步（结构化 AgentAction）
+        ┌──► 模型决定下一步（Function Calling / 结构化 AgentAction）
         │      ├─ final   ──► 结束
         │      └─ call_tool ──► 执行 ──► 记录 Observation ──┐
         └──────────────────────────────────────────────────┘
@@ -1087,12 +1106,12 @@ MathLLM-数学解答系统/
 │   │   ├── __init__.py
 │   │   ├── schema.py               # 结构化数据契约（含验证相关模型）
 │   │   ├── structured.py           # 通用结构化补全 + 重试
-│   │   ├── router.py               # 结构化路由
+│   │   ├── router.py               # 路由（Function Calling 优先，JSON 回退）
 │   │   ├── loop.py                 # 有界 ReAct 循环 + SSE 事件 + 验证与重试
 │   │   └── tools/                  # 新增：工具层
 │   │       ├── __init__.py
 │   │       ├── base.py             # 工具契约（校验/超时/异常收口）
-│   │       ├── registry.py         # 注册表
+│   │       ├── registry.py         # 注册表 + openai_tools()
 │   │       ├── math_solver.py      # solve_math_problem
 │   │       ├── calculator.py       # calculate_expression
 │   │       ├── knowledge.py        # search_knowledge
@@ -1175,6 +1194,7 @@ MathLLM-数学解答系统/
 | `MATHLLM_ORCHESTRATOR_MAX_OUTPUT_TOKENS` | `2048` | 编排模型的输出预算（推理模型需要更多思考空间） |
 | `MATHLLM_TRACE_DIR` | `data/traces` | 运行 trace 目录 |
 | `MATHLLM_TRACE_ENABLED` | `1` | 设为 `0` 关闭落盘 |
+| `MATHLLM_TOOL_CALL_PARSER` | `hermes` | vLLM 工具调用解析器（Qwen2.5 用 hermes）；置空 = 关闭 Function Calling，回退提示词 JSON |
 
 ### 新增配置项（app/core/config.py）
 
@@ -1362,7 +1382,7 @@ data: {"type":"done","steps":1,"stopped_reason":"final","verification":{…},"an
 ## 十五、关键设计与踩坑
 
 1. **JSON 模式只保证语法**：必须叠加 Pydantic 校验 + 错误反馈重试，否则枚举/字段仍会错。
-2. **7B 原生 Function Calling 不稳**：改用「结构化输出选工具 + 程序执行」，把工具选择变成一次可校验的 JSON 决策。
+2. **优先用 Function Calling 约束工具调用**：`tools` + 强制 `tool_choice` 让引擎保证工具名与参数结构，代码层仍用 Pydantic 兜底；端点不支持 `tools` 时回退提示词 JSON（回退路径仍需剥离围栏）。
 3. **工具失败是常态**：把失败收口成 `ToolResult`，让循环从第一天就处理失败，而不是等接 RAG 时才发现。
 4. **计算器绝不能 `eval()`**：AST 白名单 + 长度/指数上限。
 5. **Chroma 1.x 的 embedding function 会写进 collection 配置**：改用「自己算向量、显式传入」绕开，同时获得可注入性。
@@ -1438,7 +1458,7 @@ data: {"type":"done","steps":1,"stopped_reason":"final","verification":{…},"an
 | 如何定位 Agent 出错的位置？ | 每次运行落盘 trace，按 `run_id` 查决策/工具/验证；「运行观测」页面可视化 |
 | 如何防止 Agent 无限循环？ | `max_steps` + 重复调用检测 + `max_verify_retries`，并有对应测试 |
 | 如何保护工具和 API Key？ | 计算器 AST 白名单、验证器表达式白名单、日志写盘前脱敏、密钥只存 `.env.local` |
-| Function Calling 如何工作？ | 7B 原生调用不稳，改用「结构化输出选工具 + 程序校验执行」，工具失败永不抛异常 |
+| Function Calling 如何工作？ | 用 `tools` + 强制 `tool_choice` 让引擎约束工具名与参数，代码层解析 `arguments` 并 Pydantic 兜底；端点不支持时回退提示词 JSON，工具失败永不抛异常 |
 | RAG 检索不到怎么办？ | 库缺失 → `KnowledgeBaseError`；检索为空 → `success=False`；两者都不会被当成答案 |
 | 如何降低延迟和成本？ | 模型路由（编排走云端、解题走本地）+ 回退策略 + 结果可观测 |
 
@@ -2568,6 +2588,86 @@ const FINAL_SECTION_WORDS = ["最终答案", "结论", "答案"];
 |---|---|
 | 知识库回答完整显示在「解题回答」 | 无 |
 | 标题关键词不再被前缀误匹配 | 关键词后必须跟分隔符；极端写法（如「最终答案如下」无分隔）不会命中，退化为不拆分（内容仍完整） |
+
+---
+
+# 第二十六节：Function Calling 改造（从提示词 JSON 到工具调用）
+
+> 动机：原先让模型在 `message.content` 里输出 JSON，靠提示词约束 + 事后 Pydantic 校验。现在改为 **Function Calling**：把工具 schema 作为 `tools` 传给引擎，让引擎在解码时约束「工具名 + 参数结构」，从「生成后校验」前移到「生成时约束」。
+>
+> 状态：完成，`pytest --collect-only` 共 195 个测试通过（`test_rag.py` 与 `/api/health` 依赖本机 Chroma，本地环境受限未跑）。
+
+## 一、核心区别
+
+| | 提示词 JSON（原） | Function Calling（现） |
+|---|---|---|
+| 触发 | prompt 里写 schema，要求输出 JSON | 请求里带 `tools` 数组 |
+| 输出位置 | `message.content` 字符串 | `message.tool_calls` 结构化字段 |
+| 约束时机 | 生成后校验 | 生成时约束（引擎解码） |
+| 工具选择 | 自己设计 `action` 字段 | 原生 `tool_calls`，可并行 |
+| 校验 | 全靠自己 | 引擎保证工具名/参数结构，代码再 Pydantic 兜底 |
+
+`arguments` 仍是 JSON 字符串，所以 `json.loads` + Pydantic 校验不能省——这是纵深防御。
+
+## 二、改造点
+
+**基础设施**
+
+- `app/services/stream_service.py`：`extract_tool_calls()` / `parse_tool_arguments()`
+- `app/services/vllm_client.py`：`complete()` 支持 `tools` / `tool_choice`；新增 `complete_with_tools()`
+- `app/services/model_gateway.py`：新增 `complete_with_tools()`（编排优先、失败回退本地）；`_empty()` 把 `tool_calls` 视为有效输出
+- `app/agent/tools/registry.py`：`openai_tools()` 把注册表渲染成 OpenAI `tools`
+
+**路由（强制函数调用）**
+
+- `ROUTE_TOOL`：唯一函数 `route_question`，`parameters = RouteDecision.model_json_schema()`
+- `tool_choice = {"type": "function", "function": {"name": "route_question"}}`：模型必须调用，参数受约束
+- `_classify_with_tools()`：解析 `tool_calls[0]` 的 `arguments` 并 `RouteDecision.model_validate`
+
+**规划（auto 工具调用）**
+
+- `decide_next_action()`：`tool_choice="auto"`；有 `tool_call` → `call_tool`，无 → `final`
+- 未知工具名仍交给循环的 `get_tool()` 判定，记 `unknown_tool`
+
+## 三、降级策略（保持 fail-safe）
+
+1. 端点不支持 `tools`（HTTP 400）→ `VLLMServiceError` → 回退 `complete_structured`（提示词 JSON + 错误反馈重试）
+2. 无 `tool_calls`（端点忽略了 `tools`）→ 同样回退
+3. 参数过不了 Pydantic → 同样回退
+4. 全失败 → 路由兜底 `general/none`；规划兜底 `final`
+
+## 四、服务端前提
+
+vLLM 默认不解析 tool calls，需加：
+
+```bash
+--enable-auto-tool-choice --tool-call-parser hermes
+```
+
+Qwen2.5 用 `hermes`；`deploy/server.py` 已默认加上，`MATHLLM_TOOL_CALL_PARSER=` 置空可关闭。云端 DeepSeek 原生支持，无需此参数。
+
+## 五、测试
+
+- `test_router.py`：新增 `FunctionCallingRouteTest`（强制 `tool_choice`、非法参数回退）、`ToolCallParsingTest`
+- `test_loop.py` / `test_agent_stream.py` / `test_agent_route.py` / `test_rag_attribution.py` / `test_trace_service.py`：假客户端增加 `complete_with_tools`
+- `test_model_gateway.py`：新增 `ToolCallTest`（`tool_calls` 透传不被当空、失败回退）
+
+## 六、踩坑
+
+| 项 | 说明 |
+|---|---|
+| 假客户端要同步实现 `complete_with_tools` | 否则 `classify` 直接 `AttributeError`；改造后 8 个测试文件需要同步 |
+| `tool_calls` 无 content 不是空回复 | `ModelGateway._empty()` 若只看 content，会把工具调用误判为空并回退；必须显式检查 `tool_calls` |
+| `tool_choice` 强制调用 = 结构化抽取 | 用一个「提交结果」函数 + 强制调用，可替代 `json_object` 做结构化抽取 |
+| 本地微调模型工具调用能力 | 若不稳，参数校验失败会回退到提示词 JSON，不影响可用性 |
+
+## 七、权衡
+
+| 得到 | 付出 |
+|---|---|
+| 工具名/参数由引擎约束，路由更稳 | 服务端需配置 tool-call parser |
+| 统一 `tools` 协议，便于扩展多工具 | 假客户端与测试需同步改造 |
+| 降级到 JSON 保证可用性 | 两条路径都要维护 |
 
 
 
