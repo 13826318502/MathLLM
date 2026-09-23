@@ -270,27 +270,41 @@ function solvePage() {
 
 function knowledgeMiniList() {
   const view = state.solveDocs;
-  if (!view.docs.length) {
-    return `<div class="obs-empty">${view.loaded ? "知识库暂无文档" : "正在读取文档…"}</div>`;
+  if (view.docs.length) {
+    return view.docs
+      .map((doc) => `<button class="knowledge-mini-item" data-open-doc="${escapeHtml(doc.name)}"><span class="knowledge-doc-name">${escapeHtml(doc.name)}</span><span class="knowledge-doc-meta">${Math.max(1, Math.round(doc.size / 1024))} KB</span></button>`)
+      .join("");
   }
-  return view.docs
-    .map((doc) => `<button class="knowledge-mini-item" data-open-doc="${escapeHtml(doc.name)}"><span class="knowledge-doc-name">${escapeHtml(doc.name)}</span><span class="knowledge-doc-meta">${Math.max(1, Math.round(doc.size / 1024))} KB</span></button>`)
-    .join("");
+  if (view.error) {
+    return `<div class="obs-empty">读取不到知识库文档 <button class="btn ghost" id="retry-solve-docs" type="button">重试</button></div>`;
+  }
+  if (view.loaded) return `<div class="obs-empty">知识库暂无文档</div>`;
+  return `<div class="obs-empty">正在读取文档…</div>`;
 }
 
 async function loadSolveDocs() {
   const view = state.solveDocs;
   if (view.loaded || view.loading) return;
   view.loading = true;
+  view.error = false;
   try {
     const response = await fetch(`${apiBase()}/knowledge/documents`);
-    if (response.ok) view.docs = await response.json();
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    view.docs = await response.json();
+    view.loaded = true;
   } catch {
-    // Ignore: the sidebar list is best-effort.
+    // Mark as failed instead of "loaded": a later render (or the retry button)
+    // can try again, and the sidebar shows a retry hint.
+    view.error = true;
+    view.attempts = (view.attempts || 0) + 1;
   }
   view.loading = false;
-  view.loaded = true;
   if (state.page === "solve") render();
+  if (!view.loaded && view.attempts <= 3) {
+    setTimeout(() => {
+      if (state.page === "solve" && !state.solveDocs.loaded) loadSolveDocs();
+    }, 2500);
+  }
 }
 
 function openKnowledgeDoc(name) {
@@ -1310,6 +1324,13 @@ function bindPageEvents() {
   document.querySelectorAll("[data-run-detail]").forEach((button) => button.addEventListener("click", () => toggleRunDetail(button.dataset.runDetail, button)));
   document.querySelectorAll("[data-rag-detail]").forEach((button) => button.addEventListener("click", () => toggleRagDetail(button.dataset.ragDetail, button)));
   document.querySelectorAll("[data-rag-check]").forEach((button) => button.addEventListener("click", () => checkRagGrounding(button.dataset.ragCheck)));
+  $("#retry-solve-docs")?.addEventListener("click", () => {
+    state.solveDocs.attempts = 0;
+    state.solveDocs.error = false;
+    state.solveDocs.loaded = false;
+    state.solveDocs.loading = false;
+    loadSolveDocs();
+  });
   document.querySelectorAll("#knowledge-refresh").forEach((button) => button.addEventListener("click", loadKnowledge));
   document.querySelectorAll("[data-knowledge-doc]").forEach((button) => button.addEventListener("click", () => loadKnowledgeDoc(button.dataset.knowledgeDoc)));
   document.querySelectorAll("[data-open-doc]").forEach((button) => button.onclick = () => openKnowledgeDoc(button.dataset.openDoc));
